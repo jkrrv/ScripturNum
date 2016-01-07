@@ -2,6 +2,7 @@
   "name": "jkrrv/scripturnum",
   "type": "library",
   "description": "Fit references of Scripture passages in just 32 bits (an unsigned integer)",
+  "minimum-stability": "dev",
   "keywords": ["Bible", "Scripture", "Passage"],
   "homepage": "https://github.com/jkrrv/scripturnum",
   "license": "See README",
