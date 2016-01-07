@@ -1,0 +1,20 @@
+{
+  "name": "jkrrv/scripturnum",
+  "type": "library",
+  "description": "Store references to Scripture passages in just 32 bits (an unsigned integer)",
+  "keywords": ["Bible", "Scripture", "Passage"],
+  "homepage": "https://github.com/jkrrv/scripturnum",
+  "license": "See README",
+  "authors": [
+    {
+      "name": "James Kurtz",
+      "email": "jkrrv@jkrrv.org",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "ScripturNum": "src"
+    }
+  }
+}
