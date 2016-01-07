@@ -1,7 +1,7 @@
 {
   "name": "jkrrv/scripturnum",
   "type": "library",
-  "description": "Store references to Scripture passages in just 32 bits (an unsigned integer)",
+  "description": "Fit references of Scripture passages in just 32 bits (an unsigned integer)",
   "keywords": ["Bible", "Scripture", "Passage"],
   "homepage": "https://github.com/jkrrv/scripturnum",
   "license": "See README",
