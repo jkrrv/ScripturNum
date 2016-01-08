@@ -4,6 +4,70 @@
 namespace ScripturNum;
 
 class ScripturNum {
+	protected $int;
+	protected $book;
+	protected $startCh;
+	protected $startV;
+	protected $endCh;
+	protected $endV;
+
+	public function __construct($int) {
+		self::int2refRange($int, $this->book, $this->startCh, $this->startV, $this->endCh, $this->endV);
+		$this->int = $int;
+	}
+
+
+	public function __get($what) {
+		return $this->$what;
+	}
+
+
+	public function __toString() {
+		return $this->getLongString();
+	}
+
+	public function getLongString() {
+		$b = Bible::BookLong();
+		if ($this->isWholeChapters()) {
+			if ($this->startCh === $this->endCh) {
+				return $b[$this->book - 1] . " " . $this->startCh;
+			}
+			return $b[$this->book - 1] . " " . $this->startCh . "-" . $this->endCh;
+		} else {
+			if ($this->startCh === $this->endCh) {
+				if ($this->startV === $this->endV) {
+					return $b[$this->book - 1] . " " . $this->startCh . ":" . $this->startV;
+				}
+				return $b[$this->book - 1] . " " . $this->startCh . ":" . $this->startV . "-" . $this->endV;
+			}
+			return $b[$this->book - 1] . " " . $this->startCh . ":" . $this->startV . "-" . $this->endCh . ":" . $this->endV;
+		}
+	}
+
+	public function getAbbrev() {
+		$b = Bible::BookShort();
+		if ($this->isWholeChapters()) {
+			if ($this->startCh === $this->endCh) {
+				return $b[$this->book - 1] . $this->startCh;
+			}
+			return $b[$this->book - 1] . $this->startCh . "-" . $this->endCh;
+		} else {
+			if ($this->startCh === $this->endCh) {
+				if ($this->startV === $this->endV) {
+					return $b[$this->book - 1] . $this->startCh . "." . $this->startV;
+				}
+				return $b[$this->book - 1] . $this->startCh . "." . $this->startV . "-" . $this->endV;
+			}
+			return $b[$this->book - 1] . $this->startCh . "." . $this->startV . "-" . $this->endCh . "." . $this->endV;
+		}
+	}
+
+	public function isWholeChapters() {
+		$v = Bible::verses();
+		return ($this->startV === 1 && $this->endV === $v[$this->book-1][$this->endCh-1]);
+	}
+
+
 	public static function int2refRange ($int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd) {
 		$book = $int >> 24;
 		$int -= ($book << 24);
@@ -19,19 +83,18 @@ class ScripturNum {
 		$book++;
 	}
 
+
 	public static function int2concats ($int, &$concatStart, &$concatEnd) {
 		$p = [0,0,0,0,0];
 		self::int2refRange($int, $p[0], $p[1], $p[2], $p[3], $p[4]);
 		$concatStart = $p[2] + ($p[1] * 1000) + ($p[0] * 1000000);
-		$concatEnd = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
-
-		var_dump($concatStart);
-		var_dump($concatEnd);
+		$concatEnd   = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
 	}
+
 
 	protected static function bkIndex2ref($book, $index, &$chapter, &$verse) {
 		$index++;
-		$v = Bible::VERSES;
+		$v = Bible::verses();
 		$chapter = 0;
 		while (!!$v[$book][$chapter] && $index > $v[$book][$chapter]) {
 			$index -= $v[$book][$chapter];
@@ -43,73 +106,143 @@ class ScripturNum {
 }
 
 class Bible {
-	const BK_GEN = 0;
-	const BK_EXO = 1;
-	const BK_LEV = 2;
-	const BK_NUM = 3;
-	const BK_DEU = 4;
-	const BK_JOS = 5;
-	const BK_JDG = 6;
-	const BK_RUT = 7;
-	const BK_1SA = 8;
-	const BK_2SA = 9;
-	const BK_1KI = 10;
-	const BK_2KI = 11;
-	const BK_1CH = 12;
-	const BK_2CH = 13;
-	const BK_EZR = 14;
-	const BK_NEH = 15;
-	const BK_EST = 16;
-	const BK_JOB = 17;
-	const BK_PSA = 18;
-	const BK_PRO = 19;
-	const BK_ECC = 20;
-	const BK_SON = 21;
-	const BK_ISA = 22;
-	const BK_JER = 23;
-	const BK_LAM = 24;
-	const BK_EZE = 25;
-	const BK_DAN = 26;
-	const BK_HOS = 27;
-	const BK_JOE = 28;
-	const BK_AMO = 29;
-	const BK_OBA = 30;
-	const BK_JON = 31;
-	const BK_MIC = 32;
-	const BK_NAH = 33;
-	const BK_HAB = 34;
-	const BK_ZEP = 35;
-	const BK_HAG = 36;
-	const BK_ZEC = 37;
-	const BK_MAL = 38;
+	const BOOK_LONG = [
+		'Genesis',
+		'Exodus',
+		'Leviticus',
+		'Numbers',
+		'Deuteronomy',
+		'Joshua',
+		'Judges',
+		'Ruth',
+		'1 Samuel',
+		'2 Samuel',
+		'1 Kings',
+		'2 Kings',
+		'1 Chronicles',
+		'2 Chronicles',
+		'Ezra',
+		'Nehemiah',
+		'Esther',
+		'Job',
+		'Psalms',
+		'Proverbs',
+		'Ecclesiastes',
+		'Song',
+		'Isaiah',
+		'Jeremiah',
+		'Lamentations',
+		'Ezekiel',
+		'Daniel',
+		'Hosea',
+		'Joel',
+		'Amos',
+		'Obadiah',
+		'Jonah',
+		'Micah',
+		'Nahum',
+		'Habakkuk',
+		'Zephaniah',
+		'Haggai',
+		'Zechariah',
+		'Malachi',
+		'Matthew',
+		'Mark',
+		'Luke',
+		'John',
+		'Acts',
+		'Romans',
+		'1 Corinthians',
+		'2 Corinthians',
+		'Galatians',
+		'Ephesians',
+		'Philippians',
+		'Colossians',
+		'1 Thessalonians',
+		'2 Thessalonians',
+		'1 Timothy',
+		'2 Timothy',
+		'Titus',
+		'Philemon',
+		'Hebrews',
+		'James',
+		'1 Peter',
+		'2 Peter',
+		'1 John',
+		'2 John',
+		'3 John',
+		'Jude',
+		'Revelation'
+	];
 
-	const BK_MAT = 39;
-	const BK_MAR = 40;
-	const BK_LUK = 41;
-	const BK_JOH = 42;
-	const BK_ACT = 43;
-	const BK_ROM = 44;
-	const BK_1CO = 45;
-	const BK_2CO = 46;
-	const BK_GAL = 47;
-	const BK_EPH = 48;
-	const BK_PHP = 49;
-	const BK_COL = 50;
-	const BK_1TH = 51;
-	const BK_2TH = 52;
-	const BK_1TI = 53;
-	const BK_2TI = 54;
-	const BK_TIT = 55;
-	const BK_PHE = 56;
-	const BK_HEB = 57;
-	const BK_JAM = 58;
-	const BK_1PE = 59;
-	const BK_2PE = 60;
-	const BK_1JO = 61;
-	const BK_2JO = 62;
-	const BK_3JO = 63;
-	const BK_JDE = 64;
-	const BK_REV = 65;
+	const BOOK_SHORT = [
+		'Gen',
+		'Ex',
+		'Lev',
+		'Num',
+		'Deu',
+		'Jos',
+		'Jdg',
+		'Ru',
+		'1Sa',
+		'2Sa',
+		'1Ki',
+		'2Ki',
+		'1Ch',
+		'2Ch',
+		'Ezr',
+		'Neh',
+		'Es',
+		'Job',
+		'Ps',
+		'Pr',
+		'Ec',
+		'SOS',
+		'Isa',
+		'Jr',
+		'Lm',
+		'Eze',
+		'Dn',
+		'Ho',
+		'Joe',
+		'Am',
+		'Ob',
+		'Jnh',
+		'Mi',
+		'Nah',
+		'Hab',
+		'Zep',
+		'Hag',
+		'Zec',
+		'Mal',
+		'Mt',
+		'Mk',
+		'Lk',
+		'Jn',
+		'Ac',
+		'Ro',
+		'1Co',
+		'2Co',
+		'Gal',
+		'Eph',
+		'Phi',
+		'Col',
+		'1Th',
+		'2Th',
+		'1Ti',
+		'2Ti',
+		'Tit',
+		'Phm',
+		'Heb',
+		'Jam',
+		'1Pe',
+		'2Pe',
+		'1Jo',
+		'2Jo',
+		'3Jo',
+		'Jud',
+		'Rev'
+	];
 
 	const VERSES = [
 		[31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26],
@@ -180,6 +313,17 @@ class Bible {
 		[20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 17, 18, 20, 8, 21, 18, 24, 21, 15, 27, 20]
 	];
 
+	public static function verses() {
+		return self::VERSES;
+	}
+
+	public static function bookLong() {
+		return self::BOOK_LONG;
+	}
+
+	public static function bookShort() {
+		return self::BOOK_SHORT;
+	}
 
 }
 

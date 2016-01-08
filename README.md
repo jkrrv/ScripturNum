@@ -1,4 +1,4 @@
-ScripturNum
+Scripturnum
 ===========
 
 This is a PHP Library intended to allow the storage of references to scripture in only 32 bits (31, actually), which allows a scripture range to be stored in a single unsigned integer in most DBs.  
