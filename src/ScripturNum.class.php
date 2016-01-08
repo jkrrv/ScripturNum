@@ -68,6 +68,53 @@ class ScripturNum {
 	}
 
 
+	/**
+	 * @param int $book The book of the Bible the range is within.
+	 * @param int $startCh The chapter of the start of the range.
+	 * @param int $startV The verse of the start of the range.  Defaults to 1.
+	 * @param int|null $endCh The end chapter of the range.  If null or not provided, assumed to be the same as the start chapter.
+	 * @param int|null $endV The end verse of the range.  If null or not provided, assumed to be the end of the chapter.
+	 * @return ScripturNum The ScripturNum object that represents this range of scripture.
+	 */
+	public static function newFromInts($book, $startCh, $startV = 1, $endCh = null, $endV = null) {
+		$book--;
+		$int = ($book) << 24;
+		if ($startCh > count(Bible::verses()[$book]) || $endCh > count(Bible::verses()[$book])) {
+//			throw new Exception() TODO exception for specifying an out-of-range chapter
+		}
+		if ($endCh == null) {
+			$endCh = $startCh;
+		}
+		$startCh--;
+		$startV--;
+		$endCh--;
+		$endV--;
+		if ($startV > count(Bible::verses()[$book][$startCh]) || $endV > count(Bible::verses()[$book][$endCh])) {
+//			throw new Exception() TODO exception for specifying an out-of-range verse
+		}
+		if ($endV == null) {
+			$endV = Bible::verses()[$book][$endCh]-1;
+		}
+
+
+		$ch = 0;
+		while ($ch < ($startCh)) {
+			$startV += Bible::verses()[$book][$ch];
+			$ch++;
+		}
+		$ch = 0;
+		while ($ch < ($endCh)) {
+			$endV += Bible::verses()[$book][$ch];
+			$ch++;
+		}
+
+		$int += ($startV << 12);
+		$int += ($endV);
+
+		return new ScripturNum($int);
+	}
+
+
 	public static function int2refRange ($int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd) {
 		$book = $int >> 24;
 		$int -= ($book << 24);
