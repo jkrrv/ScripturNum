@@ -75,12 +75,15 @@ class ScripturNum {
 	 * @param int|null $endCh The end chapter of the range.  If null or not provided, assumed to be the same as the start chapter.
 	 * @param int|null $endV The end verse of the range.  If null or not provided, assumed to be the end of the chapter.
 	 * @return ScripturNum The ScripturNum object that represents this range of scripture.
+	 *
+	 * @throws ScripturNumException A chapter was requested that does not exist within the requested book.
+	 * @throws ScripturNumException A verse was requested that does not exist within the requested range.
 	 */
 	public static function newFromInts($book, $startCh, $startV = 1, $endCh = null, $endV = null) {
 		$book--;
 		$int = ($book) << 24;
 		if ($startCh > count(Bible::verses()[$book]) || $endCh > count(Bible::verses()[$book])) {
-//			throw new Exception() TODO exception for specifying an out-of-range chapter
+			throw new ScripturNumException("A chapter was requested that does not exist within the requested book.");
 		}
 		if ($endCh == null) {
 			$endCh = $startCh;
@@ -89,8 +92,10 @@ class ScripturNum {
 		$startV--;
 		$endCh--;
 		$endV--;
-		if ($startV > count(Bible::verses()[$book][$startCh]) || $endV > count(Bible::verses()[$book][$endCh])) {
-//			throw new Exception() TODO exception for specifying an out-of-range verse
+		if ($startV > Bible::verses()[$book][$startCh] || $endV > Bible::verses()[$book][$endCh]) {
+			var_dump($startV);
+			var_dump(Bible::verses()[$book][$startCh]);
+			throw new ScripturNumException("A verse was requested that does not exist within the requested chapter.");
 		}
 		if ($endV == null) {
 			$endV = Bible::verses()[$book][$endCh]-1;
@@ -371,6 +376,11 @@ class Bible {
 	public static function bookShort() {
 		return self::BOOK_SHORT;
 	}
+
+}
+
+
+class ScripturNumException extends \Exception {
 
 }
 

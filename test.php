@@ -1,15 +1,37 @@
 <?php
+
+
+
 require_once 'src/ScripturNum.class.php';
 
-$int = (44 << 24) + (0 << 12) + 224; // = 738197728 = Romans 1:1 through 8:39
+use ScripturNum\ScripturNum;
+
+//$int = (44 << 24) + (0 << 12) + 224; // = 738197728 = Romans 1:1 through 8:39
+$int = (39 << 24) + (48 << 12) + 48+16; // = 738197728 = Romans 1:1 through 8:39
 
 
 var_dump($int);
 
-$book = 0;
 
-ScripturNum\ScripturNum::int2refRange($int, $book, $A, $B, $C, $D);
+$s = new ScripturNum(738197728);
 
-ScripturNum\ScripturNum::int2concats($int, $E, $F);
+var_dump($s);
 
-var_dump($book);
+echo $s;
+
+
+
+// Matthew 8-9
+$n = ScripturNum::newFromInts(40, 8, null, 9);
+
+var_dump($n);
+
+echo $n;
+
+
+// 1 Corinthians 15:50-58
+$n = ScripturNum::newFromInts(46, 15, 50, null, 58);
+
+var_dump($n);
+
+echo $n;
