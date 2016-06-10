@@ -6,9 +6,7 @@ require_once 'src/ScripturNum.class.php';
 
 use ScripturNum\ScripturNum;
 
-//$int = (44 << 24) + (0 << 12) + 224; // = 738197728 = Romans 1:1 through 8:39
-$int = (39 << 24) + (48 << 12) + 48+16; // = 738197728 = Romans 1:1 through 8:39
-
+$int = (44 << 24) + (0 << 12) + 224; // = 738197728 = Romans 1:1 through 8:39
 
 var_dump($int);
 
@@ -37,7 +35,7 @@ var_dump($n);
 echo $n;
 
 
-// Rev.  The whole thing.
+// Revelation.  The whole thing.
 $n = ScripturNum::newFromInts(66, 1, 1, 22);
 
 var_dump($n);

@@ -128,7 +128,8 @@ class ScripturNum {
 		$int += ($startV << 12);
 		$int += ($endV);
 
-		return new ScripturNum($int);
+		$c = get_called_class();
+		return new $c($int);
 	}
 
 
