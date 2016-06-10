@@ -35,3 +35,11 @@ $n = ScripturNum::newFromInts(46, 15, 50, null, 58);
 var_dump($n);
 
 echo $n;
+
+
+// Rev.  The whole thing.
+$n = ScripturNum::newFromInts(66, 1, 1, 22);
+
+var_dump($n);
+
+echo $n;

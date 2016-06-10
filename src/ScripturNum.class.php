@@ -27,8 +27,10 @@ class ScripturNum {
 	}
 
 	public function getLongString() {
-		$b = Bible::BookLong();
-		if ($this->isWholeChapters()) {
+		$b = Bible::bookLong();
+		if ($this->isWholeBook()) {
+			return $b[$this->book - 1];
+		} elseif ($this->isWholeChapters()) {
 			if ($this->startCh === $this->endCh) {
 				return $b[$this->book - 1] . " " . $this->startCh;
 			}
@@ -45,8 +47,10 @@ class ScripturNum {
 	}
 
 	public function getAbbrev() {
-		$b = Bible::BookShort();
-		if ($this->isWholeChapters()) {
+		$b = Bible::bookShort();
+		if ($this->isWholeBook()) {
+			return $b[$this->book - 1];
+		} elseif ($this->isWholeChapters()) {
 			if ($this->startCh === $this->endCh) {
 				return $b[$this->book - 1] . $this->startCh;
 			}
@@ -65,6 +69,14 @@ class ScripturNum {
 	public function isWholeChapters() {
 		$v = Bible::verses();
 		return ($this->startV === 1 && $this->endV === $v[$this->book-1][$this->endCh-1]);
+	}
+
+	public function isWholeBook() {
+		$v = Bible::verses();
+		return ($this->startCh === 1
+			&& $this->startV === 1
+			&& $this->endCh === count($v[$this->book-1])
+			&& $this->endV === $v[$this->book-1][$this->endCh-1]);
 	}
 
 
