@@ -310,7 +310,7 @@ class ScripturNum {
 		$index++;
 		$v = Bible::getVerseCounts();
 		$chapter = 0;
-		while (!!$v[$book][$chapter] && $index-1 > $v[$book][$chapter]) {
+		while (!!$v[$book][$chapter] && $index > $v[$book][$chapter]) {
 			$index -= $v[$book][$chapter];
 			$chapter++;
 		}
