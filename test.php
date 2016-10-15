@@ -49,7 +49,7 @@ echo $n;
 
 // From String.
 
-$n = ScripturNum::newFromString("1 Corinthians 1"); // 10
+$n = ScripturNum::newFromString("1 Corinthians 13"); // 10
 var_dump($n);
 echo $n;
 
@@ -90,3 +90,5 @@ var_dump($n);
 echo $n;
 echo "<br />";
 echo $n->getAbbrev();
+
+echo ScripturNum::newFromString('3Jo11')->getLongString();
