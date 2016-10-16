@@ -283,6 +283,7 @@ class ScripturNum
 					$chapterStart = null;
 				} else {
 					$chapterStart = $startNums[0];
+					$chapterEnd = $chapterStart;
 				}
 				break;
 			case 11: // multiple full chapters
