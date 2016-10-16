@@ -5,7 +5,8 @@ namespace ScripturNum;
 
 require_once 'Bible.class.php';
 
-class ScripturNum {
+class ScripturNum
+{
 	protected $int;
 	protected $book;
 	protected $startCh;
@@ -13,22 +14,26 @@ class ScripturNum {
 	protected $endCh;
 	protected $endV;
 
-	public function __construct($int) {
-		self::int2refRange($int, $this->book, $this->startCh, $this->startV, $this->endCh, $this->endV);
+	public function __construct($intOrString)
+	{
+		if (is_numeric($intOrString)) {
+			$int = intval($intOrString);
+		} else {
+			$int = self::string2int($intOrString);
+		}
+		self::_int2refNums($int, $this->book, $this->startCh, $this->startV, $this->endCh, $this->endV);
 		$this->int = $int;
 	}
 
 
-	public function __get($what) {
-		return $this->$what;
-	}
-
-
-	public function __toString() {
+	public function __toString()
+	{
 		return $this->getLongString();
 	}
 
-	public function getLongString() {
+
+	public function getLongString()
+	{
 		$b = Bible::getBookNames();
 		if ($this->isWholeBook()) {
 			return $b[$this->book - 1][0];
@@ -53,7 +58,9 @@ class ScripturNum {
 		}
 	}
 
-	public function getAbbrev() {
+
+	public function getAbbrev()
+	{
 		$b = Bible::getBookNames();
 		if ($this->isWholeBook()) {
 			return $b[$this->book - 1][1];
@@ -78,33 +85,48 @@ class ScripturNum {
 		}
 	}
 
-	public function isWholeChapters() {
+
+	public function isWholeChapters()
+	{
 		$v = Bible::getVerseCounts();
-		return ($this->startV === 1 && $this->endV === $v[$this->book-1][$this->endCh-1]);
+		return ($this->startV === 1 && $this->endV === $v[$this->book - 1][$this->endCh - 1]);
 	}
 
-	public function isWholeBook() {
+
+	public function isWholeBook()
+	{
 		$v = Bible::getVerseCounts();
 		return ($this->startCh === 1
 			&& $this->startV === 1
-			&& $this->endCh === count($v[$this->book-1])
-			&& $this->endV === $v[$this->book-1][$this->endCh-1]);
+			&& $this->endCh === count($v[$this->book - 1])
+			&& $this->endV === $v[$this->book - 1][$this->endCh - 1]);
 	}
 
 
-	public function bookHasSingleChapter() {
+	public function bookHasSingleChapter()
+	{
 		return Bible::bookHasSingleChapter($this->book - 1);
 	}
 
 
-	public static function newFromParsed($bookStr, $startCh = null, $startV = 1, $endCh = null, $endV = null) {
+	protected static function _bookName2bookNum($bookName)
+	{
 		$books = Bible::getBookNames();
 		foreach ($books as $book => $bookNames) {
-			if (Bible::in_arrayi($bookStr, $bookNames)) {
-				return self::newFromInts($book + 1, $startCh, $startV, $endCh, $endV);
+			if (Bible::in_arrayi($bookName, $bookNames)) {
+				return $book + 1;
 			}
 		}
 		throw new ScripturNumException('Book name is invalid.');
+	}
+
+
+	public static function newFromParsed($bookStr, $startCh = null, $startV = 1, $endCh = null, $endV = null)
+	{
+		$book = self::_bookName2bookNum($bookStr);
+		$int = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
+		$c = get_called_class();
+		return new $c($int);
 	}
 
 
@@ -119,7 +141,52 @@ class ScripturNum {
 	 * @throws ScripturNumException A chapter was requested that does not exist within the requested book.
 	 * @throws ScripturNumException A verse was requested that does not exist within the requested range.
 	 */
-	public static function newFromInts($book, $startCh, $startV = null, $endCh = null, $endV = null) {
+	public static function newFromInts($book, $startCh, $startV = null, $endCh = null, $endV = null)
+	{
+		$int = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
+		$c = get_called_class();
+		return new $c($int);
+	}
+
+
+	public static function newFromString($string)
+	{
+		$c = get_called_class();
+		return new $c($string);
+	}
+
+
+	public static function string2int($string)
+	{
+		// Standardize dashes
+		$string = str_replace(['&ndash;', '–'], '-', $string);
+
+		// Remove duplicate spaces
+		$string = preg_replace("/\s\s+/i", ' ', $string);
+
+		// Remove spaces among the numerical parts.
+		$string = preg_replace("/(\d+)\s*([-.:])\s+(\d+)/i", '$1$2$3', $string);
+		$string = preg_replace("/(\d+)\s+([-.:])\s*(\d+)/i", '$1$2$3', $string);
+
+		// Look for right-most space or alpha char.  This should separate book name from numerical ref.
+		preg_match_all('/[a-zA-Z\s]/', $string, $asdf, PREG_OFFSET_CAPTURE);
+		$spaceIndex = array_pop($asdf[0])[1] + 1;
+		$book = trim(substr($string, 0, $spaceIndex));
+		$ref = substr($string, $spaceIndex);
+
+		// Parse numbers
+		self::_refNumString2refNums($ref, $startCh, $startV, $endCh, $endV);
+
+		// Change book name to number
+		$book = self::_bookName2bookNum($book);
+
+		// Assemble and return the int
+		return self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
+	}
+
+
+	protected static function _refNums2int($book, $startCh, $startV, $endCh, $endV)
+	{
 		$book--;
 		$int = ($book) << 24;
 		if ($startCh > count(Bible::getVerseCounts()[$book]) || $endCh > count(Bible::getVerseCounts()[$book])) { // invalid request OR request for a single-chapter book.
@@ -147,9 +214,8 @@ class ScripturNum {
 			throw new ScripturNumException("A verse was requested that does not exist within the requested chapter.");
 		}
 		if ($endV === null) {
-			$endV = Bible::getVerseCounts()[$book][$endCh]-1;
+			$endV = Bible::getVerseCounts()[$book][$endCh] - 1;
 		}
-
 
 		$ch = 0;
 		while ($ch < ($startCh)) {
@@ -165,32 +231,7 @@ class ScripturNum {
 		$int += ($startV << 12);
 		$int += ($endV);
 
-		$c = get_called_class();
-		return new $c($int);
-	}
-
-
-	public static function newFromString($string) {
-		// Standardize dashes
-		$string = str_replace(['&ndash;', '–'], '-', $string);
-
-		// Remove duplicate spaces
-		$string = preg_replace("/\s\s+/i", ' ', $string);
-
-		// Remove spaces among the numerical parts.
-		$string = preg_replace("/(\d+)\s*([-.:])\s+(\d+)/i", '$1$2$3', $string);
-		$string = preg_replace("/(\d+)\s+([-.:])\s*(\d+)/i", '$1$2$3', $string);
-
-		// Look for right-most space or alpha char.  This should separate book name from numerical ref.
-		preg_match_all('/[a-zA-Z\s]/', $string, $asdf, PREG_OFFSET_CAPTURE);
-		$spaceIndex = array_pop($asdf[0])[1] + 1;
-		$book = trim(substr($string, 0, $spaceIndex));
-		$ref = substr($string, $spaceIndex);
-
-		// Parse numbers
-		self::_parseRefString($ref, $startCh, $startV, $endCh, $endV);
-
-		return self::newFromParsed($book, $startCh, $startV, $endCh, $endV);
+		return $int;
 	}
 
 
@@ -205,7 +246,8 @@ class ScripturNum {
 	 *
 	 * @throws ScripturNumException
 	 */
-	protected static function _parseRefString($string, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd) {
+	protected static function _refNumString2refNums($string, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
+	{
 		if (preg_match('/[a-zA-Z]/', $string)) {
 			throw new ScripturNumException("Parse Ref only handles the numerical part of the reference.  Alphabetical characters are not permitted.");
 		}
@@ -232,13 +274,10 @@ class ScripturNum {
 
 				if ($char == '-')
 					$beforeHyphen = false;
-
 			}
-
-
 		}
 
-		switch(count($startNums)*10 + count($endNums)) {
+		switch (count($startNums) * 10 + count($endNums)) {
 			case 10: // one full chapter, or one full book
 				if ($startNums[0] === 0) { // whole book
 					$chapterStart = null;
@@ -277,7 +316,8 @@ class ScripturNum {
 	}
 
 
-	public static function int2refRange ($int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd) {
+	protected static function _int2refNums($int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
+	{
 		$book = $int >> 24;
 		$int -= ($book << 24);
 
@@ -286,8 +326,8 @@ class ScripturNum {
 
 		$refBIndex = &$int;
 
-		self::bkIndex2ref($book, $refAIndex, $chapterStart, $verseStart);
-		self::bkIndex2ref($book, $refBIndex, $chapterEnd, $verseEnd);
+		self::_bkIndex2singleRef($book, $refAIndex, $chapterStart, $verseStart);
+		self::_bkIndex2singleRef($book, $refBIndex, $chapterEnd, $verseEnd);
 
 		$book++;
 	}
@@ -298,15 +338,17 @@ class ScripturNum {
 	 * @param string|int $concatStart The concatenated "number" possibly larger than an int representing the start of the passage.
 	 * @param string|int $concatEnd The concatenated "number" possibly larger than an int representing the end of the passage.
 	 */
-	public static function int2concats ($int, &$concatStart, &$concatEnd) {
-		$p = [0,0,0,0,0];
-		self::int2refRange($int, $p[0], $p[1], $p[2], $p[3], $p[4]);
+	public static function int2concats($int, &$concatStart, &$concatEnd)
+	{
+		$p = [0, 0, 0, 0, 0];
+		self::_int2refNums($int, $p[0], $p[1], $p[2], $p[3], $p[4]);
 		$concatStart = $p[2] + ($p[1] * 1000) + ($p[0] * 1000000);
-		$concatEnd   = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
+		$concatEnd = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
 	}
 
 
-	protected static function bkIndex2ref($book, $index, &$chapter, &$verse) {
+	protected static function _bkIndex2singleRef($book, $index, &$chapter, &$verse)
+	{
 		$index++;
 		$v = Bible::getVerseCounts();
 		$chapter = 0;
@@ -320,7 +362,8 @@ class ScripturNum {
 }
 
 
-class ScripturNumException extends \Exception {
+class ScripturNumException extends \Exception
+{
 
 }
 
