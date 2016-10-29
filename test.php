@@ -79,13 +79,13 @@ echo $n;
 echo "<br />";
 echo $n->getAbbrev();
 
-$n = ScripturNum::newFromString("Jude"); // 01
+$n = ScripturNum::newFromString("Jude"); // 10
 var_dump($n);
 echo $n;
 echo "<br />";
 echo $n->getAbbrev();
 
-$n = ScripturNum::newFromString("1Co"); // 01
+$n = ScripturNum::newFromString("1Co"); // 10
 var_dump($n);
 echo $n;
 echo "<br />";
