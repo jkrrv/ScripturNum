@@ -301,4 +301,11 @@ class ScripturNumPublicTest extends TestCase
 		$this->assertEquals('Ro8.1-9.5', $n->getAbbrev());
 	}
 
+
+
+	public function test_issue1() {
+		$n = new ScripturNum('3Jo11');
+		$this->assertEquals('3Jo11', $n->getAbbrev());
+	}
+
 }
