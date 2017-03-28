@@ -148,6 +148,7 @@ There are a few (only a few) restrictions imposed within this library, most of w
 2.  Behavior is undefined when a start reference comes after the end reference.  In most cases, exceptions will be thrown to prevent you from doing this, because "Ephesians 2:10-1" doesn't really make sense.  This reversal is discouraged, as it makes database searching dramatically more difficult, as database searching would probably be based on bitmasking. 
 3.  The Canon and versification *cannot* change while values are stored in a database, except in some fairly narrow cases.
 4.  Beware of similarly-named books, which may not quite render what you intended when abbreviated.  For instance, does 'Ju' refer to Judges or Jude?  We say Jude.  'Jg' refers to Judges.  Generally, we will adopt any interpretations used by [esvbible.org](http://esvbible.org), and these should be considered subject to change.
+5. 	Like you, this package was designed to be perfect.  However, brokenness is real, and sanctification is ongoing.  Check [the Issues page](https://github.com/jkrrv/ScripturNum/issues) for the things we're currently struggling to kill, and let us know if you find other faults or failures. 
 	
 
 ## A Note on Canon
