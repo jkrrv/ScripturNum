@@ -2,7 +2,7 @@
 
 
 
-require_once 'src/ScripturNum.class.php';
+require_once 'src/ScripturNum.php';
 
 use ScripturNum\ScripturNum;
 

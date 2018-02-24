@@ -3,7 +3,8 @@
 
 namespace ScripturNum;
 
-require_once 'Bible.class.php';
+require_once 'Bible.php';
+require_once 'ScripturNumException.php';
 
 class ScripturNum
 {
@@ -26,7 +27,7 @@ class ScripturNum
 	}
 
 
-	public function toInt() {
+	public function getInt() {
 		return $this->int;
 	}
 
@@ -66,7 +67,7 @@ class ScripturNum
 
 	public function getAbbrev()
 	{
-		$separator = ':'; //TODO this should be a proper option
+		$separator = '.'; //TODO this should be a proper option
 		$b = Bible::getBookNames();
 		if ($this->isWholeBook()) {
 			return $b[$this->book - 1][1];
@@ -344,7 +345,7 @@ class ScripturNum
 
 
 	/**
-	 * @param int $int The int representing teh full passage
+	 * @param int $int The int representing the full passage
 	 * @param string|int $concatStart The concatenated "number" possibly larger than an int representing the start of the passage.
 	 * @param string|int $concatEnd The concatenated "number" possibly larger than an int representing the end of the passage.
 	 */
@@ -373,10 +374,3 @@ class ScripturNum
 		$verse = $index;
 	}
 }
-
-
-class ScripturNumException extends \Exception
-{
-
-}
-

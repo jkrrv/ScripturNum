@@ -301,11 +301,38 @@ class ScripturNumPublicTest extends TestCase
 		$this->assertEquals('Ro8.1-9.5', $n->getAbbrev());
 	}
 
+	public function test_int2cats() {
+		$concatStart = 0;
+		$concatEnd = 0;
+		ScripturNum::int2concats(301993985, $concatStart, $concatEnd);
+		$this->assertEquals(19001002, $concatStart);
+		$this->assertEquals(19001002, $concatEnd);
+	}
 
 
-	public function test_issue1() {
+
+	public function test_issue01() {
 		$n = new ScripturNum('3Jo11');
 		$this->assertEquals('3Jo11', $n->getAbbrev());
+	}
+
+	public function test_issue02() {
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('There are not that many verses in this book.');
+
+		new ScripturNum(739860913);
+	}
+
+	public function test_issue04() {
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Unintelligible Reference');
+
+		new ScripturNum('Ps1:3-2');
+	}
+
+	public function test_issue05() {
+		$n = new ScripturNum(301993985);
+		$this->assertEquals(301993985, $n->getInt());
 	}
 
 }
