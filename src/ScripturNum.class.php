@@ -26,6 +26,11 @@ class ScripturNum
 	}
 
 
+	public function toInt() {
+		return $this->int;
+	}
+
+
 	public function __toString()
 	{
 		return $this->getLongString();
@@ -61,6 +66,7 @@ class ScripturNum
 
 	public function getAbbrev()
 	{
+		$separator = ':'; //TODO this should be a proper option
 		$b = Bible::getBookNames();
 		if ($this->isWholeBook()) {
 			return $b[$this->book - 1][1];
@@ -77,11 +83,11 @@ class ScripturNum
 				return $b[$this->book - 1][1] . $this->startV . "-" . $this->endV;
 			} elseif ($this->startCh === $this->endCh) {
 				if ($this->startV === $this->endV) {
-					return $b[$this->book - 1][1] . $this->startCh . "." . $this->startV;
+					return $b[$this->book - 1][1] . $this->startCh . $separator . $this->startV;
 				}
-				return $b[$this->book - 1][1] . $this->startCh . "." . $this->startV . "-" . $this->endV;
+				return $b[$this->book - 1][1] . $this->startCh . $separator . $this->startV . "-" . $this->endV;
 			}
-			return $b[$this->book - 1][1] . $this->startCh . "." . $this->startV . "-" . $this->endCh . "." . $this->endV;
+			return $b[$this->book - 1][1] . $this->startCh . $separator . $this->startV . "-" . $this->endCh . $separator . $this->endV;
 		}
 	}
 
@@ -97,9 +103,9 @@ class ScripturNum
 	{
 		$v = Bible::getVerseCounts();
 		return ($this->startCh === 1
-			&& $this->startV === 1
-			&& $this->endCh === count($v[$this->book - 1])
-			&& $this->endV === $v[$this->book - 1][$this->endCh - 1]);
+		        && $this->startV === 1
+		        && $this->endCh === count($v[$this->book - 1])
+		        && $this->endV === $v[$this->book - 1][$this->endCh - 1]);
 	}
 
 
@@ -327,6 +333,9 @@ class ScripturNum
 
 		$refBIndex = &$int;
 
+		if ($refBIndex < $refAIndex)
+			throw new ScripturNumException('Unintelligible Reference');
+
 		self::_bkIndex2singleRef($book, $refAIndex, $chapterStart, $verseStart);
 		self::_bkIndex2singleRef($book, $refBIndex, $chapterEnd, $verseEnd);
 
@@ -353,9 +362,12 @@ class ScripturNum
 		$index++;
 		$v = Bible::getVerseCounts();
 		$chapter = 0;
-		while (!!$v[$book][$chapter] && $index > $v[$book][$chapter]) {
+		if (!isset($v[$book]))
+			throw new ScripturNumException("There are not that many books in the Bible.");
+		while ($index > $v[$book][$chapter]) {
 			$index -= $v[$book][$chapter];
-			$chapter++;
+			if (!isset($v[$book][++$chapter]))
+				throw new ScripturNumException("There are not that many verses in this book.");
 		}
 		$chapter++;
 		$verse = $index;
