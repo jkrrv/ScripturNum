@@ -207,7 +207,7 @@ class ScripturNumPublicTest extends TestCase
 	}
 
 	public function test_newFromString() {
-		$n = ScripturNum::newFromString('1 Corinthians 13');
+		$n = new ScripturNum('1 Corinthians 13');
 		$this->assertEquals('1 Corinthians 13', (string)$n);
 	}
 
@@ -321,6 +321,31 @@ class ScripturNumPublicTest extends TestCase
 		$this->expectExceptionMessage('There are not that many verses in this book.');
 
 		new ScripturNum(739860913);
+	}
+
+	public function test_issue03_01() { // when a string is supposed to be created with bad settings
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Invalid key for creating a string.');
+
+		$n = new ScripturNum('Ro 1-8');
+
+		$n->getStringWithSettings('settings that do not exist');
+	}
+
+	public function test_issue03_02() { // when a default setting is overridden.
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('long', ['space' => ' and Greeks ']);
+
+		$this->assertEquals("Romans and Greeks 1-8", $n->getLongString());
+	}
+
+	public function test_issue03_03() { // New settings, incomplete
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Invalid space character.');
+
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('testSettings', []);
+		$n->getStringWithSettings('testSettings');
 	}
 
 	public function test_issue04() {

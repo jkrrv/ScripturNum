@@ -3,9 +3,6 @@
 
 namespace ScripturNum;
 
-require_once 'Bible.php';
-require_once 'ScripturNumException.php';
-
 class ScripturNum
 {
 	protected $int;
@@ -14,6 +11,7 @@ class ScripturNum
 	protected $startV;
 	protected $endCh;
 	protected $endV;
+
 
 	public function __construct($intOrString)
 	{
@@ -27,6 +25,38 @@ class ScripturNum
 	}
 
 
+	protected static $stringSettings = [
+		'abbrev' => [
+			'space' => '',
+			'cvsep' => '.',
+			'range' => '-',
+			'names' => 1
+		],
+		'long'   => [
+			'space' => ' ',
+			'cvsep' => ':',
+			'range' => '-',
+			'names' => 0
+		],
+	];
+
+
+	public static function setStringSettings($key, array $settings) {
+		if (!isset(static::$stringSettings[$key]))
+			static::$stringSettings[$key] = [];
+
+		foreach (reset(static::$stringSettings) as $k => $v) {
+			if (isset($settings[$k]))
+				static::$stringSettings[$key][$k] = $settings[$k];
+		}
+	}
+
+
+	/**
+	 * Get the ScripturNum integer.
+	 *
+	 * @return int
+	 */
 	public function getInt() {
 		return $this->int;
 	}
@@ -38,57 +68,87 @@ class ScripturNum
 	}
 
 
-	public function getLongString()
+	/**
+	 * Get a human-readable abbreviation for the passage.  By default, these are meant for usage in short links.
+	 *
+	 * @return string An abbreviation
+	 */
+	public function getAbbrev()
 	{
-		$b = Bible::getBookNames();
-		if ($this->isWholeBook()) {
-			return $b[$this->book - 1][0];
-		} elseif ($this->isWholeChapters()) {
-			if ($this->startCh === $this->endCh) {
-				return $b[$this->book - 1][0] . " " . $this->startCh;
-			}
-			return $b[$this->book - 1][0] . " " . $this->startCh . "-" . $this->endCh;
-		} else {
-			if ($this->bookHasSingleChapter()) {
-				if ($this->startV === $this->endV) {
-					return $b[$this->book - 1][0] . " " . $this->startV;
-				}
-				return $b[$this->book - 1][0] . " " . $this->startV . "-" . $this->endV;
-			} elseif ($this->startCh === $this->endCh) {
-				if ($this->startV === $this->endV) {
-					return $b[$this->book - 1][0] . " " . $this->startCh . ":" . $this->startV;
-				}
-				return $b[$this->book - 1][0] . " " . $this->startCh . ":" . $this->startV . "-" . $this->endV;
-			}
-			return $b[$this->book - 1][0] . " " . $this->startCh . ":" . $this->startV . "-" . $this->endCh . ":" . $this->endV;
-		}
+		return $this->getStringWithSettings('abbrev');
 	}
 
 
-	public function getAbbrev()
+	/**
+	 * Get a human-readable name of the passage.  By default, these are meant for humans to read.
+	 *
+	 * @return string The name of the passage, as one might pronounce it.
+	 */
+	public function getLongString()
 	{
-		$separator = '.'; //TODO this should be a proper option
+		return $this->getStringWithSettings('long');
+	}
+
+
+	/**
+	 * Returns a human-readable string with the settings defined in a given setting set.
+	 *
+	 * @param string $settingKey The setting set to use.  Default options are 'abbrev' and 'long'
+	 *
+	 * @return string The human-intelligible string.
+	 * @throws ScripturNumException  If a setting is invalid.
+	 */
+	public function getStringWithSettings($settingKey)
+	{
+		if (!isset(static::$stringSettings[$settingKey]))
+			throw new ScripturNumException('Invalid key for creating a string.');
+
+		if (!isset(static::$stringSettings[$settingKey]['space']))
+			throw new ScripturNumException('Invalid space character.');
+
+		if (!isset(static::$stringSettings[$settingKey]['cvsep']))
+			throw new ScripturNumException('Invalid chapter-verse separation character.');
+
+		if (!isset(static::$stringSettings[$settingKey]['range']))
+			throw new ScripturNumException('Invalid range character.');
+
+		if (!isset(static::$stringSettings[$settingKey]['names']))
+			throw new ScripturNumException('Invalid name offset.');
+
+
+		$s = static::$stringSettings[$settingKey]['space'];
+		$c = static::$stringSettings[$settingKey]['cvsep'];
+		$r = static::$stringSettings[$settingKey]['range'];
+		$n = static::$stringSettings[$settingKey]['names'];
+
 		$b = Bible::getBookNames();
+
+		if ($n > count($b[$this->book - 1]))
+			$n = count($b[$this->book - 1]) - 1;
+
+		$b = $b[$this->book - 1][$n];
+
+
 		if ($this->isWholeBook()) {
-			return $b[$this->book - 1][1];
+			return $b;
 		} elseif ($this->isWholeChapters()) {
 			if ($this->startCh === $this->endCh) {
-				return $b[$this->book - 1][1] . $this->startCh;
+				return $b . $s . $this->startCh;
 			}
-			return $b[$this->book - 1][1] . $this->startCh . "-" . $this->endCh;
+			return $b . $s . $this->startCh . $r . $this->endCh;
 		} else {
 			if ($this->bookHasSingleChapter()) {
 				if ($this->startV === $this->endV) {
-					return $b[$this->book - 1][1] . $this->startV;
+					return $b . $s . $this->startV;
 				}
-				return $b[$this->book - 1][1] . $this->startV . "-" . $this->endV;
+				return $b . $s . $this->startV . $r . $this->endV;
 			} elseif ($this->startCh === $this->endCh) {
 				if ($this->startV === $this->endV) {
-					return $b[$this->book - 1][1] . $this->startCh . $separator . $this->startV;
+					return $b . $s . $this->startCh . $c . $this->startV;
 				}
-				return $b[$this->book - 1][1] . $this->startCh . $separator . $this->startV . "-" . $this->endV;
+				return $b . $s . $this->startCh . $c . $this->startV . $r . $this->endV;
 			}
-			return $b[$this->book - 1][1] . $this->startCh . $separator . $this->startV . "-" . $this->endCh . $separator . $this->endV;
+			return $b . $s . $this->startCh . $c . $this->startV . $r . $this->endCh . $c . $this->endV;
 		}
 	}
 
@@ -132,7 +192,7 @@ class ScripturNum
 	{
 		$book = self::_bookName2bookNum($bookStr);
 		$int = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
-		$c = get_called_class();
+		$c = static::class;
 		return new $c($int);
 	}
 
@@ -151,18 +211,16 @@ class ScripturNum
 	public static function newFromInts($book, $startCh, $startV = null, $endCh = null, $endV = null)
 	{
 		$int = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
-		$c = get_called_class();
+		$c = static::class;
 		return new $c($int);
 	}
 
 
-	public static function newFromString($string)
-	{
-		$c = get_called_class();
-		return new $c($string);
-	}
-
-
+	/**
+	 * @param string $string A human-readable scripture reference that should be converted to an int.
+	 *
+	 * @return int The int.
+	 */
 	public static function string2int($string)
 	{
 		// Standardize dashes

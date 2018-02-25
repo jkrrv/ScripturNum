@@ -188,7 +188,7 @@ class Bible
 
 	public static function getBookNames()
 	{
-		if (self::$BOOK_NAMES == [])
+		if (self::$BOOK_NAMES === [])
 			self::_prepareBookNames();
 
 		return self::$BOOK_NAMES;
@@ -201,7 +201,7 @@ class Bible
 
 	public static function bookHasSingleChapter($bookIndex)
 	{
-		return count(self::getVerseCounts()[$bookIndex]) == 1;
+		return count(self::getVerseCounts()[$bookIndex]) === 1;
 	}
 }
 
