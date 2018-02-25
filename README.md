@@ -3,13 +3,7 @@ ScripturNum
 
 Like a nasturtium, but tastier. 
 
-This is a PHP Library intended for working with scripture references.  It can parse text-based scripture references, and can express passages of scripture in only 32 bits (31, actually), which allows a scripture range to be stored in a single unsigned integer in most DBs.  
-
-## License
-
-Don't break laws.  Otherwise, use this however you want at your own risk.  The contributors take no responsibility for your behavior or what may occur when you use this code. 
-
-If you expand or improve this API, you *must* at least *consider* submitting a pull request. 
+This is a PHP Library intended for working with scripture references.  It can parse text-based scripture references, and can express passages of scripture in only 32 bits (31, actually), which allows a scripture range to be stored in a single unsigned integer in most DBs.   
 
 ## Installation
 
