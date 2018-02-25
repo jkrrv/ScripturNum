@@ -5,7 +5,7 @@
   "minimum-stability": "dev",
   "keywords": ["Bible", "Scripture", "Passage"],
   "homepage": "https://github.com/jkrrv/scripturnum",
-  "license": "See README",
+  "license": "MIT",
   "authors": [
     {
       "name": "James Kurtz",
