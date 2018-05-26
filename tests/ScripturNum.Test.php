@@ -1,6 +1,5 @@
 <?php
 
-//require_once "../src/ScripturNum.class.php";
 
 use PHPUnit\Framework\TestCase;
 use ScripturNum\ScripturNum;

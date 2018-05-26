@@ -14,8 +14,8 @@
     }
   ],
   "autoload": {
-    "psr-0": {
-      "ScripturNum": "src"
+    "psr-4": {
+      "ScripturNum\\": "src/"
     }
   },
   "require-dev": {

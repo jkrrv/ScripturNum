@@ -301,7 +301,7 @@ class ScripturNum
 
 
 	/**
-	 * This function reads through the ref string one character at a time to interpret what's going on.
+	 * This function reads through a ref string one character at a time to parse it into a known reference.
 	 *
 	 * @param String $string The string to parse.
 	 * @param $chapterStart
@@ -382,6 +382,18 @@ class ScripturNum
 	}
 
 
+	/**
+	 * Converts a ScripturNum int into reference numbers.
+	 *
+	 * @param int $int The ScripturNum integer
+	 * @param int $book The book number
+	 * @param int $chapterStart The first Chapter
+	 * @param int $verseStart The first Verse
+	 * @param int $chapterEnd The last Chapter
+	 * @param int $verseEnd The last Verse
+	 *
+	 * @throws ScripturNumException If the reference is unintelligible.
+	 */
 	protected static function _int2refNums($int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
 	{
 		$book = $int >> 24;
@@ -403,9 +415,13 @@ class ScripturNum
 
 
 	/**
+	 * Convert a ScrupturNum int into a concatenated number.  (Concatenated numbers are often used for text libraries.)
+	 *
 	 * @param int $int The int representing the full passage
 	 * @param string|int $concatStart The concatenated "number" possibly larger than an int representing the start of the passage.
 	 * @param string|int $concatEnd The concatenated "number" possibly larger than an int representing the end of the passage.
+	 *
+	 * @throws ScripturNumException If the reference is unintelligible.
 	 */
 	public static function int2concats($int, &$concatStart, &$concatEnd)
 	{
@@ -416,6 +432,16 @@ class ScripturNum
 	}
 
 
+	/**
+	 * Parse a book index number into a chapter and verse.
+	 *
+	 * @param int $book Book number
+	 * @param int $index Verse Index Number
+	 * @param int $chapter Chapter
+	 * @param int $verse Verse
+	 *
+	 * @throws ScripturNumException
+	 */
 	protected static function _bkIndex2singleRef($book, $index, &$chapter, &$verse)
 	{
 		$index++;

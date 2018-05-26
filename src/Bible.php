@@ -91,8 +91,6 @@ class Bible
 			case 3:
 				$ords = ['3', 'III', 'Third'];
 				break;
-			default:
-				throw new ScripturNumException("Invalid Ordinal");
 		}
 
 		$r = [];
