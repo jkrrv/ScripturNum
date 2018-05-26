@@ -13,6 +13,13 @@ class ScripturNum
 	protected $endV;
 
 
+	/**
+	 * ScripturNum constructor.
+	 *
+	 * @param int|string $intOrString  ScripturNum int or a human-readable string.
+	 *
+	 * @throws ScripturNumException  Thrown if the provided int or string can't be understood.
+	 */
 	public function __construct($intOrString)
 	{
 		if (is_numeric($intOrString)) {
@@ -220,6 +227,8 @@ class ScripturNum
 	 * @param string $string A human-readable scripture reference that should be converted to an int.
 	 *
 	 * @return int The int.
+	 *
+	 * @throws ScripturNumException
 	 */
 	public static function string2int($string)
 	{
