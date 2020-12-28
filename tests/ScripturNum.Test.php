@@ -300,6 +300,16 @@ class ScripturNumPublicTest extends TestCase
 		$this->assertEquals('Ro8.1-9.5', $n->getAbbrev());
 	}
 
+    public function test_multiplePsalmsArePlural() {
+        $n = new ScripturNum('Ps101.1-102.3');
+        $this->assertEquals('Psalms 101:1-102:3', $n->getLongString());
+    }
+
+    public function test_singlePsalmIsSingular() {
+        $n = new ScripturNum('Ps101.1-3');
+        $this->assertEquals('Psalm 101:1-3', $n->getLongString());
+    }
+
 	public function test_int2cats() {
 		$concatStart = 0;
 		$concatEnd = 0;

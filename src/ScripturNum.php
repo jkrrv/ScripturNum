@@ -23,7 +23,7 @@ class ScripturNum
 	public function __construct($intOrString)
 	{
 		if (is_numeric($intOrString)) {
-			$int = intval($intOrString);
+			$int = (int)$intOrString;
 		} else {
 			$int = self::string2int($intOrString);
 		}
@@ -37,13 +37,15 @@ class ScripturNum
 			'space' => '',
 			'cvsep' => '.',
 			'range' => '-',
-			'names' => 1
+			'names' => 1,
+            'plurl' => false
 		],
 		'long'   => [
 			'space' => ' ',
 			'cvsep' => ':',
 			'range' => '-',
-			'names' => 0
+			'names' => 0,
+            'plurl' => true
 		],
 	];
 
@@ -75,22 +77,24 @@ class ScripturNum
 	}
 
 
-	/**
-	 * Get a human-readable abbreviation for the passage.  By default, these are meant for usage in short links.
-	 *
-	 * @return string An abbreviation
-	 */
+    /**
+     * Get a human-readable abbreviation for the passage.  By default, these are meant for usage in short links.
+     *
+     * @return string An abbreviation
+     * @throws ScripturNumException
+     */
 	public function getAbbrev()
 	{
 		return $this->getStringWithSettings('abbrev');
 	}
 
 
-	/**
-	 * Get a human-readable name of the passage.  By default, these are meant for humans to read.
-	 *
-	 * @return string The name of the passage, as one might pronounce it.
-	 */
+    /**
+     * Get a human-readable name of the passage.  By default, these are meant for humans to read.
+     *
+     * @return string The name of the passage, as one might pronounce it.
+     * @throws ScripturNumException
+     */
 	public function getLongString()
 	{
 		return $this->getStringWithSettings('long');
@@ -127,6 +131,7 @@ class ScripturNum
 		$c = static::$stringSettings[$settingKey]['cvsep'];
 		$r = static::$stringSettings[$settingKey]['range'];
 		$n = static::$stringSettings[$settingKey]['names'];
+		$p = static::$stringSettings[$settingKey]['plurl'];
 
 		$b = Bible::getBookNames();
 
@@ -135,6 +140,9 @@ class ScripturNum
 
 		$b = $b[$this->book - 1][$n];
 
+		if($this->startCh !== $this->endCh && $p) {
+		    $b = str_replace(['Psalm', 'Song'], ['Psalms', 'Songs'], $b);
+        }
 
 		if ($this->isWholeBook()) {
 			return $b;
@@ -338,7 +346,7 @@ class ScripturNum
 
 			} else {
 				// End of number.  Int-ify and assign to appropriate half.
-				$currentNumber = intval($currentNumber);
+				$currentNumber = (int)$currentNumber;
 				if ($beforeHyphen) {
 					$startNums[] = $currentNumber;
 				} else {

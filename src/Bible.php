@@ -26,7 +26,7 @@ class Bible
 			explode(' ', 'Nehemiah Ne Neh Neh Ne'),
 			explode(' ', 'Esther Es Est Esth'),
 			explode(' ', 'Job Jb Job'),
-			explode(' ', 'Psalm Ps Psa Pss'),
+			explode(' ', 'Psalm Ps Psa Pss Psalms'),
 			explode(' ', 'Proverbs Pr Prov Pro'),
 			explode(' ', 'Ecclesiastes Ec Ecc'),
 			['Song of Solomon', 'SoS', 'Song of Songs'],
@@ -80,6 +80,7 @@ class Bible
 	private static function _ordinals($number, $string)
 	{
 		$string = explode(' ', $string);
+		$ords = [];
 
 		switch ($number) {
 			case 1:
