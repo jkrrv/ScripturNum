@@ -21,6 +21,8 @@ jobs:
             
             -   name: Composer
                 uses: php-actions/composer@v5
+                with:
+                    php_version: ${{ matrix.php-versions }}
             
             -   name: Tests
                 uses: php-actions/phpunit@v2
