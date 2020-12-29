@@ -12,7 +12,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php-versions: ['5.6', '7.0', '7.2', '7.3', '7.4', '8.0']
+                php-versions: ['5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
 
         name: PHP ${{ matrix.php-versions }} tests
         steps:
@@ -24,8 +24,15 @@ jobs:
                 uses: php-actions/composer@v5
                 with:
                     php_version: ${{ matrix.php-versions }}
-                    
-            -   run: ls 
             
             -   name: Tests
-                run: ./vendor/bin/phpunit
+                run: ./vendor/bin/phpunit --coverage-clover clover.xml
+
+            -   name: Upload coverage results to Coveralls
+                env:
+                    COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_GITHUB_TOKEN }}
+                    COVERALLS_PARALLEL: true
+                    COVERALLS_FLAG_NAME: ${{ matrix.php-versions }}
+                run: |
+                    composer global require php-coveralls/php-coveralls
+                    php-coveralls --coverage_clover=clover.xml -v
