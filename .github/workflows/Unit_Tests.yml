@@ -38,7 +38,7 @@ jobs:
 
       - name: Coveralls
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_GITHUB_TOKEN }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_PARALLEL: true
           COVERALLS_FLAG_NAME: PHP ${{ matrix.php-versions }}
         run: ./vendor/bin/php-coveralls -x clover.xml -o coverage.json -v
