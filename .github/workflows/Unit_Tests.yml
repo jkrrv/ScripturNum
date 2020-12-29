@@ -27,9 +27,9 @@ jobs:
           ini-values: max_execution_time=15
         env:
           update: true
-        run: composer update
 
-#      - name: Composer
+      - name: Composer
+        run: composer update
 #        uses: php-actions/composer@v5
 #        with:
 #          php_version: ${{ matrix.php-versions }}
