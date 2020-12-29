@@ -1,6 +1,10 @@
 vendor/
 composer.lock
 
+coverage.json
+clover.xml
+.phpunit.*
+
 # Typical PHPStorm stuff:
 .idea/workspace.xml
 .idea/tasks.xml
