@@ -27,11 +27,12 @@ jobs:
           ini-values: max_execution_time=15
         env:
           update: true
+        run: composer update
 
-      - name: Composer
-        uses: php-actions/composer@v5
-        with:
-          php_version: ${{ matrix.php-versions }}
+#      - name: Composer
+#        uses: php-actions/composer@v5
+#        with:
+#          php_version: ${{ matrix.php-versions }}
 
       - name: Tests
         env:
@@ -43,4 +44,4 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_GITHUB_TOKEN }}
           COVERALLS_PARALLEL: true
           COVERALLS_FLAG_NAME: ${{ matrix.php-versions }}
-        run: ./vendor/bin/php-coveralls -x clover.xml -v
+        run: ./vendor/bin/php-coveralls -x clover.xml -o coveralls.json -v
