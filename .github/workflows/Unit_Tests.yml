@@ -28,8 +28,4 @@ jobs:
             -   run: ls 
             
             -   name: Tests
-                uses: php-actions/phpunit@v2
-                with:
-                    configuration: phpunit.xml
-                    php_version: ${{ matrix.php-versions }}
-                    php_extensions: xdebug
+                run: ./vendor/bin/phpunit
