@@ -28,10 +28,10 @@ jobs:
         env:
           update: true
 
-      #            -   name: Composer
-      #                uses: php-actions/composer@v5
-      #                with:
-      #                    php_version: ${{ matrix.php-versions }}
+      - name: Composer
+        uses: php-actions/composer@v5
+        with:
+          php_version: ${{ matrix.php-versions }}
 
       - name: Tests
         env:
