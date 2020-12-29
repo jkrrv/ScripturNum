@@ -16,7 +16,6 @@ jobs:
 
         name: PHP ${{ matrix.php-versions }} tests
         steps:
-            # basically git clone
             -   name: Checkout
                 uses: actions/checkout@v2
             
@@ -26,10 +25,9 @@ jobs:
                     php_version: ${{ matrix.php-versions }}
             
             -   name: Tests
+                env:
+                    XDEBUG_MODE: coverage
                 run: ./vendor/bin/phpunit --coverage-clover clover.xml
-
-            -   name: Show Clover File
-                run: cat clover.xml
 
             -   name: Upload coverage results to Coveralls
                 env:
