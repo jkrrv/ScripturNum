@@ -22,7 +22,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php_version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-versions }}
           coverage: xdebug
           ini-values: max_execution_time=15
         env:
