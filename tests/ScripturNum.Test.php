@@ -325,7 +325,14 @@ class ScripturNumPublicTest extends TestCase
 		$this->assertEquals('3Jo11', $n->getAbbrev());
 	}
 
-	public function test_issue02() {
+    public function test_issue02_01() {
+        $this->expectException('\ScripturNum\ScripturNumException');
+        $this->expectExceptionMessage('There are not that many books in the Bible.');
+
+        new ScripturNum(4496293888);
+    }
+
+	public function test_issue02_02() {
 		$this->expectException('\ScripturNum\ScripturNumException');
 		$this->expectExceptionMessage('There are not that many verses in this book.');
 
@@ -355,8 +362,8 @@ class ScripturNumPublicTest extends TestCase
 		$this->expectExceptionMessage('Invalid space character.');
 
 		$n = new ScripturNum('Ro 1-8');
-		ScripturNum::setStringSettings('testSettings', []);
-		$n->getStringWithSettings('testSettings');
+		ScripturNum::setStringSettings('testSettings_03_03', []);
+		$n->getStringWithSettings('testSettings_03_03');
 	}
 
 	public function test_issue04() {
@@ -371,4 +378,54 @@ class ScripturNumPublicTest extends TestCase
 		$this->assertEquals(301993985, $n->getInt());
 	}
 
+    public function test_issue08_01() { // invalid separation character.
+        $this->expectException('\ScripturNum\ScripturNumException');
+        $this->expectExceptionMessage('Invalid chapter-verse separation character.');
+
+        $n = new ScripturNum('Ro 1-8');
+        ScripturNum::setStringSettings('testSettings_08_01', ['space' => ' ']);
+        $n->getStringWithSettings('testSettings_08_01');
+    }
+
+    public function test_issue08_02() { // invalid range character.
+        $this->expectException('\ScripturNum\ScripturNumException');
+        $this->expectExceptionMessage('Invalid range character.');
+
+        $n = new ScripturNum('Ro 1-8');
+        ScripturNum::setStringSettings('testSettings_08_02', ['space' => ' ', 'cvsep' => ' ']);
+        $n->getStringWithSettings('testSettings_08_02');
+    }
+
+    public function test_issue08_03() { // invalid separation character.
+        $this->expectException('\ScripturNum\ScripturNumException');
+        $this->expectExceptionMessage('Invalid name offset.');
+
+        $n = new ScripturNum('Ro 1-8');
+        ScripturNum::setStringSettings('testSettings_08_03', ['space' => ' ', 'cvsep' => ' ', 'range' => ' ']);
+        $n->getStringWithSettings('testSettings_08_03');
+    }
+
+    public function test_issue08_04() { // invalid separation character.
+        $this->expectException('\ScripturNum\ScripturNumException');
+        $this->expectExceptionMessage('Plurality is not defined.');
+
+        $n = new ScripturNum('Ro 1-8');
+        ScripturNum::setStringSettings('testSettings_08_04', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
+        $n->getStringWithSettings('testSettings_08_04');
+    }
+
+    public function test_issue08_05() { // invalid plurality.
+        $this->expectException('\ScripturNum\ScripturNumException');
+        $this->expectExceptionMessage('Plurality is not defined.');
+
+        $n = new ScripturNum('Ro 1-8');
+        ScripturNum::setStringSettings('testSettings_08_05', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
+        $n->getStringWithSettings('testSettings_08_05');
+    }
+
+    public function test_issue08_06() { // invalid separation character.
+        $n = new ScripturNum('Ro 1-8');
+        ScripturNum::setStringSettings('testSettings_08_06', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10, 'plurl' => true]);
+        $this->assertEquals('Rmns 1-8', $n->getStringWithSettings('testSettings_08_06'));
+    }
 }

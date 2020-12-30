@@ -123,15 +123,19 @@ class ScripturNum
 		if (!isset(static::$stringSettings[$settingKey]['range']))
 			throw new ScripturNumException('Invalid range character.');
 
-		if (!isset(static::$stringSettings[$settingKey]['names']))
+		if (!isset(static::$stringSettings[$settingKey]['names']) ||
+            !is_numeric(static::$stringSettings[$settingKey]['names']))
 			throw new ScripturNumException('Invalid name offset.');
+
+        if (!isset(static::$stringSettings[$settingKey]['plurl']))
+            throw new ScripturNumException('Plurality is not defined.');
 
 
 		$s = static::$stringSettings[$settingKey]['space'];
 		$c = static::$stringSettings[$settingKey]['cvsep'];
 		$r = static::$stringSettings[$settingKey]['range'];
-		$n = static::$stringSettings[$settingKey]['names'];
-		$p = static::$stringSettings[$settingKey]['plurl'];
+		$n = (int)static::$stringSettings[$settingKey]['names'];
+		$p = !!static::$stringSettings[$settingKey]['plurl'];
 
 		$b = Bible::getBookNames();
 
