@@ -1,23 +1,28 @@
 ScripturNum
 ===========
 
-Like a nasturtium, but tastier. 
+[![Coverage Status](https://coveralls.io/repos/github/jkrrv/ScripturNum/badge.svg)](https://coveralls.io/github/jkrrv/ScripturNum)
 
-This is a PHP Library intended for working with scripture references.  It can parse text-based scripture references, and can express passages of scripture in only 32 bits (31, actually), which allows a scripture range to be stored in a single unsigned integer in most DBs.   
+This is a PHP Library intended for working with scripture references.  It can parse text-based scripture references, and can express passages of scripture in only 32 bits (31, actually), which allows a scripture range to be stored in a single unsigned integer in most DBs.
+
+It handles all of the weird exceptions with how we talk about scripture, including:
+ - Books with only a single chapter won't list the chapter.  (e.g.  3 John 11)
+ - Psalm is singular and Psalms is plural. (e.g. Psalm 23 and Psalms 101-102)  Same for Song(s) of Solomon.  This behavior can be changed with the 'plurl' option.
 
 ## Installation
 
 Use Composer. Just run: 
 
-	composer require jkrrv/scripturnum
-	composer install
+    composer require jkrrv/scripturnum
+    composer install
 
 Or, download the source files from GitHub.  The code comes ready-to-run; there is no particular 'build' procedure. 
 
 ## Prerequisites
 
- - PHP >5.5 (this will be bumped to 5.6 in some future version)
- - some idea of how to write PHP, so you can actually use this library.
+ - PHP >5.6
+
+(yes, that's it.)
  
  
 ## Usage
@@ -27,13 +32,13 @@ database.  The constructor takes both of these forms.
 
 For instance: 
 
-	$s = new ScripturNum('Romans 1-8');
+    $s = new ScripturNum('Romans 1-8');
     var_dump($s);
     echo $s;
 
 Produces the result: 
 
-	object(ScripturNum\ScripturNum)
+    object(ScripturNum\ScripturNum)
       protected 'int' => int 738197728
       protected 'book' => int 45
       protected 'startCh' => int 1
@@ -44,20 +49,20 @@ Produces the result:
 
 Or, start with a number:
 
-	$s = new ScripturNum(739119536);
+    $s = new ScripturNum(739119536);
     var_dump($s);
     echo $s;
     
 Produces the output:
 
-	object(ScripturNum\ScripturNum)
-	  protected 'int' => int 739119536
-	  protected 'book' => int 45
-	  protected 'startCh' => int 9
-	  protected 'startV' => int 1
-	  protected 'endCh' => int 16
-	  protected 'endV' => int 27
-	Romans 9-16
+    object(ScripturNum\ScripturNum)
+      protected 'int' => int 739119536
+      protected 'book' => int 45
+      protected 'startCh' => int 9
+      protected 'startV' => int 1
+      protected 'endCh' => int 16
+      protected 'endV' => int 27
+    Romans 9-16
 	
 	
 	
@@ -69,30 +74,30 @@ Currently, only English book names are supported by the library directly.  This 
 
 (Matthew is the 40th book.)
 
-	//   ScripturNum::newFromInts($book, $startCh, $startV = 1, $endCh = null, $endV = null)
-	$n = ScripturNum::newFromInts(40, 8, null, 9);
+    //   ScripturNum::newFromInts($book, $startCh, $startV = 1, $endCh = null, $endV = null)
+    $n = ScripturNum::newFromInts(40, 8, null, 9);
     var_dump($n);
     echo $n;
 
 Produces the output:
  
-	object(ScripturNum\ScripturNum)[3]
-	  protected 'int' => int 655134992
-	  protected 'book' => int 40
-	  protected 'startCh' => int 8
-	  protected 'startV' => int 1
-	  protected 'endCh' => int 9
-	  protected 'endV' => int 38
-	Matthew 8-9
+    object(ScripturNum\ScripturNum)[3]
+      protected 'int' => int 655134992
+      protected 'book' => int 40
+      protected 'startCh' => int 8
+      protected 'startV' => int 1
+      protected 'endCh' => int 9
+      protected 'endV' => int 38
+    Matthew 8-9
 	
 ### Getting Strings Out: Full Name
 The object supports direct conversion to strings.  Doing so will produce the same output as the `getLongString` function.  For example:
 
-	echo new ScripturNum('3Jo11')
+    echo new ScripturNum('1Jo1:9')
 	
 Produces the output:
 
-	3 John 11
+    1 John 1:9
 	
 By default, full references use the numerical ordinal (2, as opposed to II or Second), and the *first* name given for each book in the array of names in the Bible class.
 	
