@@ -1,31 +1,54 @@
 name: Unit_Tests
 
 on:
-    pull_request: null
-    push:
-        branches:
-            - master
+  pull_request: null
+  push:
+    branches:
+      - master
 
 jobs:
-    tests:
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                php-versions: ['5.6', '7.0', '7.2', '7.3', '7.4', '8.0']
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: [ '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0' ]
 
-        name: PHP ${{ matrix.php-versions }} tests
-        steps:
-            # basically git clone
-            -   name: Checkout
-                uses: actions/checkout@v2
-            
-            -   name: Composer
-                uses: php-actions/composer@v5
-                with:
-                    php_version: ${{ matrix.php-versions }}
-                    
-            -   run: ls 
-            
-            -   name: Tests
-                run: ./vendor/bin/phpunit
+    name: PHP ${{ matrix.php-versions }} tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          coverage: xdebug
+          ini-values: max_execution_time=15
+        env:
+          update: true
+
+      - name: Composer
+        run: composer update
+
+      - name: Tests
+        env:
+          XDEBUG_MODE: coverage
+        run: ./vendor/bin/phpunit --coverage-clover clover.xml
+
+      - name: Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_PARALLEL: true
+          COVERALLS_FLAG_NAME: PHP ${{ matrix.php-versions }}
+        run: ./vendor/bin/php-coveralls -x clover.xml -o coverage.json -v
+
+  finish:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close Coveralls Tests
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          COVERALLS_ENDPOINT: https://coveralls.io
+        run: curl -k $COVERALLS_ENDPOINT/webhook?repo_token=$COVERALLS_REPO_TOKEN -d "payload[build_num]=$GITHUB_RUN_ID&payload[status]=done"

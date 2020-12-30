@@ -346,6 +346,8 @@ class ScripturNumPublicTest extends TestCase
 		ScripturNum::setStringSettings('long', ['space' => ' and Greeks ']);
 
 		$this->assertEquals("Romans and Greeks 1-8", $n->getLongString());
+
+        ScripturNum::setStringSettings('long', ['space' => ' ']); // reset to prevent other tests failing
 	}
 
 	public function test_issue03_03() { // New settings, incomplete
