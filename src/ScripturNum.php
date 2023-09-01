@@ -12,6 +12,8 @@ class ScripturNum
 	protected $endCh;
 	protected $endV;
 
+	protected static $bibleClass = Bible::class;
+
 
 	/**
 	 * ScripturNum constructor.
@@ -137,7 +139,7 @@ class ScripturNum
 		$n = (int)static::$stringSettings[$settingKey]['names'];
 		$p = !!static::$stringSettings[$settingKey]['plurl'];
 
-		$b = Bible::getBookNames();
+		$b = self::$bibleClass::getBookNames();
 
 		if ($n > count($b[$this->book - 1]))
 			$n = count($b[$this->book - 1]) - 1;

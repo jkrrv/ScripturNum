@@ -2,115 +2,9 @@
 
 namespace ScripturNum;
 
-class Bible
+abstract class Bible
 {
-	private static $BOOK_NAMES = [];
-
-    private static function _prepareBookNames()
-    {
-        return self::$BOOK_NAMES = [
-            explode(' ', 'Genesis Ge Gen'),
-            explode(' ', 'Exodus Ex Exo'),
-            explode(' ', 'Leviticus Le Lev'),
-            explode(' ', 'Numbers Nu Num'),
-            explode(' ', 'Deuteronomy Dt Deut Deu De'),
-            explode(' ', 'Joshua Js Jos Jos Josh'),
-            explode(' ', 'Judges Jg Jdg Jdgs Judg'),
-            explode(' ', 'Ruth Ru Rut'),
-            self::_ordinals(1, 'Samuel Sa Sam'),
-            self::_ordinals(2, 'Samuel Sa Sam'),
-            self::_ordinals(1, 'Kings Ki King Kin Kngs'),
-            self::_ordinals(2, 'Kings Ki King Kin Kngs'),
-            self::_ordinals(1, 'Chronicles Ch Chr Chron'),
-            self::_ordinals(2, 'Chronicles Ch Chr Chron'),
-            explode(' ', 'Ezra Ez Ezr'),
-            explode(' ', 'Nehemiah Ne Neh Neh Ne'),
-            explode(' ', 'Esther Es Est Esth'),
-            explode(' ', 'Job Jb Job'),
-            explode(' ', 'Psalm Ps Psa Pss Psalms'),
-            explode(' ', 'Proverbs Pr Prov Pro'),
-            explode(' ', 'Ecclesiastes Ec Ecc'),
-            ['Song of Solomon', 'SoS', 'Song of Songs'],
-            explode(' ', 'Isaiah Isa'),
-            explode(' ', 'Jeremiah Je Jer'),
-            explode(' ', 'Lamentations La Lam Lament'),
-            explode(' ', 'Ezekiel Ek Ezek Eze'),
-            explode(' ', 'Daniel Da Dan Dl Dnl'),
-            explode(' ', 'Hosea Ho Hos'),
-            explode(' ', 'Joel Jl Joel Joe'),
-            explode(' ', 'Amos Am Amos Amo'),
-            explode(' ', 'Obadiah Ob Oba Obd Odbh'),
-            explode(' ', 'Jonah Jh Jon Jnh'),
-            explode(' ', 'Micah Mi Mic'),
-            explode(' ', 'Nahum Na Nah Na'),
-            explode(' ', 'Habakkuk Hb Hab Hk Habk'),
-            explode(' ', 'Zephaniah Zp Zep Zeph Ze'),
-            explode(' ', 'Haggai Ha Hag Hagg'),
-            explode(' ', 'Zechariah Zc Zech Zec'),
-            explode(' ', 'Malachi Ml Mal Mlc'),
-            explode(' ', 'Matthew Mt Matt Mat'),
-            explode(' ', 'Mark Mk Mrk'),
-            explode(' ', 'Luke Lk Luk Lu'),
-            explode(' ', 'John Jn Joh Jo'),
-            explode(' ', 'Acts Ac Act'),
-            explode(' ', 'Romans Ro Rom Rmn Rmns'),
-            self::_ordinals(1, 'Corinthians Co Cor'),
-            self::_ordinals(2, 'Corinthians Co Cor'),
-            explode(' ', 'Galatians Ga Gal Gltns'),
-            explode(' ', 'Ephesians Ep Eph Ephn'),
-            explode(' ', 'Philippians Phi Phil Phi'),
-            explode(' ', 'Colossians Co Col Colo Cln Clns'),
-            self::_ordinals(1, 'Thessalonians Th Thess Thes'),
-            self::_ordinals(2, 'Thessalonians Th Thess Thes'),
-            self::_ordinals(1, 'Timothy Ti Tim'),
-            self::_ordinals(2, 'Timothy Ti Tim'),
-            explode(' ', 'Titus Ti Tit Tt Ts'),
-            explode(' ', 'Philemon Pm Phile Philm Pm'),
-            explode(' ', 'Hebrews He Heb Hw'),
-            explode(' ', 'James Jm Jam Jas Ja'),
-            self::_ordinals(1, 'Peter Pe Pet P'),
-            self::_ordinals(2, 'Peter Pe Pet P'),
-            self::_ordinals(1, 'John Jo Jn J'),
-            self::_ordinals(2, 'John Jo Jn J'),
-            self::_ordinals(3, 'John Jo Jn J'),
-            explode(' ', 'Jude Ju'),
-            explode(' ', 'Revelation Re Rev Rvltn')
-        ];
-    }
-
-	private static function _ordinals($number, $string)
-	{
-		$string = explode(' ', $string);
-		$ords = [];
-
-		switch ($number) {
-			case 1:
-				$ords = ['1', 'I', 'First'];
-				break;
-			case 2:
-				$ords = ['2', 'II', 'Second'];
-				break;
-			case 3:
-				$ords = ['3', 'III', 'Third'];
-				break;
-		}
-
-		$r = [];
-
-		foreach ($ords as $ok => $o) {
-			foreach ($string as $s) {
-				$r[] = $o . ' ' . $s; // 1 John, 1 Jo
-				if ($ok == 0)
-					$r[] = $o . $s; // 1John, 1Jo
-			}
-		}
-
-		// switch positions 1 & 3 so that the full address is at position 0 and the shortest address is at position 1.
-		$short = $r[3];
-		$r[3] = $r[1];
-		$r[1] = $short;
-		return $r;
-	}
+	protected static $BOOK_NAMES = [];
 
 	private static $VERSES = [
 		[31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26],
@@ -188,8 +82,114 @@ class Bible
 
 	public static function getBookNames()
 	{
+		function _prepareBookNames()
+		{
+			return Bible::$BOOK_NAMES = [
+				explode(' ', 'Genesis Ge Gen'),
+				explode(' ', 'Exodus Ex Exo'),
+				explode(' ', 'Leviticus Le Lev'),
+				explode(' ', 'Numbers Nu Num'),
+				explode(' ', 'Deuteronomy Dt Deut Deu De'),
+				explode(' ', 'Joshua Js Jos Jos Josh'),
+				explode(' ', 'Judges Jg Jdg Jdgs Judg'),
+				explode(' ', 'Ruth Ru Rut'),
+				_ordinals(1, 'Samuel Sa Sam'),
+				_ordinals(2, 'Samuel Sa Sam'),
+				_ordinals(1, 'Kings Ki King Kin Kngs'),
+				_ordinals(2, 'Kings Ki King Kin Kngs'),
+				_ordinals(1, 'Chronicles Ch Chr Chron'),
+				_ordinals(2, 'Chronicles Ch Chr Chron'),
+				explode(' ', 'Ezra Ez Ezr'),
+				explode(' ', 'Nehemiah Ne Neh Neh Ne'),
+				explode(' ', 'Esther Es Est Esth'),
+				explode(' ', 'Job Jb Job'),
+				explode(' ', 'Psalm Ps Psa Pss Psalms'),
+				explode(' ', 'Proverbs Pr Prov Pro'),
+				explode(' ', 'Ecclesiastes Ec Ecc'),
+				['Song of Solomon', 'SoS', 'Song of Songs'],
+				explode(' ', 'Isaiah Isa'),
+				explode(' ', 'Jeremiah Je Jer'),
+				explode(' ', 'Lamentations La Lam Lament'),
+				explode(' ', 'Ezekiel Ek Ezek Eze'),
+				explode(' ', 'Daniel Da Dan Dl Dnl'),
+				explode(' ', 'Hosea Ho Hos'),
+				explode(' ', 'Joel Jl Joel Joe'),
+				explode(' ', 'Amos Am Amos Amo'),
+				explode(' ', 'Obadiah Ob Oba Obd Odbh'),
+				explode(' ', 'Jonah Jh Jon Jnh'),
+				explode(' ', 'Micah Mi Mic'),
+				explode(' ', 'Nahum Na Nah Na'),
+				explode(' ', 'Habakkuk Hb Hab Hk Habk'),
+				explode(' ', 'Zephaniah Zp Zep Zeph Ze'),
+				explode(' ', 'Haggai Ha Hag Hagg'),
+				explode(' ', 'Zechariah Zc Zech Zec'),
+				explode(' ', 'Malachi Ml Mal Mlc'),
+				explode(' ', 'Matthew Mt Matt Mat'),
+				explode(' ', 'Mark Mk Mrk'),
+				explode(' ', 'Luke Lk Luk Lu'),
+				explode(' ', 'John Jn Joh Jo'),
+				explode(' ', 'Acts Ac Act'),
+				explode(' ', 'Romans Ro Rom Rmn Rmns'),
+				_ordinals(1, 'Corinthians Co Cor'),
+				_ordinals(2, 'Corinthians Co Cor'),
+				explode(' ', 'Galatians Ga Gal Gltns'),
+				explode(' ', 'Ephesians Ep Eph Ephn'),
+				explode(' ', 'Philippians Phi Phil Phi'),
+				explode(' ', 'Colossians Co Col Colo Cln Clns'),
+				_ordinals(1, 'Thessalonians Th Thess Thes'),
+				_ordinals(2, 'Thessalonians Th Thess Thes'),
+				_ordinals(1, 'Timothy Ti Tim'),
+				_ordinals(2, 'Timothy Ti Tim'),
+				explode(' ', 'Titus Ti Tit Tt Ts'),
+				explode(' ', 'Philemon Pm Phile Philm Pm'),
+				explode(' ', 'Hebrews He Heb Hw'),
+				explode(' ', 'James Jm Jam Jas Ja'),
+				_ordinals(1, 'Peter Pe Pet P'),
+				_ordinals(2, 'Peter Pe Pet P'),
+				_ordinals(1, 'John Jo Jn J'),
+				_ordinals(2, 'John Jo Jn J'),
+				_ordinals(3, 'John Jo Jn J'),
+				explode(' ', 'Jude Ju'),
+				explode(' ', 'Revelation Re Rev Rvltn')
+			];
+		}
+
+		function _ordinals($number, $string)
+		{
+			$string = explode(' ', $string);
+			$ords = [];
+
+			switch ($number) {
+				case 1:
+					$ords = ['1', 'I', 'First'];
+					break;
+				case 2:
+					$ords = ['2', 'II', 'Second'];
+					break;
+				case 3:
+					$ords = ['3', 'III', 'Third'];
+					break;
+			}
+
+			$r = [];
+
+			foreach ($ords as $ok => $o) {
+				foreach ($string as $s) {
+					$r[] = $o . ' ' . $s; // 1 John, 1 Jo, First Jo
+					if ($ok == 0)
+						$r[] = $o . $s; // 1John, 1Jo
+				}
+			}
+
+			// switch positions 1 & 3 so that the full address is at position 0 and the shortest address is at position 1.
+			$short = $r[3];
+			$r[3] = $r[1];
+			$r[1] = $short;
+			return $r;
+		}
+
 		if (self::$BOOK_NAMES === [])
-			self::_prepareBookNames();
+			_prepareBookNames();
 
 		return self::$BOOK_NAMES;
 	}

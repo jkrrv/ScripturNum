@@ -5,9 +5,9 @@ ScripturNum
 
 This is a PHP Library intended for working with scripture references.  It can parse text-based scripture references, and can express passages of scripture in only 32 bits (31, actually), which allows a scripture range to be stored in a single unsigned integer in most DBs.
 
-It handles all of the weird exceptions with how we talk about scripture, including:
+It handles all the weird exceptions with how we talk about scripture, including:
  - Books with only a single chapter won't list the chapter.  (e.g.  3 John 11)
- - Psalm is singular and Psalms is plural. (e.g. Psalm 23 and Psalms 101-102)  Same for Song(s) of Solomon.  This behavior can be changed with the 'plurl' option.
+ - Psalm is singular and Psalms is plural. (e.g. Psalm 23 and Psalms 101-102)  Same for Song(s) of Solomon.  This behavior can be changed with the 'plurl' option. (The misspelling is deliberate--all options are five letters.)
 
 ## Installation
 
@@ -20,7 +20,7 @@ Or, download the source files from GitHub.  The code comes ready-to-run; there i
 
 ## Prerequisites
 
- - PHP >5.6
+ - PHP >7.0
 
 (yes, that's it.)
  
