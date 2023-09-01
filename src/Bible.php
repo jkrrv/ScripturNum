@@ -2,10 +2,35 @@
 
 namespace ScripturNum;
 
+/**
+ * A class that defines the composition of a Bible.  This includes the number of verses in each chapter.  Note that
+ * changing this is not advisable.
+ */
 abstract class Bible
 {
+	/**
+	 * An array containing book names that should be recognized.  Keyed by sequence.
+	 *
+	 * @var string[][]
+	 */
 	protected static $BOOK_NAMES = [];
 
+	/**
+	 * An array containing the default ordinal strings.
+	 *
+	 * @var string[][]
+	 */
+	protected static $ORDINALS = [
+		['1', 'I', 'First'],
+		['2', 'II', 'Second'],
+		['3', 'III', 'Third']
+	];
+
+	/**
+	 * An array containing the length of each chapter.
+	 *
+	 * @var int[][]
+	 */
 	private static $VERSES = [
 		[31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26],
 		[22, 25, 22, 31, 23, 30, 25, 32, 35, 29, 10, 51, 22, 31, 27, 36, 16, 27, 25, 26, 36, 31, 33, 18, 40, 37, 21, 43, 46, 38, 18, 35, 23, 35, 35, 38, 29, 31, 43, 38],
@@ -75,131 +100,176 @@ abstract class Bible
 		[20, 29, 22, 11, 14, 17, 17, 13, 21, 11, 19, 17, 18, 20, 8, 21, 18, 24, 21, 15, 27, 20]
 	];
 
-	public static function getVerseCounts()
+	/**
+	 * An array containing the length of each chapter.
+	 *
+	 * @return int[][]
+	 */
+	public static function getVerseCounts(): array
 	{
 		return self::$VERSES;
 	}
 
-	public static function getBookNames()
+	/**
+	 * Prepare the Book Names array. To translate this plugin, override this method.
+	 *
+	 * @return string[][]
+	 */
+	protected static function prepareBookNames(): array
 	{
-		function _prepareBookNames()
-		{
-			return Bible::$BOOK_NAMES = [
-				explode(' ', 'Genesis Ge Gen'),
-				explode(' ', 'Exodus Ex Exo'),
-				explode(' ', 'Leviticus Le Lev'),
-				explode(' ', 'Numbers Nu Num'),
-				explode(' ', 'Deuteronomy Dt Deut Deu De'),
-				explode(' ', 'Joshua Js Jos Jos Josh'),
-				explode(' ', 'Judges Jg Jdg Jdgs Judg'),
-				explode(' ', 'Ruth Ru Rut'),
-				_ordinals(1, 'Samuel Sa Sam'),
-				_ordinals(2, 'Samuel Sa Sam'),
-				_ordinals(1, 'Kings Ki King Kin Kngs'),
-				_ordinals(2, 'Kings Ki King Kin Kngs'),
-				_ordinals(1, 'Chronicles Ch Chr Chron'),
-				_ordinals(2, 'Chronicles Ch Chr Chron'),
-				explode(' ', 'Ezra Ez Ezr'),
-				explode(' ', 'Nehemiah Ne Neh Neh Ne'),
-				explode(' ', 'Esther Es Est Esth'),
-				explode(' ', 'Job Jb Job'),
-				explode(' ', 'Psalm Ps Psa Pss Psalms'),
-				explode(' ', 'Proverbs Pr Prov Pro'),
-				explode(' ', 'Ecclesiastes Ec Ecc'),
-				['Song of Solomon', 'SoS', 'Song of Songs'],
-				explode(' ', 'Isaiah Isa'),
-				explode(' ', 'Jeremiah Je Jer'),
-				explode(' ', 'Lamentations La Lam Lament'),
-				explode(' ', 'Ezekiel Ek Ezek Eze'),
-				explode(' ', 'Daniel Da Dan Dl Dnl'),
-				explode(' ', 'Hosea Ho Hos'),
-				explode(' ', 'Joel Jl Joel Joe'),
-				explode(' ', 'Amos Am Amos Amo'),
-				explode(' ', 'Obadiah Ob Oba Obd Odbh'),
-				explode(' ', 'Jonah Jh Jon Jnh'),
-				explode(' ', 'Micah Mi Mic'),
-				explode(' ', 'Nahum Na Nah Na'),
-				explode(' ', 'Habakkuk Hb Hab Hk Habk'),
-				explode(' ', 'Zephaniah Zp Zep Zeph Ze'),
-				explode(' ', 'Haggai Ha Hag Hagg'),
-				explode(' ', 'Zechariah Zc Zech Zec'),
-				explode(' ', 'Malachi Ml Mal Mlc'),
-				explode(' ', 'Matthew Mt Matt Mat'),
-				explode(' ', 'Mark Mk Mrk'),
-				explode(' ', 'Luke Lk Luk Lu'),
-				explode(' ', 'John Jn Joh Jo'),
-				explode(' ', 'Acts Ac Act'),
-				explode(' ', 'Romans Ro Rom Rmn Rmns'),
-				_ordinals(1, 'Corinthians Co Cor'),
-				_ordinals(2, 'Corinthians Co Cor'),
-				explode(' ', 'Galatians Ga Gal Gltns'),
-				explode(' ', 'Ephesians Ep Eph Ephn'),
-				explode(' ', 'Philippians Phi Phil Phi'),
-				explode(' ', 'Colossians Co Col Colo Cln Clns'),
-				_ordinals(1, 'Thessalonians Th Thess Thes'),
-				_ordinals(2, 'Thessalonians Th Thess Thes'),
-				_ordinals(1, 'Timothy Ti Tim'),
-				_ordinals(2, 'Timothy Ti Tim'),
-				explode(' ', 'Titus Ti Tit Tt Ts'),
-				explode(' ', 'Philemon Pm Phile Philm Pm'),
-				explode(' ', 'Hebrews He Heb Hw'),
-				explode(' ', 'James Jm Jam Jas Ja'),
-				_ordinals(1, 'Peter Pe Pet P'),
-				_ordinals(2, 'Peter Pe Pet P'),
-				_ordinals(1, 'John Jo Jn J'),
-				_ordinals(2, 'John Jo Jn J'),
-				_ordinals(3, 'John Jo Jn J'),
-				explode(' ', 'Jude Ju'),
-				explode(' ', 'Revelation Re Rev Rvltn')
-			];
-		}
+		return Bible::$BOOK_NAMES = [
+			explode(' ', 'Genesis Ge Gen'),
+			explode(' ', 'Exodus Ex Exo'),
+			explode(' ', 'Leviticus Le Lev'),
+			explode(' ', 'Numbers Nu Num'),
+			explode(' ', 'Deuteronomy Dt Deut Deu De'),
+			explode(' ', 'Joshua Js Jos Jos Josh'),
+			explode(' ', 'Judges Jg Jdg Jdgs Judg'),
+			explode(' ', 'Ruth Ru Rut'),
+			self::ordinals(1, 'Samuel Sa Sam'),
+			self::ordinals(2, 'Samuel Sa Sam'),
+			self::ordinals(1, 'Kings Ki King Kin Kngs'),
+			self::ordinals(2, 'Kings Ki King Kin Kngs'),
+			self::ordinals(1, 'Chronicles Ch Chr Chron'),
+			self::ordinals(2, 'Chronicles Ch Chr Chron'),
+			explode(' ', 'Ezra Ez Ezr'),
+			explode(' ', 'Nehemiah Ne Neh Neh Ne'),
+			explode(' ', 'Esther Es Est Esth'),
+			explode(' ', 'Job Jb Job'),
+			explode(' ', 'Psalm Ps Psa Pss Psalms'),
+			explode(' ', 'Proverbs Pr Prov Pro'),
+			explode(' ', 'Ecclesiastes Ec Ecc'),
+			['Song of Solomon', 'SoS', 'Song of Songs'],
+			explode(' ', 'Isaiah Isa'),
+			explode(' ', 'Jeremiah Je Jer'),
+			explode(' ', 'Lamentations La Lam Lament'),
+			explode(' ', 'Ezekiel Ek Ezek Eze'),
+			explode(' ', 'Daniel Da Dan Dl Dnl'),
+			explode(' ', 'Hosea Ho Hos'),
+			explode(' ', 'Joel Jl Joel Joe'),
+			explode(' ', 'Amos Am Amos Amo'),
+			explode(' ', 'Obadiah Ob Oba Obd Odbh'),
+			explode(' ', 'Jonah Jh Jon Jnh'),
+			explode(' ', 'Micah Mi Mic'),
+			explode(' ', 'Nahum Na Nah Na'),
+			explode(' ', 'Habakkuk Hb Hab Hk Habk'),
+			explode(' ', 'Zephaniah Zp Zep Zeph Ze'),
+			explode(' ', 'Haggai Ha Hag Hagg'),
+			explode(' ', 'Zechariah Zc Zech Zec'),
+			explode(' ', 'Malachi Ml Mal Mlc'),
+			explode(' ', 'Matthew Mt Matt Mat'),
+			explode(' ', 'Mark Mk Mrk'),
+			explode(' ', 'Luke Lk Luk Lu'),
+			explode(' ', 'John Jn Joh Jo'),
+			explode(' ', 'Acts Ac Act'),
+			explode(' ', 'Romans Ro Rom Rmn Rmns'),
+			self::ordinals(1, 'Corinthians Co Cor'),
+			self::ordinals(2, 'Corinthians Co Cor'),
+			explode(' ', 'Galatians Ga Gal Gltns'),
+			explode(' ', 'Ephesians Ep Eph Ephn'),
+			explode(' ', 'Philippians Phi Phil Phi'),
+			explode(' ', 'Colossians Co Col Colo Cln Clns'),
+			self::ordinals(1, 'Thessalonians Th Thess Thes'),
+			self::ordinals(2, 'Thessalonians Th Thess Thes'),
+			self::ordinals(1, 'Timothy Ti Tim'),
+			self::ordinals(2, 'Timothy Ti Tim'),
+			explode(' ', 'Titus Ti Tit Tt Ts'),
+			explode(' ', 'Philemon Pm Phile Philm Pm'),
+			explode(' ', 'Hebrews He Heb Hw'),
+			explode(' ', 'James Jm Jam Jas Ja'),
+			self::ordinals(1, 'Peter Pe Pet P'),
+			self::ordinals(2, 'Peter Pe Pet P'),
+			self::ordinals(1, 'John Jo Jn J'),
+			self::ordinals(2, 'John Jo Jn J'),
+			self::ordinals(3, 'John Jo Jn J'),
+			explode(' ', 'Jude Ju'),
+			explode(' ', 'Revelation Re Rev Rvltn')
+		];
+	}
 
-		function _ordinals($number, $string)
-		{
+	/**
+	 * Create all combinations of strings for a given ordinal book (ordinal books are the numbered books, like 1 and 2
+	 * Kings).
+	 *
+	 * @param int $number  The number to use with the ordinal.  e.g. "1" in "1 John".
+	 * @param array|string $string  The words to place with the ordinal.  e.g. "John", "Jn", etc for "1 John".
+	 *
+	 * @return string[]  The full name (for formal contexts) must be in position 0, and the shortest address (for urls)
+	 * must be in position 1.
+	 */
+	protected static function ordinals(int $number, $string): array
+	{
+		if (!is_array($string)) {
 			$string = explode(' ', $string);
-			$ords = [];
-
-			switch ($number) {
-				case 1:
-					$ords = ['1', 'I', 'First'];
-					break;
-				case 2:
-					$ords = ['2', 'II', 'Second'];
-					break;
-				case 3:
-					$ords = ['3', 'III', 'Third'];
-					break;
-			}
-
-			$r = [];
-
-			foreach ($ords as $ok => $o) {
-				foreach ($string as $s) {
-					$r[] = $o . ' ' . $s; // 1 John, 1 Jo, First Jo
-					if ($ok == 0)
-						$r[] = $o . $s; // 1John, 1Jo
-				}
-			}
-
-			// switch positions 1 & 3 so that the full address is at position 0 and the shortest address is at position 1.
-			$short = $r[3];
-			$r[3] = $r[1];
-			$r[1] = $short;
-			return $r;
 		}
 
+		$number --;
+
+		$ords = self::$ORDINALS[$number] ?? [];
+
+		switch ($number) {
+			case 1:
+				$ords = ['1', 'I', 'First'];
+				break;
+			case 2:
+				$ords = ['2', 'II', 'Second'];
+				break;
+			case 3:
+				$ords = ['3', 'III', 'Third'];
+				break;
+		}
+
+		$r = [];
+
+		foreach ($ords as $ok => $o) {
+			foreach ($string as $s) {
+				$r[] = $o . ' ' . $s; // 1 John, 1 Jo, First Jo
+				if ($ok == 0)
+					$r[] = $o . $s; // 1John, 1Jo
+			}
+		}
+
+		// switch positions 1 & 3 so that the full address is at position 0 and the shortest address is at position 1.
+		$short = $r[3];
+		$r[3] = $r[1];
+		$r[1] = $short;
+		return $r;
+	}
+
+	/**
+	 * Get the Bible book names, as prepared.
+	 *
+	 * @return string[][]
+	 */
+	public static function getBookNames(): array
+	{
 		if (self::$BOOK_NAMES === [])
-			_prepareBookNames();
+			self::prepareBookNames();
 
 		return self::$BOOK_NAMES;
 	}
 
-	public static function in_arrayi($needle, $haystack)
+	/**
+	 * Returns true if the given needle is in the haystack, case-insensitive.
+	 *
+	 * @param $needle
+	 * @param $haystack
+	 *
+	 * @return bool
+	 */
+	public static function in_arrayi($needle, $haystack): bool
 	{
 		return in_array(strtolower($needle), array_map('strtolower', $haystack));
 	}
 
-	public static function bookHasSingleChapter($bookIndex)
+	/**
+	 * Returns true if the book at a particular position has only a single chapter.
+	 *
+	 * @param $bookIndex
+	 *
+	 * @return bool
+	 */
+	public static function bookHasSingleChapter($bookIndex): bool
 	{
 		return count(self::getVerseCounts()[$bookIndex]) === 1;
 	}
