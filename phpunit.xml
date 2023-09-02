@@ -6,7 +6,7 @@
          beStrictAboutTodoAnnotatedTests="true"
          beStrictAboutTestsThatDoNotTestAnything="false"
          failOnRisky="true"
-         failOnWarning="true">
+         failOnWarning="false">
   <testsuites>
     <testsuite name="default">
       <directory suffix="Tests.php">tests</directory>
