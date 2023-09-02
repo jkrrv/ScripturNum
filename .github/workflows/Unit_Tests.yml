@@ -40,7 +40,7 @@ jobs:
       - name: Tests (PHP 8)
         env:
           XDEBUG_MODE: coverage
-        run: ./vendor/bin/phpunit --coverage-clover clover.xml
+        run: ./vendor/bin/phpunit -c phpunit.xml  --coverage-clover clover.xml
         if: contains(matrix.php-versions, '8.')
 
       - name: Coveralls
