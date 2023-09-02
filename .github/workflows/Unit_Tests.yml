@@ -35,13 +35,13 @@ jobs:
         env:
           XDEBUG_MODE: coverage
         run: ./vendor/bin/phpunit -c phpunit.7.xml --coverage-clover clover.xml
-        if: contains(matrix.php-versions, '7.')
+        if: (contains(matrix.php-versions, '7.')) || (matrix.php-versions == '8.0')
 
       - name: Tests (PHP 8)
         env:
           XDEBUG_MODE: coverage
         run: ./vendor/bin/phpunit -c phpunit.xml  --coverage-clover clover.xml
-        if: contains(matrix.php-versions, '8.')
+        if: (!contains(matrix.php-versions, '7.')) && (matrix.php-versions != '8.0')
 
       - name: Coveralls
         env:
