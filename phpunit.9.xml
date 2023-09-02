@@ -14,7 +14,6 @@
         </testsuite>
     </testsuites>
 
-<!--    Keep for updated versions of PHPUnit-->
     <coverage includeUncoveredFiles="true"
               pathCoverage="true"
               ignoreDeprecatedCodeUnits="true"
