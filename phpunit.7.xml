@@ -14,14 +14,4 @@
         </testsuite>
     </testsuites>
 
-<!--    Keep for updated versions of PHPUnit-->
-    <coverage includeUncoveredFiles="true"
-              pathCoverage="true"
-              ignoreDeprecatedCodeUnits="true"
-              disableCodeCoverageIgnore="true">
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-    </coverage>
-
 </phpunit>

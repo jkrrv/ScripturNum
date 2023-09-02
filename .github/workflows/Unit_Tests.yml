@@ -31,10 +31,17 @@ jobs:
       - name: Composer
         run: composer update
 
-      - name: Tests
+      - name: Tests (PHP 7)
+        env:
+          XDEBUG_MODE: coverage
+        run: ./vendor/bin/phpunit -c phpunit.7.xml --coverage-clover clover.xml
+        if: contains(matrix.php-versions, '7.')
+
+      - name: Tests (PHP 8)
         env:
           XDEBUG_MODE: coverage
         run: ./vendor/bin/phpunit --coverage-clover clover.xml
+        if: contains(matrix.php-versions, '8.')
 
       - name: Coveralls
         env:
