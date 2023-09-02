@@ -13,7 +13,7 @@ abstract class Bible
 	 *
 	 * @var string[][]
 	 */
-	protected static $BOOK_NAMES = [];
+	private static $BOOK_NAMES = [];
 
 	/**
 	 * An array containing the default ordinal strings.
@@ -117,7 +117,7 @@ abstract class Bible
 	 */
 	protected static function prepareBookNames(): array
 	{
-		return Bible::$BOOK_NAMES = [
+		return [
 			explode(' ', 'Genesis Ge Gen'),
 			explode(' ', 'Exodus Ex Exo'),
 			explode(' ', 'Leviticus Le Lev'),
@@ -126,12 +126,12 @@ abstract class Bible
 			explode(' ', 'Joshua Js Jos Jos Josh'),
 			explode(' ', 'Judges Jg Jdg Jdgs Judg'),
 			explode(' ', 'Ruth Ru Rut'),
-			self::ordinals(1, 'Samuel Sa Sam'),
-			self::ordinals(2, 'Samuel Sa Sam'),
-			self::ordinals(1, 'Kings Ki King Kin Kngs'),
-			self::ordinals(2, 'Kings Ki King Kin Kngs'),
-			self::ordinals(1, 'Chronicles Ch Chr Chron'),
-			self::ordinals(2, 'Chronicles Ch Chr Chron'),
+			static::ordinals(1, 'Samuel Sa Sam'),
+			static::ordinals(2, 'Samuel Sa Sam'),
+			static::ordinals(1, 'Kings Ki King Kin Kngs'),
+			static::ordinals(2, 'Kings Ki King Kin Kngs'),
+			static::ordinals(1, 'Chronicles Ch Chr Chron'),
+			static::ordinals(2, 'Chronicles Ch Chr Chron'),
 			explode(' ', 'Ezra Ez Ezr'),
 			explode(' ', 'Nehemiah Ne Neh Neh Ne'),
 			explode(' ', 'Esther Es Est Esth'),
@@ -163,25 +163,25 @@ abstract class Bible
 			explode(' ', 'John Jn Joh Jo'),
 			explode(' ', 'Acts Ac Act'),
 			explode(' ', 'Romans Ro Rom Rmn Rmns'),
-			self::ordinals(1, 'Corinthians Co Cor'),
-			self::ordinals(2, 'Corinthians Co Cor'),
+			static::ordinals(1, 'Corinthians Co Cor'),
+			static::ordinals(2, 'Corinthians Co Cor'),
 			explode(' ', 'Galatians Ga Gal Gltns'),
 			explode(' ', 'Ephesians Ep Eph Ephn'),
 			explode(' ', 'Philippians Phi Phil Phi'),
 			explode(' ', 'Colossians Co Col Colo Cln Clns'),
-			self::ordinals(1, 'Thessalonians Th Thess Thes'),
-			self::ordinals(2, 'Thessalonians Th Thess Thes'),
-			self::ordinals(1, 'Timothy Ti Tim'),
-			self::ordinals(2, 'Timothy Ti Tim'),
+			static::ordinals(1, 'Thessalonians Th Thess Thes'),
+			static::ordinals(2, 'Thessalonians Th Thess Thes'),
+			static::ordinals(1, 'Timothy Ti Tim'),
+			static::ordinals(2, 'Timothy Ti Tim'),
 			explode(' ', 'Titus Ti Tit Tt Ts'),
 			explode(' ', 'Philemon Pm Phile Philm Pm'),
 			explode(' ', 'Hebrews He Heb Hw'),
 			explode(' ', 'James Jm Jam Jas Ja'),
-			self::ordinals(1, 'Peter Pe Pet P'),
-			self::ordinals(2, 'Peter Pe Pet P'),
-			self::ordinals(1, 'John Jo Jn J'),
-			self::ordinals(2, 'John Jo Jn J'),
-			self::ordinals(3, 'John Jo Jn J'),
+			static::ordinals(1, 'Peter Pe Pet P'),
+			static::ordinals(2, 'Peter Pe Pet P'),
+			static::ordinals(1, 'John Jo Jn J'),
+			static::ordinals(2, 'John Jo Jn J'),
+			static::ordinals(3, 'John Jo Jn J'),
 			explode(' ', 'Jude Ju'),
 			explode(' ', 'Revelation Re Rev Rvltn')
 		];
@@ -231,7 +231,7 @@ abstract class Bible
 	public static function getBookNames(): array
 	{
 		if (self::$BOOK_NAMES === [])
-			self::prepareBookNames();
+			self::$BOOK_NAMES = static::prepareBookNames();
 
 		return self::$BOOK_NAMES;
 	}

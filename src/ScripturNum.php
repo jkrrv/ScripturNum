@@ -111,7 +111,7 @@ class ScripturNum
 	 * @return string The human-intelligible string.
 	 * @throws ScripturNumException  If a setting is invalid.
 	 */
-	public function getStringWithSettings($settingKey)
+	public function getStringWithSettings($settingKey): string
 	{
 		if (!isset(static::$stringSettings[$settingKey]))
 			throw new ScripturNumException('Invalid key for creating a string.');
