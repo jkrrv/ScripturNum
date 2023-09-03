@@ -12,13 +12,26 @@ class ScripturNum
 	protected $endCh;
 	protected $endV;
 
+	const BOOK_MASK = 4278190080;
+	const START_MASK = 16773120;
+	const END_MASK = 4095;
+
 	protected static $bibleClass = Bible::class;
 
+	/**
+	 * @return string[][]
+	 *
+	 * @see Bible::getBookNames()
+	 */
+	protected static function getBookNames(): array
+	{
+		return call_user_func([static::$bibleClass, 'getBookNames']);
+	}
 
 	/**
 	 * ScripturNum constructor.
 	 *
-	 * @param int|string $intOrString  ScripturNum int or a human-readable string.
+	 * @param int|string $intOrString ScripturNum int or a human-readable string.
 	 *
 	 * @throws ScripturNumException  Thrown if the provided int or string can't be understood.
 	 */
@@ -40,25 +53,36 @@ class ScripturNum
 			'cvsep' => '.',
 			'range' => '-',
 			'names' => 1,
-            'plurl' => false
+			'plurl' => false
 		],
 		'long'   => [
 			'space' => ' ',
 			'cvsep' => ':',
 			'range' => '-',
 			'names' => 0,
-            'plurl' => true
+			'plurl' => true
 		],
 	];
 
 
-	public static function setStringSettings($key, array $settings) {
-		if (!isset(static::$stringSettings[$key]))
+	/**
+	 * Update string settings.
+	 *
+	 * @param       $key
+	 * @param array $settings
+	 *
+	 * @return void
+	 */
+	public static function setStringSettings($key, array $settings)
+	{
+		if ( ! isset(static::$stringSettings[$key])) {
 			static::$stringSettings[$key] = [];
+		}
 
 		foreach (reset(static::$stringSettings) as $k => $v) {
-			if (isset($settings[$k]))
+			if (isset($settings[$k])) {
 				static::$stringSettings[$key][$k] = $settings[$k];
+			}
 		}
 	}
 
@@ -68,36 +92,43 @@ class ScripturNum
 	 *
 	 * @return int
 	 */
-	public function getInt() {
+	public function getInt(): int
+	{
 		return $this->int;
 	}
 
 
-	public function __toString()
+	/**
+	 * Generic toString.  Uses the long form.
+	 *
+	 * @return string
+	 * @throws ScripturNumException
+	 */
+	public function __toString(): string
 	{
 		return $this->getLongString();
 	}
 
 
-    /**
-     * Get a human-readable abbreviation for the passage.  By default, these are meant for usage in short links.
-     *
-     * @return string An abbreviation
-     * @throws ScripturNumException
-     */
-	public function getAbbrev()
+	/**
+	 * Get a human-readable abbreviation for the passage.  By default, these are meant for usage in short links.
+	 *
+	 * @return string An abbreviation
+	 * @throws ScripturNumException
+	 */
+	public function getAbbrev(): string
 	{
 		return $this->getStringWithSettings('abbrev');
 	}
 
 
-    /**
-     * Get a human-readable name of the passage.  By default, these are meant for humans to read.
-     *
-     * @return string The name of the passage, as one might pronounce it.
-     * @throws ScripturNumException
-     */
-	public function getLongString()
+	/**
+	 * Get a human-readable name of the passage.  By default, these are meant for humans to read.
+	 *
+	 * @return string The name of the passage, as one might pronounce it.
+	 * @throws ScripturNumException
+	 */
+	public function getLongString(): string
 	{
 		return $this->getStringWithSettings('long');
 	}
@@ -113,42 +144,49 @@ class ScripturNum
 	 */
 	public function getStringWithSettings($settingKey): string
 	{
-		if (!isset(static::$stringSettings[$settingKey]))
+		if ( ! isset(static::$stringSettings[$settingKey])) {
 			throw new ScripturNumException('Invalid key for creating a string.');
+		}
 
-		if (!isset(static::$stringSettings[$settingKey]['space']))
+		if ( ! isset(static::$stringSettings[$settingKey]['space'])) {
 			throw new ScripturNumException('Invalid space character.');
+		}
 
-		if (!isset(static::$stringSettings[$settingKey]['cvsep']))
+		if ( ! isset(static::$stringSettings[$settingKey]['cvsep'])) {
 			throw new ScripturNumException('Invalid chapter-verse separation character.');
+		}
 
-		if (!isset(static::$stringSettings[$settingKey]['range']))
+		if ( ! isset(static::$stringSettings[$settingKey]['range'])) {
 			throw new ScripturNumException('Invalid range character.');
+		}
 
-		if (!isset(static::$stringSettings[$settingKey]['names']) ||
-            !is_numeric(static::$stringSettings[$settingKey]['names']))
+		if ( ! isset(static::$stringSettings[$settingKey]['names']) ||
+		     ! is_numeric(static::$stringSettings[$settingKey]['names'])) {
 			throw new ScripturNumException('Invalid name offset.');
+		}
 
-        if (!isset(static::$stringSettings[$settingKey]['plurl']))
-            throw new ScripturNumException('Plurality is not defined.');
+		if ( ! isset(static::$stringSettings[$settingKey]['plurl'])) {
+			throw new ScripturNumException('Plurality is not defined.');
+		}
 
 
 		$s = static::$stringSettings[$settingKey]['space'];
 		$c = static::$stringSettings[$settingKey]['cvsep'];
 		$r = static::$stringSettings[$settingKey]['range'];
 		$n = (int)static::$stringSettings[$settingKey]['names'];
-		$p = !!static::$stringSettings[$settingKey]['plurl'];
+		$p = ! ! static::$stringSettings[$settingKey]['plurl'];
 
-		$b = self::$bibleClass::getBookNames();
+		$b = static::getBookNames();
 
-		if ($n > count($b[$this->book - 1]))
+		if ($n > count($b[$this->book - 1])) {
 			$n = count($b[$this->book - 1]) - 1;
+		}
 
 		$b = $b[$this->book - 1][$n];
 
-		if($this->startCh !== $this->endCh && $p) {
-		    $b = str_replace(['Psalm', 'Song'], ['Psalms', 'Songs'], $b);
-        }
+		if ($this->startCh !== $this->endCh && $p) {
+			$b = str_replace(['Psalm', 'Song'], ['Psalms', 'Songs'], $b);
+		}
 
 		if ($this->isWholeBook()) {
 			return $b;
@@ -156,34 +194,50 @@ class ScripturNum
 			if ($this->startCh === $this->endCh) {
 				return $b . $s . $this->startCh;
 			}
+
 			return $b . $s . $this->startCh . $r . $this->endCh;
 		} else {
 			if ($this->bookHasSingleChapter()) {
 				if ($this->startV === $this->endV) {
 					return $b . $s . $this->startV;
 				}
+
 				return $b . $s . $this->startV . $r . $this->endV;
 			} elseif ($this->startCh === $this->endCh) {
 				if ($this->startV === $this->endV) {
 					return $b . $s . $this->startCh . $c . $this->startV;
 				}
+
 				return $b . $s . $this->startCh . $c . $this->startV . $r . $this->endV;
 			}
+
 			return $b . $s . $this->startCh . $c . $this->startV . $r . $this->endCh . $c . $this->endV;
 		}
 	}
 
 
-	public function isWholeChapters()
+	/**
+	 * Returns true if the passage is an entire chapter.
+	 *
+	 * @return bool
+	 */
+	public function isWholeChapters(): bool
 	{
 		$v = Bible::getVerseCounts();
+
 		return ($this->startV === 1 && $this->endV === $v[$this->book - 1][$this->endCh - 1]);
 	}
 
 
-	public function isWholeBook()
+	/**
+	 * Returns true if the passage is a whole book.
+	 *
+	 * @return bool
+	 */
+	public function isWholeBook(): bool
 	{
 		$v = Bible::getVerseCounts();
+
 		return ($this->startCh === 1
 		        && $this->startV === 1
 		        && $this->endCh === count($v[$this->book - 1])
@@ -191,15 +245,38 @@ class ScripturNum
 	}
 
 
-	public function bookHasSingleChapter()
+	/**
+	 * Returns true if the passage is just a single verse.
+	 *
+	 * @return bool
+	 */
+	public function isSingleVerse(): bool
+	{
+		return ($this->startCh === $this->endCh
+		        && $this->startV === $this->endV);
+	}
+
+
+	/**
+	 * Returns true if the book only has one chapter (e.g. Jude)
+	 *
+	 * @return bool
+	 */
+	public function bookHasSingleChapter(): bool
 	{
 		return Bible::bookHasSingleChapter($this->book - 1);
 	}
 
 
-	protected static function _bookName2bookNum($bookName)
+	/**
+	 * @param $bookName
+	 *
+	 * @return int
+	 * @throws ScripturNumException
+	 */
+	protected static function _bookName2bookNum($bookName): int
 	{
-		$books = Bible::getBookNames();
+		$books = static::getBookNames();
 		foreach ($books as $book => $bookNames) {
 			if (Bible::in_arrayi($bookName, $bookNames)) {
 				return $book + 1;
@@ -209,30 +286,49 @@ class ScripturNum
 	}
 
 
-	public static function newFromParsed($bookStr, $startCh = null, $startV = 1, $endCh = null, $endV = null)
+	/**
+	 * @param string $bookStr
+	 * @param ?int   $startCh
+	 * @param ?int   $startV
+	 * @param ?int   $endCh
+	 * @param ?int   $endV
+	 *
+	 * @return ScripturNum
+	 * @throws ScripturNumException
+	 */
+	public static function newFromParsed(string $bookStr,
+		int $startCh = null, $startV = 1,
+		int $endCh = null, int $endV = null): ScripturNum
 	{
 		$book = self::_bookName2bookNum($bookStr);
-		$int = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
-		$c = static::class;
+		$int  = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
+		$c    = static::class;
+
 		return new $c($int);
 	}
 
 
 	/**
-	 * @param int $book The book of the Bible the range is within. 1-rel.
-	 * @param int $startCh The chapter of the start of the range. 1-rel.
-	 * @param int $startV The verse of the start of the range.  1-rel. Defaults to 1.
-	 * @param int|null $endCh The end chapter of the range.  If null or not provided, assumed to be the same as the start chapter.
-	 * @param int|null $endV The end verse of the range.  If null or not provided, assumed to be the end of the chapter.
+	 * @param int      $book The book of the Bible the range is within. 1-rel.
+	 * @param int      $startCh The chapter of the start of the range. 1-rel.
+	 * @param int|null $startV The verse of the start of the range.  1-rel. Defaults to 1.
+	 * @param int|null $endCh The end chapter of the range.  If null or not provided, assumed to be the same as the
+	 *     start chapter.
+	 * @param int|null $endV The end verse of the range.  If null or not provided, assumed to be the end of the
+	 *     chapter.
+	 *
 	 * @return ScripturNum The ScripturNum object that represents this range of scripture.
 	 *
 	 * @throws ScripturNumException A chapter was requested that does not exist within the requested book.
 	 * @throws ScripturNumException A verse was requested that does not exist within the requested range.
 	 */
-	public static function newFromInts($book, $startCh, $startV = null, $endCh = null, $endV = null)
+	public static function newFromInts(int $book,
+		int $startCh, int $startV = null,
+		int $endCh = null, int $endV = null): ScripturNum
 	{
 		$int = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
-		$c = static::class;
+		$c   = static::class;
+
 		return new $c($int);
 	}
 
@@ -244,7 +340,7 @@ class ScripturNum
 	 *
 	 * @throws ScripturNumException
 	 */
-	public static function string2int($string)
+	public static function string2int(string $string): int
 	{
 		// Standardize dashes
 		$string = str_replace(['&ndash;', '–'], '-', $string);
@@ -259,8 +355,8 @@ class ScripturNum
 		// Look for right-most space or alpha char.  This should separate book name from numerical ref.
 		preg_match_all('/[a-zA-Z\s]/', $string, $asdf, PREG_OFFSET_CAPTURE);
 		$spaceIndex = array_pop($asdf[0])[1] + 1;
-		$book = trim(substr($string, 0, $spaceIndex));
-		$ref = substr($string, $spaceIndex);
+		$book       = trim(substr($string, 0, $spaceIndex));
+		$ref        = substr($string, $spaceIndex);
 
 		// Parse numbers
 		self::_refNumString2refNums($ref, $startCh, $startV, $endCh, $endV);
@@ -277,19 +373,23 @@ class ScripturNum
 	{
 		$book--;
 		$int = ($book) << 24;
-		if ($startCh > count(Bible::getVerseCounts()[$book]) || $endCh > count(Bible::getVerseCounts()[$book])) { // invalid request OR request for a single-chapter book.
+		if ($startCh > count(Bible::getVerseCounts()[$book]) || $endCh > count(
+				Bible::getVerseCounts()[$book]
+			)) { // invalid request OR request for a single-chapter book.
 			if (Bible::bookHasSingleChapter($book) && $startV === null && $endV === null) { // single-chapter book.
-				$startV = $startCh;
-				$endV = $endCh;
+				$startV  = $startCh;
+				$endV    = $endCh;
 				$startCh = 1;
-				$endCh = 1;
+				$endCh   = 1;
 			} else {
-				throw new ScripturNumException("A chapter was requested that does not exist within the requested book.");
+				throw new ScripturNumException(
+					"A chapter was requested that does not exist within the requested book."
+				);
 			}
 		}
 		if ($startCh === null && $endCh === null) { // whole book
 			$startCh = 1;
-			$endCh = count(Bible::getVerseCounts()[$book]);
+			$endCh   = count(Bible::getVerseCounts()[$book]);
 		}
 		if ($endCh == null) { // single chapter
 			$endCh = $startCh;
@@ -326,30 +426,35 @@ class ScripturNum
 	/**
 	 * This function reads through a ref string one character at a time to parse it into a known reference.
 	 *
-	 * @param String $string The string to parse.
-	 * @param $chapterStart
-	 * @param $verseStart
-	 * @param $chapterEnd
-	 * @param $verseEnd
+	 * @param string $string The string to parse.
+	 * @param        $chapterStart
+	 * @param        $verseStart
+	 * @param        $chapterEnd
+	 * @param        $verseEnd
 	 *
 	 * @throws ScripturNumException
 	 */
-	protected static function _refNumString2refNums($string, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
+	protected static function _refNumString2refNums(string $string, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
 	{
 		if (preg_match('/[a-zA-Z]/', $string)) {
-			throw new ScripturNumException("Parse Ref only handles the numerical part of the reference.  Alphabetical characters are not permitted.");
+			throw new ScripturNumException(
+				"Parse Ref only handles the numerical part of the reference.  Alphabetical characters are not permitted."
+			);
 		}
 
-		$startNums = [];
-		$endNums = [];
+		$startNums     = [];
+		$endNums       = [];
 		$currentNumber = '';
-		$beforeHyphen = true;
+		$beforeHyphen  = true;
 
-		foreach (str_split($string . ' ') as $char) { // adding the extra character allows the last digit to actually get parsed.
+		foreach (
+			str_split(
+				$string . ' '
+			) as $char
+		) { // adding the extra character allows the last digit to actually get parsed.
 			if (is_numeric($char)) {
 				// still finding the full number
 				$currentNumber .= $char;
-
 			} else {
 				// End of number.  Int-ify and assign to appropriate half.
 				$currentNumber = (int)$currentNumber;
@@ -360,8 +465,9 @@ class ScripturNum
 				}
 				$currentNumber = ''; // reset for next number.
 
-				if ($char == '-')
+				if ($char == '-') {
 					$beforeHyphen = false;
+				}
 			}
 		}
 
@@ -371,33 +477,33 @@ class ScripturNum
 					$chapterStart = null;
 				} else {
 					$chapterStart = $startNums[0];
-					$chapterEnd = $chapterStart;
+					$chapterEnd   = $chapterStart;
 				}
 				break;
 			case 11: // multiple full chapters
 				$chapterStart = $startNums[0];
-				$chapterEnd = $endNums[0];
+				$chapterEnd   = $endNums[0];
 				break;
 			case 12: // full chapter to part of chapter
 				$chapterStart = $startNums[0];
-				$chapterEnd = $endNums[0];
-				$verseEnd = $endNums[1];
+				$chapterEnd   = $endNums[0];
+				$verseEnd     = $endNums[1];
 				break;
 			case 20: // one verse.  This is the weird case.
 				$chapterStart = $startNums[0];
-				$verseStart = $startNums[1];
-				$verseEnd = $verseStart;
+				$verseStart   = $startNums[1];
+				$verseEnd     = $verseStart;
 				break;
 			case 21: // multiple verses from one chapter.
 				$chapterStart = $startNums[0];
-				$verseStart = $startNums[1];
-				$verseEnd = $endNums[0];
+				$verseStart   = $startNums[1];
+				$verseEnd     = $endNums[0];
 				break;
 			case 22: // multiple verses from across chapters
 				$chapterStart = $startNums[0];
-				$verseStart = $startNums[1];
-				$chapterEnd = $endNums[0];
-				$verseEnd = $endNums[1];
+				$verseStart   = $startNums[1];
+				$chapterEnd   = $endNums[0];
+				$verseEnd     = $endNums[1];
 				break;
 			default:
 				throw new ScripturNumException("Badly formed numerical reference.");
@@ -420,15 +526,16 @@ class ScripturNum
 	protected static function _int2refNums($int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
 	{
 		$book = $int >> 24;
-		$int -= ($book << 24);
+		$int  -= ($book << 24);
 
 		$refAIndex = $int >> 12;
-		$int -= ($refAIndex << 12);
+		$int       -= ($refAIndex << 12);
 
 		$refBIndex = &$int;
 
-		if ($refBIndex < $refAIndex)
+		if ($refBIndex < $refAIndex) {
 			throw new ScripturNumException('Unintelligible Reference');
+		}
 
 		self::_bkIndex2singleRef($book, $refAIndex, $chapterStart, $verseStart);
 		self::_bkIndex2singleRef($book, $refBIndex, $chapterEnd, $verseEnd);
@@ -440,9 +547,11 @@ class ScripturNum
 	/**
 	 * Convert a ScrupturNum int into a concatenated number.  (Concatenated numbers are often used for text libraries.)
 	 *
-	 * @param int $int The int representing the full passage
-	 * @param string|int $concatStart The concatenated "number" possibly larger than an int representing the start of the passage.
-	 * @param string|int $concatEnd The concatenated "number" possibly larger than an int representing the end of the passage.
+	 * @param int        $int The int representing the full passage
+	 * @param string|int $concatStart The concatenated "number" possibly larger than an int representing the start of
+	 *     the passage.
+	 * @param string|int $concatEnd The concatenated "number" possibly larger than an int representing the end of the
+	 *     passage.
 	 *
 	 * @throws ScripturNumException If the reference is unintelligible.
 	 */
@@ -451,7 +560,7 @@ class ScripturNum
 		$p = [0, 0, 0, 0, 0];
 		self::_int2refNums($int, $p[0], $p[1], $p[2], $p[3], $p[4]);
 		$concatStart = $p[2] + ($p[1] * 1000) + ($p[0] * 1000000);
-		$concatEnd = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
+		$concatEnd   = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
 	}
 
 
@@ -468,16 +577,140 @@ class ScripturNum
 	protected static function _bkIndex2singleRef($book, $index, &$chapter, &$verse)
 	{
 		$index++;
-		$v = Bible::getVerseCounts();
+		$v       = Bible::getVerseCounts();
 		$chapter = 0;
-		if (!isset($v[$book]))
+		if ( ! isset($v[$book])) {
 			throw new ScripturNumException("There are not that many books in the Bible.");
+		}
 		while ($index > $v[$book][$chapter]) {
 			$index -= $v[$book][$chapter];
-			if (!isset($v[$book][++$chapter]))
+			if ( ! isset($v[$book][++$chapter])) {
 				throw new ScripturNumException("There are not that many verses in this book.");
+			}
 		}
 		$chapter++;
 		$verse = $index;
+	}
+
+	/**
+	 * Test whether a given passage is within a given larger passage.  Will also return true if they are the same.
+	 *
+	 * @param int $largerPassage
+	 *
+	 * @return bool
+	 */
+	public function isWithin(int $largerPassage): bool
+	{
+		if (($this->int & self::BOOK_MASK) != ($largerPassage & self::BOOK_MASK))
+			return false;
+
+		if (($this->int & self::START_MASK) < ($largerPassage & self::START_MASK))
+			return false;
+
+		if (($this->int & self::END_MASK) > ($largerPassage & self::END_MASK))
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Test whether a given passage has any commonality with another passage.
+	 *
+	 * @param int $otherPassage
+	 *
+	 * @return bool
+	 */
+	public function overlapsWith(int $otherPassage): bool
+	{
+		if (($this->int & self::BOOK_MASK) != ($otherPassage & self::BOOK_MASK))
+			return false;
+
+		if (($this->int & self::START_MASK) > (($otherPassage & self::END_MASK) << 12))
+			return false;
+
+		if (($this->int & self::END_MASK) < (($otherPassage & self::START_MASK) >> 12))
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Test whether a given passage contains a given smaller passage.  Will also return true if they are the same.
+	 *
+	 * @param int $smallerPassage
+	 *
+	 * @return bool
+	 */
+	public function contains(int $smallerPassage): bool
+	{
+		if (($this->int & self::BOOK_MASK) != ($smallerPassage & self::BOOK_MASK))
+			return false;
+
+		if (($this->int & self::START_MASK) > ($smallerPassage & self::START_MASK))
+			return false;
+
+		if (($this->int & self::END_MASK) < ($smallerPassage & self::END_MASK))
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Generate a query statement that can be used to search an int column in MySQL for a passage that is entirely
+	 * contained within the given ScripturNum.
+	 *
+	 * @param string $columnRef  The name of the column or value to use in the query.
+	 *
+	 * @return string
+	 */
+	public function toMySqlExclusive(string $columnRef): string
+	{
+		if ($this->isSingleVerse()) {
+			$i = $this->getInt();
+			return "$columnRef = $i";
+		}
+
+		$r = [];
+
+		$mask = self::BOOK_MASK;
+		$value = $this->int & self::BOOK_MASK;
+		$r[] = "($columnRef & $mask) = $value";
+
+		$mask = self::START_MASK;
+		$value = ($this->int & self::START_MASK);
+		$r[] = "($columnRef & $mask) >= $value";
+
+		$mask = self::END_MASK;
+		$value = ($this->int & self::END_MASK);
+		$r[] = "($columnRef & $mask) <= $value";
+
+		return "( " . implode(" AND ", $r) . " )";
+	}
+
+	/**
+	 * Generate a query statement that can be used to search an int column in MySQL for a passage that overlaps with the
+	 * given ScripturNum.
+	 *
+	 * @param string $columnRef  The name of the column or value to use in the query.
+	 *
+	 * @return string
+	 */
+	public function toMySqlInclusive(string $columnRef): string
+	{
+		$r = [];
+
+		$mask = self::BOOK_MASK;
+		$value = $this->int & self::BOOK_MASK;
+		$r[] = "($columnRef & $mask) = $value";
+
+		$mask = self::START_MASK;
+		$value = ($this->int & self::END_MASK) << 12;
+		$r[] = "($columnRef & $mask) <= $value";
+
+		$mask = self::END_MASK;
+		$value = ($this->int & self::START_MASK) >> 12;
+		$r[] = "($columnRef & $mask) >= $value";
+
+		return "( " . implode(" AND ", $r) . " )";
 	}
 }

@@ -128,3 +128,9 @@ This library has 100% test coverage, and issues are usually dealt with expedient
 From a technical perspective, having a closed cannon is *vital* because verses and books are numbered sequentially.  Should insertions or omissions be made, numbering would be askew for the rest of that book.   
 
 The author of this library is protestant, and holds to a closed canon consisting of the 66 books [listed as western protestantism here](https://en.wikipedia.org/wiki/Biblical_canon#Western_Church).  Pull requests and bugs requesting anything outside this canon will be marked as [heresy](https://github.com/jkrrv/ScripturNum/labels/Heresy%21) and closed.
+
+## Bitwise Storage
+
+- The Book index << 24
+- Start reference << 12
+- End reference << 0

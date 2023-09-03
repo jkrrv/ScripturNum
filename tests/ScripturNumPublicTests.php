@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 
 namespace ScripturNumTests;
 
@@ -122,15 +122,15 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals('Ro8.1-9.5', $n->getAbbrev());
 	}
 
-    public function test_multiplePsalmsArePlural() {
-        $n = new ScripturNum('Ps101.1-102.3');
-        $this->assertEquals('Psalms 101:1-102:3', $n->getLongString());
-    }
+	public function test_multiplePsalmsArePlural(){
+		$n = new ScripturNum('Ps101.1-102.3');
+		$this->assertEquals('Psalms 101:1-102:3', $n->getLongString());
+	}
 
-    public function test_singlePsalmIsSingular() {
-        $n = new ScripturNum('Ps101.1-3');
-        $this->assertEquals('Psalm 101:1-3', $n->getLongString());
-    }
+	public function test_singlePsalmIsSingular(){
+		$n = new ScripturNum('Ps101.1-3');
+		$this->assertEquals('Psalm 101:1-3', $n->getLongString());
+	}
 
 	public function test_int2cats() {
 		$concatStart = 0;
@@ -147,12 +147,12 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals('3Jo11', $n->getAbbrev());
 	}
 
-    public function test_issue02_01() {
-        $this->expectException('\ScripturNum\ScripturNumException');
-        $this->expectExceptionMessage('There are not that many books in the Bible.');
+	public function test_issue02_01(){
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('There are not that many books in the Bible.');
 
-        new ScripturNum(4496293888);
-    }
+		new ScripturNum(4496293888);
+	}
 
 	public function test_issue02_02() {
 		$this->expectException('\ScripturNum\ScripturNumException');
@@ -176,7 +176,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$this->assertEquals("Romans and Greeks 1-8", $n->getLongString());
 
-        ScripturNum::setStringSettings('long', ['space' => ' ']); // reset to prevent other tests failing
+		ScripturNum::setStringSettings('long', ['space' => ' ']); // reset to prevent other tests failing
 	}
 
 	public function test_issue03_03() { // New settings, incomplete
@@ -200,54 +200,218 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals(301993985, $n->getInt());
 	}
 
-    public function test_issue08_01() { // invalid separation character.
-        $this->expectException('\ScripturNum\ScripturNumException');
-        $this->expectExceptionMessage('Invalid chapter-verse separation character.');
+	public function test_issue08_01() { // invalid separation character.
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Invalid chapter-verse separation character.');
 
-        $n = new ScripturNum('Ro 1-8');
-        ScripturNum::setStringSettings('testSettings_08_01', ['space' => ' ']);
-        $n->getStringWithSettings('testSettings_08_01');
-    }
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('testSettings_08_01', ['space' => ' ']);
+		$n->getStringWithSettings('testSettings_08_01');
+	}
 
-    public function test_issue08_02() { // invalid range character.
-        $this->expectException('\ScripturNum\ScripturNumException');
-        $this->expectExceptionMessage('Invalid range character.');
+	public function test_issue08_02() { // invalid range character.
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Invalid range character.');
 
-        $n = new ScripturNum('Ro 1-8');
-        ScripturNum::setStringSettings('testSettings_08_02', ['space' => ' ', 'cvsep' => ' ']);
-        $n->getStringWithSettings('testSettings_08_02');
-    }
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('testSettings_08_02', ['space' => ' ', 'cvsep' => ' ']);
+		$n->getStringWithSettings('testSettings_08_02');
+	}
 
-    public function test_issue08_03() { // invalid separation character.
-        $this->expectException('\ScripturNum\ScripturNumException');
-        $this->expectExceptionMessage('Invalid name offset.');
+	public function test_issue08_03() { // invalid separation character.
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Invalid name offset.');
 
-        $n = new ScripturNum('Ro 1-8');
-        ScripturNum::setStringSettings('testSettings_08_03', ['space' => ' ', 'cvsep' => ' ', 'range' => ' ']);
-        $n->getStringWithSettings('testSettings_08_03');
-    }
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('testSettings_08_03', ['space' => ' ', 'cvsep' => ' ', 'range' => ' ']);
+		$n->getStringWithSettings('testSettings_08_03');
+	}
 
-    public function test_issue08_04() { // invalid separation character.
-        $this->expectException('\ScripturNum\ScripturNumException');
-        $this->expectExceptionMessage('Plurality is not defined.');
+	public function test_issue08_04() { // invalid separation character.
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Plurality is not defined.');
 
-        $n = new ScripturNum('Ro 1-8');
-        ScripturNum::setStringSettings('testSettings_08_04', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
-        $n->getStringWithSettings('testSettings_08_04');
-    }
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('testSettings_08_04', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
+		$n->getStringWithSettings('testSettings_08_04');
+	}
 
-    public function test_issue08_05() { // invalid plurality.
-        $this->expectException('\ScripturNum\ScripturNumException');
-        $this->expectExceptionMessage('Plurality is not defined.');
+	public function test_issue08_05() { // invalid plurality.
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Plurality is not defined.');
 
-        $n = new ScripturNum('Ro 1-8');
-        ScripturNum::setStringSettings('testSettings_08_05', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
-        $n->getStringWithSettings('testSettings_08_05');
-    }
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('testSettings_08_05', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
+		$n->getStringWithSettings('testSettings_08_05');
+	}
 
-    public function test_issue08_06() { // invalid separation character.
-        $n = new ScripturNum('Ro 1-8');
-        ScripturNum::setStringSettings('testSettings_08_06', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10, 'plurl' => true]);
-        $this->assertEquals('Rmns 1-8', $n->getStringWithSettings('testSettings_08_06'));
-    }
+	public function test_issue08_06() { // invalid separation character.
+		$n = new ScripturNum('Ro 1-8');
+		ScripturNum::setStringSettings('testSettings_08_06', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10, 'plurl' => true]);
+		$this->assertEquals('Rmns 1-8', $n->getStringWithSettings('testSettings_08_06'));
+	}
+
+	public function test_bits() {
+		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
+		$i = $n->getInt();
+		$this->assertEquals('Joshua 1:5-10:9', $n->getLongString());
+		$this->assertEquals((5 << 24), $i & ScripturNum::BOOK_MASK);
+		$this->assertEquals((4 << 12), $i & ScripturNum::START_MASK);
+		$this->assertEquals(221, $i & ScripturNum::END_MASK);
+	}
+
+	public function test_contains_true() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20:14");
+		$test = $bigger->contains($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_contains_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $bigger->contains($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_contains_differentPassage() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-20");
+		$test = $bigger->contains($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_contains_overlapLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-20");
+		$test = $bigger->contains($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_contains_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-21");
+		$test = $bigger->contains($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_contains_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->contains($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_InclusiveSql() {
+		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
+		$this->assertEquals('( (theColumn & 4278190080) = 83886080 AND (theColumn & 16773120) <= 905216 AND (theColumn & 4095) >= 4 )', $n->toMySqlInclusive("theColumn"));
+	}
+
+	public function test_ExclusiveSql() {
+		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
+		$this->assertEquals('( (theColumn & 4278190080) = 83886080 AND (theColumn & 16773120) >= 16384 AND (theColumn & 4095) <= 221 )', $n->toMySqlExclusive("theColumn"));
+	}
+
+	public function test_ExclusiveSql_Single() {
+		$n = new ScripturNum((8 << 24) + (255 << 12) + 255);
+		$this->assertEquals('theColumn = 135262463', $n->toMySqlExclusive("theColumn"));
+	}
+
+	public function test_isWithin_true() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20:14");
+		$test = $smaller->isWithin($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_isWithin_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $smaller->isWithin($bigger->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_isWithin_differentPassageLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-2:20");
+		$test = $smaller->isWithin($bigger->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_isWithin_differentPassageHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 21");
+		$test = $smaller->isWithin($bigger->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_isWithin_overlapLow() {
+		$bigger = new ScripturNum("Exodus 19-20");
+		$smaller = new ScripturNum("Exodus 20");
+		$test = $smaller->isWithin($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_isWithin_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 19-21");
+		$smaller = new ScripturNum("Exodus 20");
+		$test = $smaller->isWithin($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_isWithin_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20-21");
+		$smaller = new ScripturNum("Exodus 20");
+		$test = $smaller->isWithin($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWith_true() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20:14");
+		$test = $bigger->overlapsWith($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWith_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $bigger->overlapsWith($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsWith_differentPassageLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-20");
+		$test = $bigger->overlapsWith($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsWith_differentPassageHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 21");
+		$test = $bigger->overlapsWith($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsWith_overlapLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-20");
+		$test = $bigger->overlapsWith($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWith_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-21");
+		$test = $bigger->overlapsWith($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWith_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->overlapsWith($smaller->getInt());
+		$this->assertTrue($test);
+	}
 }
