@@ -175,7 +175,7 @@ class ScripturNum
 		$b = $b[$this->book - 1][$n];
 
 		if ($this->startCh !== $this->endCh && $p) {
-			$b = str_replace(['Psalm', 'Song'], ['Psalms', 'Songs'], $b);
+			$b = self::pluralizeBookName($b);
 		}
 
 		if ($this->isWholeBook()) {
@@ -283,6 +283,18 @@ class ScripturNum
 	protected static function getBookNames(): array
 	{
 		return call_user_func([static::$bibleClass, 'getBookNames']);
+	}
+
+	/**
+	 * @param string $bookNameSingular
+	 *
+	 * @return string
+	 *
+	 * @see Bible::pluralizeBookName()
+	 */
+	protected static function pluralizeBookName(string $bookNameSingular): string
+	{
+		return call_user_func([static::$bibleClass, 'pluralizeBookName'], $bookNameSingular);
 	}
 
 	/**

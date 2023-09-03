@@ -236,6 +236,11 @@ abstract class Bible
 		return self::$BOOK_NAMES;
 	}
 
+	public static function pluralizeBookName(string $bookNameSingular): string
+	{
+		return str_replace(['Psalm', 'Song'], ['Psalms', 'Songs'], $bookNameSingular);
+	}
+
 	/**
 	 * Returns true if the given needle is in the haystack, case-insensitive.
 	 *
