@@ -19,16 +19,6 @@ class ScripturNum
 	protected static $bibleClass = Bible::class;
 
 	/**
-	 * @return string[][]
-	 *
-	 * @see Bible::getBookNames()
-	 */
-	protected static function getBookNames(): array
-	{
-		return call_user_func([static::$bibleClass, 'getBookNames']);
-	}
-
-	/**
 	 * ScripturNum constructor.
 	 *
 	 * @param int|string $intOrString ScripturNum int or a human-readable string.
@@ -285,6 +275,15 @@ class ScripturNum
 		throw new ScripturNumException('Book name is invalid.');
 	}
 
+	/**
+	 * @return string[][]
+	 *
+	 * @see Bible::getBookNames()
+	 */
+	protected static function getBookNames(): array
+	{
+		return call_user_func([static::$bibleClass, 'getBookNames']);
+	}
 
 	/**
 	 * @param string $bookStr
@@ -663,7 +662,7 @@ class ScripturNum
 	 *
 	 * @return string
 	 */
-	public function toMySqlExclusive(string $columnRef): string
+	public function toSqlExclusive(string $columnRef): string
 	{
 		if ($this->isSingleVerse()) {
 			$i = $this->getInt();
@@ -695,7 +694,7 @@ class ScripturNum
 	 *
 	 * @return string
 	 */
-	public function toMySqlInclusive(string $columnRef): string
+	public function toSqlInclusive(string $columnRef): string
 	{
 		$r = [];
 

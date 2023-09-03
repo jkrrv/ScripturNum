@@ -1,4 +1,4 @@
-<?php /** @noinspection ALL */
+<?php /** @noinspection PhpParamsInspection */
 
 namespace ScripturNumTests;
 
@@ -302,21 +302,6 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertFalse($test);
 	}
 
-	public function test_InclusiveSql() {
-		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
-		$this->assertEquals('( (theColumn & 4278190080) = 83886080 AND (theColumn & 16773120) <= 905216 AND (theColumn & 4095) >= 4 )', $n->toMySqlInclusive("theColumn"));
-	}
-
-	public function test_ExclusiveSql() {
-		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
-		$this->assertEquals('( (theColumn & 4278190080) = 83886080 AND (theColumn & 16773120) >= 16384 AND (theColumn & 4095) <= 221 )', $n->toMySqlExclusive("theColumn"));
-	}
-
-	public function test_ExclusiveSql_Single() {
-		$n = new ScripturNum((8 << 24) + (255 << 12) + 255);
-		$this->assertEquals('theColumn = 135262463', $n->toMySqlExclusive("theColumn"));
-	}
-
 	public function test_isWithin_true() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 20:14");
@@ -413,5 +398,20 @@ class ScripturNumPublicTests extends TestCase
 		$smaller = new ScripturNum("Exodus 20-21");
 		$test = $bigger->overlapsWith($smaller->getInt());
 		$this->assertTrue($test);
+	}
+
+	public function test_InclusiveSql() {
+		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
+		$this->assertEquals('( (theColumn & 4278190080) = 83886080 AND (theColumn & 16773120) <= 905216 AND (theColumn & 4095) >= 4 )', $n->toSqlInclusive("theColumn"));
+	}
+
+	public function test_ExclusiveSql() {
+		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
+		$this->assertEquals('( (theColumn & 4278190080) = 83886080 AND (theColumn & 16773120) >= 16384 AND (theColumn & 4095) <= 221 )', $n->toSqlExclusive("theColumn"));
+	}
+
+	public function test_ExclusiveSql_Single() {
+		$n = new ScripturNum((8 << 24) + (255 << 12) + 255);
+		$this->assertEquals('theColumn = 135262463', $n->toSqlExclusive("theColumn"));
 	}
 }
