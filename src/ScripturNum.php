@@ -667,8 +667,8 @@ class ScripturNum
 	}
 
 	/**
-	 * Generate a query statement that can be used to search an int column in MySQL for a passage that is entirely
-	 * contained within the given ScripturNum.
+	 * Generate a query statement that can be used to search an int column in generic SQL for a passage that is
+	 * entirely contained within the given ScripturNum.
 	 *
 	 * @param string $columnRef  The name of the column or value to use in the query.
 	 *
@@ -699,8 +699,8 @@ class ScripturNum
 	}
 
 	/**
-	 * Generate a query statement that can be used to search an int column in MySQL for a passage that overlaps with the
-	 * given ScripturNum.
+	 * Generate a query statement that can be used to search an int column in generic SQL for a passage that overlaps
+	 * with the given ScripturNum.
 	 *
 	 * @param string $columnRef  The name of the column or value to use in the query.
 	 *

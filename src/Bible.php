@@ -118,72 +118,72 @@ abstract class Bible
 	protected static function prepareBookNames(): array
 	{
 		return [
-			explode(' ', 'Genesis Ge Gen'),
-			explode(' ', 'Exodus Ex Exo'),
-			explode(' ', 'Leviticus Le Lev'),
-			explode(' ', 'Numbers Nu Num'),
-			explode(' ', 'Deuteronomy Dt Deut Deu De'),
-			explode(' ', 'Joshua Js Jos Jos Josh'),
-			explode(' ', 'Judges Jg Jdg Jdgs Judg'),
-			explode(' ', 'Ruth Ru Rut'),
-			static::ordinals(1, 'Samuel Sa Sam'),
-			static::ordinals(2, 'Samuel Sa Sam'),
-			static::ordinals(1, 'Kings Ki King Kin Kngs'),
-			static::ordinals(2, 'Kings Ki King Kin Kngs'),
-			static::ordinals(1, 'Chronicles Ch Chr Chron'),
-			static::ordinals(2, 'Chronicles Ch Chr Chron'),
-			explode(' ', 'Ezra Ez Ezr'),
-			explode(' ', 'Nehemiah Ne Neh Neh Ne'),
-			explode(' ', 'Esther Es Est Esth'),
-			explode(' ', 'Job Jb Job'),
-			explode(' ', 'Psalm Ps Psa Pss Psalms'),
-			explode(' ', 'Proverbs Pr Prov Pro'),
-			explode(' ', 'Ecclesiastes Ec Ecc'),
-			['Song of Solomon', 'SoS', 'Song of Songs'],
-			explode(' ', 'Isaiah Isa'),
-			explode(' ', 'Jeremiah Je Jer'),
-			explode(' ', 'Lamentations La Lam Lament'),
-			explode(' ', 'Ezekiel Ek Ezek Eze'),
-			explode(' ', 'Daniel Da Dan Dl Dnl'),
-			explode(' ', 'Hosea Ho Hos'),
-			explode(' ', 'Joel Jl Joel Joe'),
-			explode(' ', 'Amos Am Amos Amo'),
-			explode(' ', 'Obadiah Ob Oba Obd Odbh'),
-			explode(' ', 'Jonah Jh Jon Jnh'),
-			explode(' ', 'Micah Mi Mic'),
-			explode(' ', 'Nahum Na Nah Na'),
-			explode(' ', 'Habakkuk Hb Hab Hk Habk'),
-			explode(' ', 'Zephaniah Zp Zep Zeph Ze'),
-			explode(' ', 'Haggai Ha Hag Hagg'),
-			explode(' ', 'Zechariah Zc Zech Zec'),
-			explode(' ', 'Malachi Ml Mal Mlc'),
-			explode(' ', 'Matthew Mt Matt Mat'),
-			explode(' ', 'Mark Mk Mrk'),
-			explode(' ', 'Luke Lk Luk Lu'),
-			explode(' ', 'John Jn Joh Jo'),
-			explode(' ', 'Acts Ac Act'),
-			explode(' ', 'Romans Ro Rom Rmn Rmns'),
-			static::ordinals(1, 'Corinthians Co Cor'),
-			static::ordinals(2, 'Corinthians Co Cor'),
-			explode(' ', 'Galatians Ga Gal Gltns'),
-			explode(' ', 'Ephesians Ep Eph Ephn'),
-			explode(' ', 'Philippians Phi Phil Phi'),
-			explode(' ', 'Colossians Co Col Colo Cln Clns'),
-			static::ordinals(1, 'Thessalonians Th Thess Thes'),
-			static::ordinals(2, 'Thessalonians Th Thess Thes'),
-			static::ordinals(1, 'Timothy Ti Tim'),
-			static::ordinals(2, 'Timothy Ti Tim'),
-			explode(' ', 'Titus Ti Tit Tt Ts'),
-			explode(' ', 'Philemon Pm Phile Philm Pm'),
-			explode(' ', 'Hebrews He Heb Hw'),
-			explode(' ', 'James Jm Jam Jas Ja'),
-			static::ordinals(1, 'Peter Pe Pet P'),
-			static::ordinals(2, 'Peter Pe Pet P'),
-			static::ordinals(1, 'John Jo Jn J'),
-			static::ordinals(2, 'John Jo Jn J'),
-			static::ordinals(3, 'John Jo Jn J'),
-			explode(' ', 'Jude Ju'),
-			explode(' ', 'Revelation Re Rev Rvltn')
+			['Genesis', 'Ge', 'Gen'],
+			['Exodus', 'Ex', 'Exo'],
+			['Leviticus', 'Le', 'Lev'],
+			['Numbers', 'Nu', 'Num'],
+			['Deuteronomy', 'Dt', 'Deut', 'Deu', 'De'],
+			['Joshua', 'Js', 'Jos', 'Jos', 'Josh'],
+			['Judges', 'Jg', 'Jdg', 'Jdgs', 'Judg'],
+			['Ruth', 'Ru', 'Rut'],
+			static::ordinals(1, ['Samuel', 'Sa', 'Sam']),
+			static::ordinals(2, ['Samuel', 'Sa', 'Sam']),
+			static::ordinals(1, ['Kings', 'Ki', 'King', 'Kin', 'Kngs']),
+			static::ordinals(2, ['Kings', 'Ki', 'King', 'Kin', 'Kngs']),
+			static::ordinals(1, ['Chronicles', 'Ch', 'Chr', 'Chron']),
+			static::ordinals(2, ['Chronicles', 'Ch', 'Chr', 'Chron']),
+			['Ezra', 'Ez', 'Ezr'],
+			['Nehemiah', 'Ne', 'Neh', 'Neh', 'Ne'],
+			['Esther', 'Es', 'Est', 'Esth'],
+			['Job', 'Jb', 'Job'],
+			['Psalm', 'Ps', 'Psa', 'Pss', 'Psalms'],
+			['Proverbs', 'Pr', 'Prov', 'Pro'],
+			['Ecclesiastes', 'Ec', 'Ecc'],
+			['Song of Solomon', 'SoS','Song of Songs', 'Songs of Solomon'],
+			['Isaiah', 'Isa'],
+			['Jeremiah', 'Je', 'Jer'],
+			['Lamentations', 'La', 'Lam', 'Lament'],
+			['Ezekiel', 'Ek', 'Ezek', 'Eze'],
+			['Daniel', 'Da', 'Dan', 'Dl', 'Dnl'],
+			['Hosea', 'Ho', 'Hos'],
+			['Joel', 'Jl', 'Joel', 'Joe'],
+			['Amos', 'Am', 'Amos', 'Amo'],
+			['Obadiah', 'Ob', 'Oba', 'Obd', 'Odbh'],
+			['Jonah', 'Jh', 'Jon', 'Jnh'],
+			['Micah', 'Mi', 'Mic'],
+			['Nahum', 'Na', 'Nah', 'Na'],
+			['Habakkuk', 'Hb', 'Hab', 'Hk', 'Habk'],
+			['Zephaniah', 'Zp', 'Zep', 'Zeph', 'Ze'],
+			['Haggai', 'Ha', 'Hag', 'Hagg'],
+			['Zechariah', 'Zc', 'Zech', 'Zec'],
+			['Malachi', 'Ml', 'Mal', 'Mlc'],
+			['Matthew', 'Mt', 'Matt', 'Mat'],
+			['Mark', 'Mk', 'Mrk'],
+			['Luke', 'Lk', 'Luk', 'Lu'],
+			['John', 'Jn', 'Joh', 'Jo'],
+			['Acts', 'Ac', 'Act'],
+			['Romans', 'Ro', 'Rom', 'Rmn', 'Rmns'],
+			static::ordinals(1, ['Corinthians', 'Co', 'Cor']),
+			static::ordinals(2, ['Corinthians', 'Co', 'Cor']),
+			['Galatians', 'Ga', 'Gal', 'Gltns'],
+			['Ephesians', 'Ep', 'Eph', 'Ephn'],
+			['Philippians', 'Phi', 'Phil', 'Phi'],
+			['Colossians', 'Co', 'Col', 'Colo', 'Cln', 'Clns'],
+			static::ordinals(1, ['Thessalonians', 'Th', 'Thess', 'Thes']),
+			static::ordinals(2, ['Thessalonians', 'Th', 'Thess', 'Thes']),
+			static::ordinals(1, ['Timothy', 'Ti', 'Tim']),
+			static::ordinals(2, ['Timothy', 'Ti', 'Tim']),
+			['Titus', 'Ti', 'Tit', 'Tt', 'Ts'],
+			['Philemon', 'Pm', 'Phile', 'Philm', 'Pm'],
+			['Hebrews', 'He', 'Heb', 'Hw'],
+			['James', 'Jm', 'Jam', 'Jas', 'Ja'],
+			static::ordinals(1, ['Peter', 'Pe', 'Pet', 'P']),
+			static::ordinals(2, ['Peter', 'Pe', 'Pet', 'P']),
+			static::ordinals(1, ['John', 'Jo', 'Jn', 'J']),
+			static::ordinals(2, ['John', 'Jo', 'Jn', 'J']),
+			static::ordinals(3, ['John', 'Jo', 'Jn', 'J']),
+			['Jude', 'Ju'],
+			['Revelation', 'Re', 'Rev', 'Rvltn']
 		];
 	}
 
@@ -191,25 +191,20 @@ abstract class Bible
 	 * Create all combinations of strings for a given ordinal book (ordinal books are the numbered books, like 1 and 2
 	 * Kings).
 	 *
-	 * @param int $number  The number to use with the ordinal.  e.g. "1" in "1 John".
-	 * @param array|string $string  The words to place with the ordinal.  e.g. "John", "Jn", etc for "1 John".
+	 * @param int      $number  The number to use with the ordinal.  e.g. "1" in "1 John".
+	 * @param string[] $strings  The words to place with the ordinal.  e.g. "John", "Jn", etc for "1 John".
 	 *
 	 * @return string[]  The full name (for formal contexts) must be in position 0, and the shortest address (for urls)
 	 * must be in position 1.
 	 */
-	protected static function ordinals(int $number, $string): array
+	protected static function ordinals(int $number, array $strings): array
 	{
-		if (!is_array($string)) {
-			$string = explode(' ', $string);
-		}
-
 		$number--;
-
 		$ords = self::$ORDINALS[$number] ?? [];
 		$r = [];
 
 		foreach ($ords as $ok => $o) {
-			foreach ($string as $s) {
+			foreach ($strings as $s) {
 				$r[] = $o . ' ' . $s; // 1 John, 1 Jo, First Jo
 				if ($ok == 0)
 					$r[] = $o . $s; // 1John, 1Jo
