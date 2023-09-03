@@ -20,8 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "ScripturNum\\": "src/",
-      "ScripturNumTests\\": "tests/"
+      "ScripturNum\\": "src/"
     }
   }
 }
