@@ -4,6 +4,7 @@ composer.lock
 coverage.json
 clover.xml
 .phpunit.*
+*.phar
 
 # Typical PHPStorm stuff:
 .idea/workspace.xml
