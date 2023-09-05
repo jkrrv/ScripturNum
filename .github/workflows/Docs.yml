@@ -26,16 +26,11 @@ jobs:
 
       - name: Commit & Push to Wiki
         run:  |
-          git submodule update --init --recursive
           cd docs
-          ls -a
-          git status
-          git remote -v
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions - update submodules"
           git add *.md
-          git commit -m "Auto-Update Documentation" || echo "No changes to commit"
-          git push
+          (git commit -m "Auto-Update Documentation" && git push) || echo "No changes to commit"
           cd ..
 
       - name: Commit & Push Submodule Update
