@@ -26,8 +26,8 @@ jobs:
           cd docs
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions - update submodules"
-          git add --all
-          git commit -m "Update submodules" || echo "No changes to commit"
+          git add *.md
+          git commit -m "Auto-Update Documentation" || echo "No changes to commit"
           git push
           cd ..
 
