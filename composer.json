@@ -17,8 +17,7 @@
     "phpunit/phpunit": ">=5.0",
     "php-coveralls/php-coveralls": "*",
     "ext-sqlite3": "*",
-    "skayo/phpdoc-md": "dev-master",
-    "ext-pdo": "*"
+    "skayo/phpdoc-md": "dev-master"
   },
   "autoload": {
     "psr-4": {
