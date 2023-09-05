@@ -8,8 +8,8 @@ use ScripturNum\ScripturNum;
 class ScripturNumSqlTests extends TestCase
 {
 	public function test_InclusiveSql_within() {
-		$a = new ScripturNum("Romans 12:16");
-		$b = new ScripturNum("Romans 12");
+		$a = new ScripturNum("Revelation 12:16");
+		$b = new ScripturNum("Revelation 12");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlInclusive("ref");
@@ -22,8 +22,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_InclusiveSql_sameSingle() {
-		$a = new ScripturNum("Romans 12:16");
-		$b = new ScripturNum("Romans 12:16");
+		$a = new ScripturNum("Revelation 12:16");
+		$b = new ScripturNum("Revelation 12:16");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlInclusive("ref");
@@ -50,8 +50,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_InclusiveSql_outLow() {
-		$a = new ScripturNum("Romans 12");
-		$b = new ScripturNum("Romans 2");
+		$a = new ScripturNum("Revelation 12");
+		$b = new ScripturNum("Revelation 2");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlInclusive("ref");
@@ -65,8 +65,8 @@ class ScripturNumSqlTests extends TestCase
 
 
 	public function test_InclusiveSql_overlapLow() {
-		$a = new ScripturNum("Romans 12-13");
-		$b = new ScripturNum("Romans 10-12");
+		$a = new ScripturNum("Revelation 12-13");
+		$b = new ScripturNum("Revelation 10-12");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlInclusive("ref");
@@ -79,8 +79,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_InclusiveSql_outHigh() {
-		$a = new ScripturNum("Romans 8");
-		$b = new ScripturNum("Romans 16:19-20");
+		$a = new ScripturNum("Revelation 8");
+		$b = new ScripturNum("Revelation 16:19-20");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlInclusive("ref");
@@ -93,8 +93,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_InclusiveSql_overlapHigh() {
-		$a = new ScripturNum("Romans 12-13");
-		$b = new ScripturNum("Romans 13-14");
+		$a = new ScripturNum("Revelation 12-13");
+		$b = new ScripturNum("Revelation 13-14");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlInclusive("ref");
@@ -108,8 +108,8 @@ class ScripturNumSqlTests extends TestCase
 
 
 	public function test_ExclusiveSql_within() {
-		$a = new ScripturNum("Romans 12:16");
-		$b = new ScripturNum("Romans 12");
+		$a = new ScripturNum("Revelation 12:16");
+		$b = new ScripturNum("Revelation 12");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlExclusive("ref");
@@ -122,8 +122,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_ExclusiveSql_sameSingle() {
-		$a = new ScripturNum("Romans 12:16");
-		$b = new ScripturNum("Romans 12:16");
+		$a = new ScripturNum("Revelation 12:16");
+		$b = new ScripturNum("Revelation 12:16");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlExclusive("ref");
@@ -150,8 +150,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_ExclusiveSql_outLow() {
-		$a = new ScripturNum("Romans 12");
-		$b = new ScripturNum("Romans 2");
+		$a = new ScripturNum("Revelation 12");
+		$b = new ScripturNum("Revelation 2");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlExclusive("ref");
@@ -165,8 +165,8 @@ class ScripturNumSqlTests extends TestCase
 
 
 	public function test_ExclusiveSql_overlapLow() {
-		$a = new ScripturNum("Romans 12-13");
-		$b = new ScripturNum("Romans 10-12");
+		$a = new ScripturNum("Revelation 12-13");
+		$b = new ScripturNum("Revelation 10-12");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlExclusive("ref");
@@ -179,8 +179,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_ExclusiveSql_outHigh() {
-		$a = new ScripturNum("Romans 8");
-		$b = new ScripturNum("Romans 16:19-20");
+		$a = new ScripturNum("Revelation 8");
+		$b = new ScripturNum("Revelation 16:19-20");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlExclusive("ref");
@@ -193,8 +193,8 @@ class ScripturNumSqlTests extends TestCase
 	}
 
 	public function test_ExclusiveSql_overlapHigh() {
-		$a = new ScripturNum("Romans 12-13");
-		$b = new ScripturNum("Romans 13-14");
+		$a = new ScripturNum("Revelation 12-13");
+		$b = new ScripturNum("Revelation 13-14");
 
 		$db = new ScripturNumDb();
 		$where = $b->toSqlExclusive("ref");

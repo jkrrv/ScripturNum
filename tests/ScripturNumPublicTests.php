@@ -3,6 +3,7 @@
 namespace ScripturNumTests;
 
 use PHPUnit\Framework\TestCase;
+use ScripturNum\Bible;
 use ScripturNum\ScripturNum;
 
 class ScripturNumPublicTests extends TestCase
@@ -413,5 +414,38 @@ class ScripturNumPublicTests extends TestCase
 	public function test_ExclusiveSql_Single() {
 		$n = new ScripturNum((8 << 24) + (255 << 12) + 255);
 		$this->assertEquals('theColumn = 135262463', $n->toSqlExclusive("theColumn"));
+	}
+
+	public function test_validateBookNames_exValid() {
+		$res = Bible::validateBookNamesEx();
+		$this->assertTrue($res);
+	}
+
+	public function test_validateBookNames_boolValid() {
+		$res = Bible::validateBookNames();
+		$this->assertTrue($res);
+	}
+
+	public function test_validateBookNames_arrValid() {
+		$res = Bible::validateBookNames(true);
+		$this->assertIsArray($res);
+		$this->assertCount(0, $res);
+	}
+
+	public function test_validateBookNames_exInvalid() {
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Duplicate book names exist: Fake');
+		ErrantBible::validateBookNamesEx();
+	}
+
+	public function test_validateBookNames_boolInvalid() {
+		$res = ErrantBible::validateBookNames();
+		$this->assertFalse($res);
+	}
+
+	public function test_validateBookNames_arrInvalid() {
+		$res = ErrantBible::validateBookNames(true);
+		$this->assertIsArray($res);
+		$this->assertCount(1, $res);
 	}
 }

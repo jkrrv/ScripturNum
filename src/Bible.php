@@ -3,22 +3,24 @@
 namespace ScripturNum;
 
 /**
- * A class that defines the composition of a Bible.  This includes the number of verses in each chapter.  Note that
- * changing this is not advisable.
+ * A class that defines the composition of a Bible.  This includes the number of verses in each chapter, and the names
+ * of the books of the Bible.  To translate, extend this class.
  */
 abstract class Bible
 {
 	/**
-	 * An array containing book names that should be recognized.  Keyed by sequence.
+	 * An array containing book names that should be recognized.  Keyed by sequential integers.
 	 *
-	 * @var string[][]
+	 * @var string[][]  The array of book names, grouped by book.
 	 */
 	private static $BOOK_NAMES = [];
 
 	/**
 	 * An array containing the default ordinal strings.
 	 *
-	 * @var string[][]
+	 * To translate, overwrite these values with translated values.
+	 *
+	 * @var string[][]  The ordinal terms, grouped by number.
 	 */
 	protected static $ORDINALS = [
 		['1', 'I', 'First'],
@@ -27,9 +29,10 @@ abstract class Bible
 	];
 
 	/**
-	 * An array containing the length of each chapter.
+	 * An array containing the length of each chapter of each book.  Changing anything here could be REALLY bad; don't
+	 * do it.
 	 *
-	 * @var int[][]
+	 * @var int[][]  The lengths of each chapter, grouped by book.
 	 */
 	private static $VERSES = [
 		[31, 25, 24, 26, 32, 22, 24, 22, 29, 32, 32, 20, 18, 24, 21, 16, 27, 33, 38, 18, 34, 24, 20, 67, 34, 35, 46, 22, 35, 43, 55, 32, 20, 31, 29, 43, 36, 30, 23, 23, 57, 38, 34, 34, 28, 34, 31, 22, 33, 26],
@@ -101,9 +104,7 @@ abstract class Bible
 	];
 
 	/**
-	 * An array containing the length of each chapter.
-	 *
-	 * @return int[][]
+	 * @return int[][] An array containing the length of each chapter.
 	 */
 	public static function getVerseCounts(): array
 	{
@@ -111,9 +112,9 @@ abstract class Bible
 	}
 
 	/**
-	 * Prepare the Book Names array. To translate this plugin, override this method.
+	 * Prepare the Book Names array. To translate, override this method.
 	 *
-	 * @return string[][]
+	 * @return string[][] The array of book names, grouped by book.
 	 */
 	protected static function prepareBookNames(): array
 	{
@@ -123,7 +124,7 @@ abstract class Bible
 			['Leviticus', 'Le', 'Lev'],
 			['Numbers', 'Nu', 'Num'],
 			['Deuteronomy', 'Dt', 'Deut', 'Deu', 'De'],
-			['Joshua', 'Js', 'Jos', 'Jos', 'Josh'],
+			['Joshua', 'Js', 'Jos', 'Josh'],
 			['Judges', 'Jg', 'Jdg', 'Jdgs', 'Judg'],
 			['Ruth', 'Ru', 'Rut'],
 			static::ordinals(1, ['Samuel', 'Sa', 'Sam']),
@@ -133,9 +134,9 @@ abstract class Bible
 			static::ordinals(1, ['Chronicles', 'Ch', 'Chr', 'Chron']),
 			static::ordinals(2, ['Chronicles', 'Ch', 'Chr', 'Chron']),
 			['Ezra', 'Ez', 'Ezr'],
-			['Nehemiah', 'Ne', 'Neh', 'Neh', 'Ne'],
+			['Nehemiah', 'Ne', 'Neh'],
 			['Esther', 'Es', 'Est', 'Esth'],
-			['Job', 'Jb', 'Job'],
+			['Job', 'Jb'],
 			['Psalm', 'Ps', 'Psa', 'Pss', 'Psalms'],
 			['Proverbs', 'Pr', 'Prov', 'Pro'],
 			['Ecclesiastes', 'Ec', 'Ecc'],
@@ -146,12 +147,12 @@ abstract class Bible
 			['Ezekiel', 'Ek', 'Ezek', 'Eze'],
 			['Daniel', 'Da', 'Dan', 'Dl', 'Dnl'],
 			['Hosea', 'Ho', 'Hos'],
-			['Joel', 'Jl', 'Joel', 'Joe'],
-			['Amos', 'Am', 'Amos', 'Amo'],
+			['Joel', 'Jl', 'Joe'],
+			['Amos', 'Am', 'Amo'],
 			['Obadiah', 'Ob', 'Oba', 'Obd', 'Odbh'],
 			['Jonah', 'Jh', 'Jon', 'Jnh'],
 			['Micah', 'Mi', 'Mic'],
-			['Nahum', 'Na', 'Nah', 'Na'],
+			['Nahum', 'Na', 'Nah'],
 			['Habakkuk', 'Hb', 'Hab', 'Hk', 'Habk'],
 			['Zephaniah', 'Zp', 'Zep', 'Zeph', 'Ze'],
 			['Haggai', 'Ha', 'Hag', 'Hagg'],
@@ -167,14 +168,14 @@ abstract class Bible
 			static::ordinals(2, ['Corinthians', 'Co', 'Cor']),
 			['Galatians', 'Ga', 'Gal', 'Gltns'],
 			['Ephesians', 'Ep', 'Eph', 'Ephn'],
-			['Philippians', 'Phi', 'Phil', 'Phi'],
+			['Philippians', 'Phi', 'Phil'],
 			['Colossians', 'Co', 'Col', 'Colo', 'Cln', 'Clns'],
 			static::ordinals(1, ['Thessalonians', 'Th', 'Thess', 'Thes']),
 			static::ordinals(2, ['Thessalonians', 'Th', 'Thess', 'Thes']),
 			static::ordinals(1, ['Timothy', 'Ti', 'Tim']),
 			static::ordinals(2, ['Timothy', 'Ti', 'Tim']),
 			['Titus', 'Ti', 'Tit', 'Tt', 'Ts'],
-			['Philemon', 'Pm', 'Phile', 'Philm', 'Pm'],
+			['Philemon', 'Pm', 'Phile', 'Philm'],
 			['Hebrews', 'He', 'Heb', 'Hw'],
 			['James', 'Jm', 'Jam', 'Jas', 'Ja'],
 			static::ordinals(1, ['Peter', 'Pe', 'Pet', 'P']),
@@ -221,7 +222,7 @@ abstract class Bible
 	/**
 	 * Get the Bible book names, as prepared.
 	 *
-	 * @return string[][]
+	 * @return string[][] The array of book names, grouped by book.
 	 */
 	public static function getBookNames(): array
 	{
@@ -231,9 +232,16 @@ abstract class Bible
 		return self::$BOOK_NAMES;
 	}
 
+	/**
+	 * Pluralizes the books where singular and plural make a difference.  In English, Psalm(s) and Song(s) of Solomon.
+	 *
+	 * @param string $bookNameSingular  The singular book name
+	 *
+	 * @return string The plural book name
+	 */
 	public static function pluralizeBookName(string $bookNameSingular): string
 	{
-		return str_replace(['Psalm', 'Song'], ['Psalms', 'Songs'], $bookNameSingular);
+		return str_replace(['Psalm', 'Song of Solomon'], ['Psalms', 'Songs of Solomon'], $bookNameSingular);
 	}
 
 	/**
@@ -259,6 +267,64 @@ abstract class Bible
 	public static function bookHasSingleChapter($bookIndex): bool
 	{
 		return count(self::getVerseCounts()[$bookIndex]) === 1;
+	}
+
+	/**
+	 * Confirms that there are no duplicate names in the arrays of book names.  This is important because some
+	 * abbreviations can be interpreted multiple different ways.
+	 *
+	 * The return value can be either an array of duplicates (or empty array if none), or a bool that is true if the
+	 * list is valid.
+	 *
+	 * @see self::validateBookNamesEx()
+	 *
+	 * @param bool $returnDupes Default False. Set true to return an array of duplicate names.
+	 *
+	 * @return bool|array
+	 */
+	public static function validateBookNames(bool $returnDupes = false)
+	{
+		$allNames = [];
+		$dupes = [];
+		foreach (static::getBookNames() as $bk){
+			foreach ($bk as $name) {
+				if (static::in_arrayi($name, $allNames)) {
+					if (!$returnDupes) {
+						return false;
+					}
+					if (!static::in_arrayi($name, $dupes)) {
+						$dupes[] = $name;
+					}
+				} else {
+					$allNames[] = $name;
+				}
+			}
+		}
+		if (!$returnDupes) {
+			return true;
+		}
+		return $dupes;
+	}
+
+	/**
+	 * Confirms that there are no duplicate names in the arrays of book names.  This is important because some
+	 * abbreviations can be interpreted multiple different ways.
+	 *
+	 * This function will return true if the book names are valid, and will throw an exception if not.
+	 *
+	 * @see self::validateBookNames()
+	 *
+	 * @return true
+	 * @throws ScripturNumException
+	 */
+	public static function validateBookNamesEx(): bool
+	{
+		$r = static::validateBookNames(true);
+		if (count($r) > 0) {
+			$names = implode(', ', $r);
+			throw new ScripturNumException("Duplicate book names exist: $names");
+		}
+		return true;
 	}
 }
 
