@@ -106,7 +106,7 @@ abstract class Bible
 	/**
 	 * @return int[][] An array containing the length of each chapter.
 	 */
-	public static function getVerseCounts(): array
+	public final static function getVerseCounts(): array
 	{
 		return self::$VERSES;
 	}
@@ -197,6 +197,8 @@ abstract class Bible
 	 *
 	 * @return string[]  The full name (for formal contexts) must be in position 0, and the shortest address (for urls)
 	 * must be in position 1.
+	 *
+	 * @since 2.0.0
 	 */
 	protected static function ordinals(int $number, array $strings): array
 	{
@@ -235,6 +237,8 @@ abstract class Bible
 	/**
 	 * Pluralizes the books where singular and plural make a difference.  In English, Psalm(s) and Song(s) of Solomon.
 	 *
+	 * For translation, override this method.
+	 *
 	 * @param string $bookNameSingular  The singular book name
 	 *
 	 * @return string The plural book name
@@ -252,7 +256,7 @@ abstract class Bible
 	 *
 	 * @return bool
 	 */
-	public static function in_arrayi($needle, $haystack): bool
+	public final static function in_arrayi($needle, $haystack): bool
 	{
 		return in_array(strtolower($needle), array_map('strtolower', $haystack));
 	}
@@ -264,7 +268,7 @@ abstract class Bible
 	 *
 	 * @return bool
 	 */
-	public static function bookHasSingleChapter($bookIndex): bool
+	public final static function bookHasSingleChapter($bookIndex): bool
 	{
 		return count(self::getVerseCounts()[$bookIndex]) === 1;
 	}
@@ -281,6 +285,8 @@ abstract class Bible
 	 * @param bool $returnDupes Default False. Set true to return an array of duplicate names.
 	 *
 	 * @return bool|array
+	 *
+	 * @since 2.0.0
 	 */
 	public static function validateBookNames(bool $returnDupes = false)
 	{
@@ -316,6 +322,8 @@ abstract class Bible
 	 *
 	 * @return true
 	 * @throws ScripturNumException
+	 *
+	 * @since 2.0.0
 	 */
 	public static function validateBookNamesEx(): bool
 	{

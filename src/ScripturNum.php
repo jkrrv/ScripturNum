@@ -30,9 +30,9 @@ class ScripturNum
 		if (is_numeric($intOrString)) {
 			$int = (int)$intOrString;
 		} else {
-			$int = self::string2int($intOrString);
+			$int = self::stringToInt($intOrString);
 		}
-		self::_int2refNums($int, $this->book, $this->startCh, $this->startV, $this->endCh, $this->endV);
+		self::intToRefNums($int, $this->book, $this->startCh, $this->startV, $this->endCh, $this->endV);
 		$this->int = $int;
 	}
 
@@ -264,7 +264,7 @@ class ScripturNum
 	 * @return int
 	 * @throws ScripturNumException
 	 */
-	protected static function _bookName2bookNum($bookName): int
+	protected static function bookNameToBookNum($bookName): int
 	{
 		$books = static::getBookNames();
 		foreach ($books as $book => $bookNames) {
@@ -311,8 +311,8 @@ class ScripturNum
 		int $startCh = null, $startV = 1,
 		int $endCh = null, int $endV = null): ScripturNum
 	{
-		$book = self::_bookName2bookNum($bookStr);
-		$int  = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
+		$book = self::bookNameToBookNum($bookStr);
+		$int  = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 		$c    = static::class;
 
 		return new $c($int);
@@ -337,7 +337,7 @@ class ScripturNum
 		int $startCh, int $startV = null,
 		int $endCh = null, int $endV = null): ScripturNum
 	{
-		$int = self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
+		$int = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 		$c   = static::class;
 
 		return new $c($int);
@@ -351,7 +351,7 @@ class ScripturNum
 	 *
 	 * @throws ScripturNumException
 	 */
-	public static function string2int(string $string): int
+	public static function stringToInt(string $string): int
 	{
 		// Standardize dashes
 		$string = str_replace(['&ndash;', '–'], '-', $string);
@@ -370,17 +370,20 @@ class ScripturNum
 		$ref        = substr($string, $spaceIndex);
 
 		// Parse numbers
-		self::_refNumString2refNums($ref, $startCh, $startV, $endCh, $endV);
+		self::refNumStringToRefNums($ref, $startCh, $startV, $endCh, $endV);
 
 		// Change book name to number
-		$book = self::_bookName2bookNum($book);
+		$book = self::bookNameToBookNum($book);
 
 		// Assemble and return the int
-		return self::_refNums2int($book, $startCh, $startV, $endCh, $endV);
+		return self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 	}
 
 
-	protected static function _refNums2int($book, $startCh, $startV, $endCh, $endV)
+	/**
+	 * @throws ScripturNumException
+	 */
+	protected static function refNumsToInt($book, $startCh, $startV, $endCh, $endV)
 	{
 		$book--;
 		$int = ($book) << 24;
@@ -393,9 +396,7 @@ class ScripturNum
 				$startCh = 1;
 				$endCh   = 1;
 			} else {
-				throw new ScripturNumException(
-					"A chapter was requested that does not exist within the requested book."
-				);
+				throw new ScripturNumException("A chapter was requested that does not exist within the requested book.");
 			}
 		}
 		if ($startCh === null && $endCh === null) { // whole book
@@ -445,7 +446,7 @@ class ScripturNum
 	 *
 	 * @throws ScripturNumException
 	 */
-	protected static function _refNumString2refNums(string $string, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
+	protected static function refNumStringToRefNums(string $string, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
 	{
 		if (preg_match('/[a-zA-Z]/', $string)) {
 			throw new ScripturNumException(
@@ -534,7 +535,7 @@ class ScripturNum
 	 *
 	 * @throws ScripturNumException If the reference is unintelligible.
 	 */
-	protected static function _int2refNums($int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
+	protected static function intToRefNums(int $int, &$book, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
 	{
 		$book = $int >> 24;
 		$int  -= ($book << 24);
@@ -548,8 +549,8 @@ class ScripturNum
 			throw new ScripturNumException('Unintelligible Reference');
 		}
 
-		self::_bkIndex2singleRef($book, $refAIndex, $chapterStart, $verseStart);
-		self::_bkIndex2singleRef($book, $refBIndex, $chapterEnd, $verseEnd);
+		self::bkIndexToSingleRef($book, $refAIndex, $chapterStart, $verseStart);
+		self::bkIndexToSingleRef($book, $refBIndex, $chapterEnd, $verseEnd);
 
 		$book++;
 	}
@@ -566,10 +567,10 @@ class ScripturNum
 	 *
 	 * @throws ScripturNumException If the reference is unintelligible.
 	 */
-	public static function int2concats($int, &$concatStart, &$concatEnd)
+	public static function intToConcats(int $int, &$concatStart, &$concatEnd)
 	{
 		$p = [0, 0, 0, 0, 0];
-		self::_int2refNums($int, $p[0], $p[1], $p[2], $p[3], $p[4]);
+		self::intToRefNums($int, $p[0], $p[1], $p[2], $p[3], $p[4]);
 		$concatStart = $p[2] + ($p[1] * 1000) + ($p[0] * 1000000);
 		$concatEnd   = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
 	}
@@ -585,7 +586,7 @@ class ScripturNum
 	 *
 	 * @throws ScripturNumException
 	 */
-	protected static function _bkIndex2singleRef($book, $index, &$chapter, &$verse)
+	protected static function bkIndexToSingleRef($book, $index, &$chapter, &$verse)
 	{
 		$index++;
 		$v       = Bible::getVerseCounts();

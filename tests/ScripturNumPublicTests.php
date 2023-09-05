@@ -133,10 +133,10 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals('Psalm 101:1-3', $n->getLongString());
 	}
 
-	public function test_int2cats() {
+	public function test_intToCats() {
 		$concatStart = 0;
 		$concatEnd = 0;
-		ScripturNum::int2concats(301993985, $concatStart, $concatEnd);
+		ScripturNum::intToConcats(301993985, $concatStart, $concatEnd);
 		$this->assertEquals(19001002, $concatStart);
 		$this->assertEquals(19001002, $concatEnd);
 	}
