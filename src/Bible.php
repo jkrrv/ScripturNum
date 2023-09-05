@@ -203,22 +203,9 @@ abstract class Bible
 			$string = explode(' ', $string);
 		}
 
-		$number --;
+		$number--;
 
 		$ords = self::$ORDINALS[$number] ?? [];
-
-		switch ($number) {
-			case 1:
-				$ords = ['1', 'I', 'First'];
-				break;
-			case 2:
-				$ords = ['2', 'II', 'Second'];
-				break;
-			case 3:
-				$ords = ['3', 'III', 'Third'];
-				break;
-		}
-
 		$r = [];
 
 		foreach ($ords as $ok => $o) {
