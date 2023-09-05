@@ -428,7 +428,7 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_validateBookNames_arrValid() {
 		$res = Bible::validateBookNames(true);
-		$this->assertIsArray($res);
+		$this->assertTrue(is_array($res));
 		$this->assertCount(0, $res);
 	}
 
@@ -445,7 +445,7 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_validateBookNames_arrInvalid() {
 		$res = ErrantBible::validateBookNames(true);
-		$this->assertIsArray($res);
+		$this->assertTrue(is_array($res));
 		$this->assertCount(1, $res);
 	}
 }
