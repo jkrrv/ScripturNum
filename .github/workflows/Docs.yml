@@ -21,9 +21,18 @@ jobs:
       - name: Generate Documentation
         run: php ./makeDocs.php
 
-      - name: Commit & Push changes
+      - name: Commit & Push to Wiki
+        run:  |
+          cd docs
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions - update submodules"
+          git add --all
+          git commit -m "Update submodules" || echo "No changes to commit"
+          git push
+          cd ..
+
+      - name: Commit & Push Submodule Update
         uses: Andro999b/push@v1.3
         with:
-          directory: ./docs
           github_token: ${{ secrets.GITHUB_TOKEN }}
           message: "Auto-updated documentation"

@@ -5,6 +5,7 @@ coverage.json
 clover.xml
 .phpunit.*
 *.phar
+docs/
 
 # Typical PHPStorm stuff:
 .idea/workspace.xml
