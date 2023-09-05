@@ -28,7 +28,7 @@ jobs:
         run:  |
           git submodule update --init --recursive
           cd docs
-          dir *.md
+          ls -a
           git status
           git remote -v
           git config user.email "actions@github.com"
