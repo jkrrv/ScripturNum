@@ -14,7 +14,7 @@ It handles all of the weird exceptions with how we talk about scripture, includi
 Use Composer. Just run: 
 
     composer require jkrrv/scripturnum
-    composer install
+    composer install --no-dev
 
 Or, download the source files from GitHub.  The code comes ready-to-run; there is no particular 'build' procedure. 
 

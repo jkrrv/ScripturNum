@@ -18,6 +18,9 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
 
+      - name: Install Dev Dependencies
+        run: composer update
+
       - name: Generate Documentation
         run: php ./makeDocs.php
 
