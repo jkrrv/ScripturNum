@@ -27,6 +27,7 @@ jobs:
       - name: Commit & Push to Wiki
         run:  |
           cd docs
+          git checkout master
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions - update submodules"
           git add *.md
