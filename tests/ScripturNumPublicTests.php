@@ -448,4 +448,86 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertTrue(is_array($res));
 		$this->assertCount(1, $res);
 	}
+
+	public function test_wholeChapterSingle() {
+		$a = new ScripturNum("Exodus 20:10-12");
+		$b = $a->getWholeChapters();
+		$this->assertEquals("Exodus 20", $b->getLongString());
+	}
+
+	public function test_wholeChapterSingleFromSingle() {
+		$a = new ScripturNum("3 John 2-5");
+		$b = $a->getWholeChapters();
+		$this->assertEquals("3 John", $b->getLongString());
+	}
+
+	public function test_wholeChapterSingleAlready() {
+		$a = new ScripturNum("Romans 1");
+		$b = $a->getWholeChapters();
+		$this->assertEquals($a, $b);
+		$this->assertEquals($a->getLongString(), $a->getLongString());
+	}
+
+	public function test_nextChapterSingle() {
+		$a = new ScripturNum("Exodus 20:10-12");
+		$b = $a->getNextChapter();
+		$this->assertEquals("Exodus 21", $b->getLongString());
+	}
+
+	public function test_nextChapterMultiple() {
+		$a = new ScripturNum("Exodus 2-3");
+		$b = $a->getNextChapter();
+		$this->assertEquals("Exodus 4", $b->getLongString());
+	}
+
+	public function test_nextChapterSingleFromSingle() {
+		$a = new ScripturNum("3 John 2-5");
+		$b = $a->getNextChapter();
+		$this->assertEquals("Jude", $b->getLongString());
+	}
+
+	public function test_nextChapterAcrossBooks() {
+		$a = new ScripturNum("Acts 28");
+		$b = $a->getNextChapter();
+		$this->assertEquals("Romans 1", $b->getLongString());
+	}
+
+	public function test_nextChapterAtEnd() {
+		$a = new ScripturNum("Rev 22");
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('There are no more chapters in the Bible.');
+		$a->getNextChapter();
+	}
+
+
+	public function test_prevChapterSingle() {
+		$a = new ScripturNum("Exodus 20:10-12");
+		$b = $a->getPrevChapter();
+		$this->assertEquals("Exodus 19", $b->getLongString());
+	}
+
+	public function test_prevChapterMultiple() {
+		$a = new ScripturNum("Exodus 2-3");
+		$b = $a->getPrevChapter();
+		$this->assertEquals("Exodus 1", $b->getLongString());
+	}
+
+	public function test_prevChapterSingleFromSingle() {
+		$a = new ScripturNum("3 John 2-5");
+		$b = $a->getPrevChapter();
+		$this->assertEquals("2 John", $b->getLongString());
+	}
+
+	public function test_prevChapterAcrossBooks() {
+		$a = new ScripturNum("Romans 1");
+		$b = $a->getPrevChapter();
+		$this->assertEquals("Acts 28", $b->getLongString());
+	}
+
+	public function test_prevChapterAtEnd() {
+		$a = new ScripturNum("Gen 1");
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('There are no more chapters in the Bible.');
+		$a->getPrevChapter();
+	}
 }

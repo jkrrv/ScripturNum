@@ -115,6 +115,8 @@ abstract class Bible
 	 * Prepare the Book Names array. To translate, override this method.
 	 *
 	 * @return string[][] The array of book names, grouped by book.
+	 *
+	 * @since 2.0.0
 	 */
 	protected static function prepareBookNames(): array
 	{
@@ -192,17 +194,21 @@ abstract class Bible
 	 * Create all combinations of strings for a given ordinal book (ordinal books are the numbered books, like 1 and 2
 	 * Kings).
 	 *
-	 * @param int      $number  The number to use with the ordinal.  e.g. "1" in "1 John".
-	 * @param string[] $strings  The words to place with the ordinal.  e.g. "John", "Jn", etc for "1 John".
+	 * @param int             $number The number to use with the ordinal.  e.g. "1" in "1 John".
+	 * @param string|string[] $strings The words to place with the ordinal.  e.g. "John", "Jn", etc for "1 John".
 	 *
 	 * @return string[]  The full name (for formal contexts) must be in position 0, and the shortest address (for urls)
 	 * must be in position 1.
 	 *
 	 * @since 2.0.0
 	 */
-	protected static function ordinals(int $number, array $strings): array
+	protected static function ordinals(int $number, $strings): array
 	{
 		$number--;
+		if (!is_array($strings)) {
+			$strings = explode(",", $strings);
+		}
+
 		$ords = self::$ORDINALS[$number] ?? [];
 		$r = [];
 

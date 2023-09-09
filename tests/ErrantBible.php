@@ -17,6 +17,7 @@ abstract class ErrantBible extends Bible
 		$books = parent::getBookNames();
 		$books[0][] = 'Fake';
 		$books[10][] = 'Fake';
+		$books[63] = self::ordinals(1, "Hesitations,Hes");
 		return $books;
 	}
 }

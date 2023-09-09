@@ -57,6 +57,8 @@ integer ScripturNums that are saved.
 
 ## Usage
 
+For full API documentation, [see the wiki](https://github.com/jkrrv/ScripturNum/wiki).
+
 The two most common ways of referring to a passage of scripture are, probably, human-readable and as stored in a
 database. The constructor takes both of these forms.
 
@@ -97,9 +99,6 @@ Produces the output:
 ### Starting with Other Numerical References
 
 If you've already parsed a string input and have broken apart the numerical portions, you may need a different means.
-
-Currently, only English book names are supported by the library directly. This function is part of a means for
-localization.
 
 (Matthew is the 40th book.)
 

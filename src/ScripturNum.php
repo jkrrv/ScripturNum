@@ -3,6 +3,8 @@
 
 namespace ScripturNum;
 
+use phpDocumentor\Reflection\Types\Void_;
+
 class ScripturNum
 {
 	protected $int;
@@ -80,7 +82,7 @@ class ScripturNum
 	/**
 	 * Get the ScripturNum integer.
 	 *
-	 * @return int
+	 * @return int The ScripturNum integer
 	 */
 	public function getInt(): int
 	{
@@ -218,6 +220,64 @@ class ScripturNum
 		return ($this->startV === 1 && $this->endV === $v[$this->book - 1][$this->endCh - 1]);
 	}
 
+	/**
+	 * Returns a ScripturNum for the current range, expanded to the whole chapter.
+	 *
+	 * @return static
+	 * @throws ScripturNumException
+	 */
+	public function getWholeChapters(): ScripturNum
+	{
+		if ($this->isWholeChapters()) {
+			return $this;
+		}
+
+		$i = static::refNumsToInt($this->book, $this->startCh, null, $this->endCh, null);
+		return new static($i);
+	}
+
+	/**
+	 * Returns a ScripturNum for the chapter after the current highest chapter.
+	 *
+	 * @return static
+	 * @throws ScripturNumException
+	 */
+	public function getNextChapter(): ScripturNum
+	{
+		$v = Bible::getVerseCounts();
+		if (! isset($v[$this->book]) && $this->endCh === count($v[$this->book - 1])) {
+			throw new ScripturNumException("There are no more chapters in the Bible.");
+		}
+		if (! isset($v[$this->book - 1][$this->endCh])) {
+			$i = static::refNumsToInt($this->book + 1, 1, null, 1, null);
+		} else {
+			$ch = $this->endCh + 1;
+			$i = static::refNumsToInt($this->book, $ch, null, $ch, null);
+		}
+		return new static($i);
+	}
+
+	/**
+	 * Returns a ScripturNum for the chapter prior to the current lowest chapter.
+	 *
+	 * @return static
+	 * @throws ScripturNumException
+	 */
+	public function getPrevChapter(): ScripturNum
+	{
+		if ($this->startCh === 1 && $this->book === 1) {
+			throw new ScripturNumException("There are no more chapters in the Bible.");
+		}
+		$v = Bible::getVerseCounts();
+		if ($this->startCh === 1) {
+			$ch = count($v[$this->book - 2]);
+			$i = static::refNumsToInt($this->book - 1, $ch, null, $ch, null);
+		} else {
+			$ch = $this->startCh - 1;
+			$i = static::refNumsToInt($this->book, $ch, null, $ch, null);
+		}
+		return new static($i);
+	}
 
 	/**
 	 * Returns true if the passage is a whole book.
@@ -312,6 +372,7 @@ class ScripturNum
 		int $endCh = null, int $endV = null): ScripturNum
 	{
 		$book = self::bookNameToBookNum($bookStr);
+		self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
 		$int  = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 		$c    = static::class;
 
@@ -337,6 +398,7 @@ class ScripturNum
 		int $startCh, int $startV = null,
 		int $endCh = null, int $endV = null): ScripturNum
 	{
+		self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
 		$int = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 		$c   = static::class;
 
@@ -376,17 +438,25 @@ class ScripturNum
 		$book = self::bookNameToBookNum($book);
 
 		// Assemble and return the int
+		self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
 		return self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 	}
 
-
 	/**
+	 * Validate that reference numbers can be matched to verses that exist.
+	 *
+	 * @param int  $book
+	 * @param ?int $startCh
+	 * @param ?int $startV
+	 * @param ?int $endCh
+	 * @param ?int $endV
+	 *
+	 * @return void
 	 * @throws ScripturNumException
 	 */
-	protected static function refNumsToInt($book, $startCh, $startV, $endCh, $endV)
+	protected static function validateRefNums(int $book, &$startCh, &$startV, &$endCh, &$endV)
 	{
 		$book--;
-		$int = ($book) << 24;
 		if ($startCh > count(Bible::getVerseCounts()[$book]) || $endCh > count(
 				Bible::getVerseCounts()[$book]
 			)) { // invalid request OR request for a single-chapter book.
@@ -406,25 +476,51 @@ class ScripturNum
 		if ($endCh == null) { // single chapter
 			$endCh = $startCh;
 		}
+		if (($startV - 1) > Bible::getVerseCounts()[$book][$startCh - 1] || ($endV - 1) > Bible::getVerseCounts()[$book][$endCh - 1]) {
+			throw new ScripturNumException("A verse was requested that does not exist within the requested chapter.");
+		}
+	}
+
+	/**
+	 * Take reference indexes and convert them to the ScripturNum int.  Assumes numbers are already validated by either
+	 * safely existing or being validated against self::validateRefNums()
+	 *
+	 * @param int $book
+	 * @param ?int $startCh
+	 * @param ?int $startV
+	 * @param ?int $endCh
+	 * @param ?int $endV
+	 *
+	 * @return int
+	 */
+	protected static function refNumsToInt(int $book, $startCh, $startV, $endCh, $endV): int
+	{
+		$v = Bible::getVerseCounts();
+		$book--;
+		$int = ($book) << 24;
+		if ($startCh === null && $endCh === null) { // whole book
+			$startCh = 1;
+			$endCh   = count($v[$book]);
+		}
+		if ($endCh == null) { // single chapter
+			$endCh = $startCh;
+		}
 		$startCh--;
 		$startV--;
 		$endCh--;
 		$endV--;
-		if ($startV > Bible::getVerseCounts()[$book][$startCh] || $endV > Bible::getVerseCounts()[$book][$endCh]) {
-			throw new ScripturNumException("A verse was requested that does not exist within the requested chapter.");
-		}
 		if ($endV === null) {
-			$endV = Bible::getVerseCounts()[$book][$endCh] - 1;
+			$endV = $v[$book][$endCh] - 1;
 		}
 
 		$ch = 0;
 		while ($ch < ($startCh)) {
-			$startV += Bible::getVerseCounts()[$book][$ch];
+			$startV += $v[$book][$ch];
 			$ch++;
 		}
 		$ch = 0;
 		while ($ch < ($endCh)) {
-			$endV += Bible::getVerseCounts()[$book][$ch];
+			$endV += $v[$book][$ch];
 			$ch++;
 		}
 
@@ -433,7 +529,6 @@ class ScripturNum
 
 		return $int;
 	}
-
 
 	/**
 	 * This function reads through a ref string one character at a time to parse it into a known reference.
@@ -522,7 +617,6 @@ class ScripturNum
 		}
 	}
 
-
 	/**
 	 * Converts a ScripturNum int into reference numbers.
 	 *
@@ -574,7 +668,6 @@ class ScripturNum
 		$concatStart = $p[2] + ($p[1] * 1000) + ($p[0] * 1000000);
 		$concatEnd   = $p[4] + ($p[3] * 1000) + ($p[0] * 1000000);
 	}
-
 
 	/**
 	 * Parse a book index number into a chapter and verse.
