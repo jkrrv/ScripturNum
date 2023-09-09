@@ -12,7 +12,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$reflection = new ReflectionClass(ScripturNum::class);
 		$method = $reflection->getMethod($method);
 		$method->setAccessible(true);
-		return $method->invokeArgs(null, $parameters);
+		return $method->invokeArgs(null,$parameters);
 	}
 
 	public function test_bkIndexToSingleRef() {
@@ -142,15 +142,25 @@ class ScripturNumProtectedTests extends TestCase {
 		$this->assertEquals(738197728, $this->invokeProtected('refNumsToInt', [45, 1, 1, 8, 39]));
 	}
 
-	public function test_refNumsToInt_SingleChapterIsWholeBook() {
-		$this->assertEquals(1073741848, $this->invokeProtected('refNumsToInt', [65, 1, null, 25, null]));
+	public function test_validateRefNums_SingleChapterIsWholeBook() {
+		$book = 65;
+		$startCh = 1;
+		$startV = null;
+		$endCh = 25;
+		$endV = null;
+		$this->invokeProtected('validateRefNums', [&$book, &$startCh, &$startV, &$endCh, &$endV]);
+		$this->assertEquals([65, 1, 1, 1, 25], [$book, $startCh, $startV, $endCh, $endV]);
 	}
 
-	public function test_refNumsToInt_ChapterOutOfRange() {
+	public function test_validateRefNums_ChapterOutOfRange() {
+		$book = 63;
+		$startCh = 1;
+		$startV = 2;
+		$endCh = 3;
+		$endV = 4;
 		$this->expectException('\ScripturNum\ScripturNumException');
 		$this->expectExceptionMessage('A chapter was requested that does not exist within the requested book.');
-		$args = [63, 1, 2, 3, 4];
-		$this->invokeProtected('validateRefNums', $args);
+		$this->invokeProtected('validateRefNums', [&$book, &$startCh, &$startV, &$endCh, &$endV]);
 	}
 
 	public function test_refNumsToInt_WholeBook() {
@@ -161,18 +171,27 @@ class ScripturNumProtectedTests extends TestCase {
 		$this->assertEquals(654311448, $this->invokeProtected('refNumsToInt', [40, 1, null, null, null]));
 	}
 
-	public function test_refNumsToInt_StartVerseOutOfRange() {
+	public function test_validateRefNums_StartVerseOutOfRange() {
+		$book = 62;
+		$startCh = 1;
+		$startV = 30;
+		$endCh = 2;
+		$endV = 1;
 		$this->expectException('\ScripturNum\ScripturNumException');
 		$this->expectExceptionMessage('A verse was requested that does not exist within the requested chapter.');
-		$args = [62, 1, 30, 2, 1];
-		$this->invokeProtected('validateRefNums', $args);
+		$this->invokeProtected('validateRefNums', [&$book, &$startCh, &$startV, &$endCh, &$endV]);
+
 	}
 
-	public function test_refNumsToInt_EndVerseOutOfRange() {
+	public function test_validateRefNums_EndVerseOutOfRange() {
+		$book = 62;
+		$startCh = 1;
+		$startV = 1;
+		$endCh = 2;
+		$endV = 40;
 		$this->expectException('\ScripturNum\ScripturNumException');
 		$this->expectExceptionMessage('A verse was requested that does not exist within the requested chapter.');
-		$args = [62, 1, 1, 2, 40];
-		$this->invokeProtected('validateRefNums', $args);
+		$this->invokeProtected('validateRefNums', [&$book, &$startCh, &$startV, &$endCh, &$endV]);
 	}
 
 	public function test_refNumsToInt_ChaptersNotOne() {
