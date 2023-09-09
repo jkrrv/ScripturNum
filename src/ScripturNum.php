@@ -3,8 +3,6 @@
 
 namespace ScripturNum;
 
-use phpDocumentor\Reflection\Types\Void_;
-
 class ScripturNum
 {
 	protected $int;
@@ -368,8 +366,8 @@ class ScripturNum
 	 * @throws ScripturNumException
 	 */
 	public static function newFromParsed(string $bookStr,
-		int $startCh = null, $startV = 1,
-		int $endCh = null, int $endV = null): ScripturNum
+		$startCh = null, $startV = 1,
+		$endCh = null, $endV = null): ScripturNum
 	{
 		$book = self::bookNameToBookNum($bookStr);
 		self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
