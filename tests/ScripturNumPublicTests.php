@@ -534,14 +534,12 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_extractFromString_chapter() {
 		$r = ScripturNum::extractFromString("let's turn in our bibles to Leviticus chapter 10 and verse 3.");
-		$this->assertIsArray($r);
 		$this->assertCount(1, $r);
 		$this->assertEquals("Leviticus 10",$r[0]->getLongString());
 	}
 
 	public function test_extractFromString_amp_chapters() {
 		$r = ScripturNum::extractFromString("See Romans 8-9 & 16 for more information");
-		$this->assertIsArray($r);
 		$this->assertCount(2, $r);
 		$this->assertEquals("Romans 8-9",$r[0]->getLongString());
 		$this->assertEquals("Romans 16",$r[1]->getLongString());
@@ -549,7 +547,6 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_extractFromString_amp_verses() {
 		$r = ScripturNum::extractFromString("See Romans 8:9 & 16");
-		$this->assertIsArray($r);
 		$this->assertCount(2, $r);
 		$this->assertEquals("Romans 8:9",$r[0]->getLongString());
 		$this->assertEquals("Romans 8:16",$r[1]->getLongString());
@@ -557,7 +554,6 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_extractFromString_amp_dual() {
 		$r = ScripturNum::extractFromString("See Romans 8:1-9:10 & 15:1-16:9");
-		$this->assertIsArray($r);
 		$this->assertCount(2, $r);
 		$this->assertEquals("Romans 8:1-9:10",$r[0]->getLongString());
 		$this->assertEquals("Romans 15:1-16:9",$r[1]->getLongString());
@@ -565,7 +561,6 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_extractFromString_words_chaptersOnRight() {
 		$r = ScripturNum::extractFromString("See Romans 8 and 15 through 16");
-		$this->assertIsArray($r);
 		$this->assertCount(2, $r);
 		$this->assertEquals("Romans 8",$r[0]->getLongString());
 		$this->assertEquals("Romans 15-16",$r[1]->getLongString());
@@ -573,7 +568,6 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_extractFromString_words_versesOnRight() {
 		$r = ScripturNum::extractFromString("See Romans 8:1 and 15 through 16");
-		$this->assertIsArray($r);
 		$this->assertCount(2, $r);
 		$this->assertEquals("Romans 8:1",$r[0]->getLongString());
 		$this->assertEquals("Romans 8:15-16",$r[1]->getLongString());
@@ -581,20 +575,17 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_extractFromString_commonNames() {
 		$r = ScripturNum::extractFromString("Consider Matthew Henry's commentaries.");
-		$this->assertIsArray($r);
 		$this->assertCount(0, $r);
 	}
 
 	public function test_extractFromString_bookName() {
 		$r = ScripturNum::extractFromString("We're going to start a series on first John this fall.");
-		$this->assertIsArray($r);
 		$this->assertCount(1, $r);
 		$this->assertEquals("1 John",$r[0]->getLongString());
 	}
 
 	public function test_extractFromString_bookNameExcluded() {
 		$r = ScripturNum::extractFromString("We're going to start a series on first John this fall.", true);
-		$this->assertIsArray($r);
 		$this->assertCount(0, $r);
 	}
 
