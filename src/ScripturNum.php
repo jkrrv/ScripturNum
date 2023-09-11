@@ -344,6 +344,26 @@ class ScripturNum
 	}
 
 	/**
+	 * @return string[]
+	 *
+	 * @see Bible::getCommonTerms()
+	 */
+	protected static function getCommonTerms(): array
+	{
+		return call_user_func([static::$bibleClass, 'getCommonTerms']);
+	}
+
+	/**
+	 * @return string[]
+	 *
+	 * @see Bible::getConjunctions()
+	 */
+	protected static function getConjunctions(): array
+	{
+		return call_user_func([static::$bibleClass, 'getConjunctions']);
+	}
+
+	/**
 	 * @param string $bookNameSingular
 	 *
 	 * @return string
@@ -416,16 +436,15 @@ class ScripturNum
 		// Standardize dashes
 		$string = str_replace(['&ndash;', '–'], '-', $string);
 
-		// Remove duplicate spaces
-		$string = preg_replace("/\s\s+/i", ' ', $string);
+		// Remove duplicate spaces (Can't remove all spaces because spaces may occur in book names like Song of Songs
+		$string = preg_replace("/\s\s+/", ' ', $string);
 
 		// Remove spaces among the numerical parts.
-		$string = preg_replace("/(\d+)\s*([-.:])\s+(\d+)/i", '$1$2$3', $string);
-		$string = preg_replace("/(\d+)\s+([-.:])\s*(\d+)/i", '$1$2$3', $string);
+		$string = preg_replace("/(\d+)\s*([-.:])\s*(\d+)/i", '$1$2$3', $string);
 
 		// Look for right-most space or alpha char.  This should separate book name from numerical ref.
-		preg_match_all('/[a-zA-Z\s]/', $string, $asdf, PREG_OFFSET_CAPTURE);
-		$spaceIndex = array_pop($asdf[0])[1] + 1;
+		preg_match('/.*([a-zA-Z\s])/', $string, $matches, PREG_OFFSET_CAPTURE);
+		$spaceIndex = (int)$matches[1][1] + 1;
 		$book       = trim(substr($string, 0, $spaceIndex));
 		$ref        = substr($string, $spaceIndex);
 
@@ -438,6 +457,72 @@ class ScripturNum
 		// Assemble and return the int
 		self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
 		return self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
+	}
+
+	/**
+	 * @param string $string A human-readable scripture reference that should be converted to one or more ints.
+	 * Allows for commas and semicolons.
+	 *
+	 * @return int[] The ints.
+	 * @throws ScripturNumException
+	 */
+	public static function stringToInts(string $string, &$exceptions = false): array
+	{
+		$cj = static::getConjunctions();
+
+		// standardize punctuation bits
+		$string = str_replace([$cj['and'], '&', $cj['chapter'], $cj['through'], '&endash;', '–'],
+		                      [',', ',', '', '-', '-', '-'],
+		                      $string);
+
+		// Remove duplicate spaces (Can't remove all spaces because spaces may occur in book names like Song of Songs
+		$string = preg_replace("/\s\s+/", ' ', $string);
+
+		// Look for right-most alpha char.  This should separate book name from numerical ref.
+		preg_match('/.*([a-zA-Z])/', $string, $matches, PREG_OFFSET_CAPTURE);
+		$spaceIndex = (int)$matches[1][1] + 1; // Space index may not may not actually be a space.
+		$book       = trim(substr($string, 0, $spaceIndex));
+		$ref        = substr($string, $spaceIndex);
+
+		// Change book name to number
+		try {
+			$book = self::bookNameToBookNum($book);
+		} catch (ScripturNumException $e) {
+			if (is_array($exceptions)) {
+				$exceptions[] = $e;
+			} else {
+				throw $e;
+			}
+			return [];
+		}
+
+		$ints = [];
+
+		// Remove all spaces from reference.
+		$ref = preg_replace("/\s*/", '', $ref);
+
+		foreach (explode(";", $ref) as $sA) {
+			foreach (explode(",", $sA) as $s) {
+				try {
+					// Parse numbers
+					self::refNumStringToRefNums($s, $startCh, $startV, $endCh, $endV, true);
+
+					// Assemble and return the int
+					self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
+					$ints[] = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
+
+				} catch (ScripturNumException $e) {
+					if (is_array($exceptions)) {
+						$exceptions[] = $e;
+					} else {
+						throw $e;
+					}
+					continue;
+				}
+			}
+		}
+
+		return $ints;
 	}
 
 	/**
@@ -470,9 +555,6 @@ class ScripturNum
 		if ($startCh === null && $endCh === null) { // whole book
 			$startCh = 1;
 			$endCh   = count(Bible::getVerseCounts()[$book]);
-		}
-		if ($endCh == null) { // single chapter
-			$endCh = $startCh;
 		}
 		if (($startV - 1) > Bible::getVerseCounts()[$book][$startCh - 1] || ($endV - 1) > Bible::getVerseCounts()[$book][$endCh - 1]) {
 			throw new ScripturNumException("A verse was requested that does not exist within the requested chapter.");
@@ -529,40 +611,41 @@ class ScripturNum
 	}
 
 	/**
-	 * This function reads through a ref string one character at a time to parse it into a known reference.
+	 * This function reads through a single ref string (e.g. 3:5-6:9) one character at a time to parse it into a known
+	 * reference.
 	 *
 	 * @param string $string The string to parse.
 	 * @param        $chapterStart
 	 * @param        $verseStart
 	 * @param        $chapterEnd
 	 * @param        $verseEnd
+	 * @param bool   $useHints
 	 *
 	 * @throws ScripturNumException
 	 */
-	protected static function refNumStringToRefNums(string $string, &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd)
+	protected static function refNumStringToRefNums(string $string, &$chapterStart = null, &$verseStart = null, &$chapterEnd = null, &$verseEnd = null, bool $useHints = false)
 	{
 		if (preg_match('/[a-zA-Z]/', $string)) {
-			throw new ScripturNumException(
-				"Parse Ref only handles the numerical part of the reference.  Alphabetical characters are not permitted."
-			);
+			throw new ScripturNumException("Parse Ref only handles the numerical part of the reference.  Alphabetical characters are not permitted.");
 		}
 
 		$startNums     = [];
 		$endNums       = [];
 		$currentNumber = '';
 		$beforeHyphen  = true;
+		$useHints      = $useHints && !!$chapterEnd;
 
-		foreach (
-			str_split(
-				$string . ' '
-			) as $char
-		) { // adding the extra character allows the last digit to actually get parsed.
+		// adding the extra character allows the last digit to actually get parsed.
+		foreach (str_split($string . ' ') as $char) {
 			if (is_numeric($char)) {
 				// still finding the full number
 				$currentNumber .= $char;
 			} else {
 				// End of number.  Int-ify and assign to appropriate half.
 				$currentNumber = (int)$currentNumber;
+				if ($currentNumber === 0) {
+					continue;
+				}
 				if ($beforeHyphen) {
 					$startNums[] = $currentNumber;
 				} else {
@@ -576,35 +659,67 @@ class ScripturNum
 			}
 		}
 
-		switch (count($startNums) * 10 + count($endNums)) {
-			case 10: // one full chapter, or one full book
-				if ($startNums[0] === 0) { // whole book
-					$chapterStart = null;
-				} else {
+		$numInx = count($startNums) * 10 + count($endNums) + ($useHints ? 100 : 0);
+		switch ($numInx) {
+			case 0: // whole book
+				$chapterStart = null;
+				$chapterEnd = null;
+				$verseStart = null;
+				$verseEnd = null;
+				break;
+			case 10: // one full chapter
+				$chapterStart = $startNums[0];
+				$chapterEnd   = $chapterStart;
+				break;
+			case 110: // One verse, same chapter as previous (Probably?)
+				if (!$verseStart && !$verseEnd) { // Previous indicator was chapters only.  This should be, too.
 					$chapterStart = $startNums[0];
-					$chapterEnd   = $chapterStart;
+					$chapterEnd = $chapterStart;
+				} else { // Previous indicator had verses; this should be verses, too.
+					$chapterStart = $chapterEnd;
+					$verseStart   = $startNums[0];
+					$verseEnd     = $verseStart;
 				}
 				break;
 			case 11: // multiple full chapters
 				$chapterStart = $startNums[0];
 				$chapterEnd   = $endNums[0];
 				break;
+			case 111: // multiple verses from previous chapter (probably?)
+				if (!$verseStart && !$verseEnd) { // Previous indicator was chapters only.  This should be, too.
+					$chapterStart = $startNums[0];
+					$chapterEnd = $endNums[0];
+					$verseStart = null;
+					$verseEnd = null;
+				} else { // Previous indicator had verses; this should be verses, too.
+					$chapterStart = $chapterEnd;
+					$verseStart   = $startNums[0];
+					$verseEnd     = $endNums[0];
+				}
+				break;
 			case 12: // full chapter to part of chapter
+			case 112:
 				$chapterStart = $startNums[0];
+				$verseStart   = null;
 				$chapterEnd   = $endNums[0];
 				$verseEnd     = $endNums[1];
 				break;
 			case 20: // one verse.  This is the weird case.
+			case 120:
 				$chapterStart = $startNums[0];
 				$verseStart   = $startNums[1];
+				$chapterEnd   = $chapterStart;
 				$verseEnd     = $verseStart;
 				break;
 			case 21: // multiple verses from one chapter.
+			case 121:
 				$chapterStart = $startNums[0];
+				$chapterEnd   = $chapterStart;
 				$verseStart   = $startNums[1];
 				$verseEnd     = $endNums[0];
 				break;
 			case 22: // multiple verses from across chapters
+			case 122:
 				$chapterStart = $startNums[0];
 				$verseStart   = $startNums[1];
 				$chapterEnd   = $endNums[0];
@@ -693,6 +808,68 @@ class ScripturNum
 		}
 		$chapter++;
 		$verse = $index;
+	}
+
+	/**
+	 * @param string $string
+	 * @param bool   $excludeAllBookOnlyRefs
+	 * @param null   $exceptions
+	 *
+	 * @return ScripturNum[]
+	 * @throws ScripturNumException
+	 */
+	public static function extractFromString(string $string, bool $excludeAllBookOnlyRefs = false, &$exceptions = null): array
+	{
+		$results = [];
+
+		$allBookNames = self::getBookNames();
+		$allBookNames = array_merge(...$allBookNames);
+
+		$cj = static::getConjunctions();
+
+		$string = str_replace([$cj['and'], $cj['through'], $cj['chapter']], [',', '-', ''], $string);
+
+		if ($excludeAllBookOnlyRefs) {
+			$regExSets = [
+				[
+					'bs' => $allBookNames,
+					'ps' => '+'
+				]
+			];
+		} else {
+			$b2 = self::getCommonTerms();
+			$b1 = array_diff($allBookNames, $b2);
+			$regExSets = [
+				[
+					'bs' => $b1,
+					'ps' => '*'
+				],
+				[
+					'bs' => $b2,
+					'ps' => '+'
+				]
+			];
+			unset($b1, $b2);
+		}
+		unset($allBookNames);
+
+		foreach ($regExSets as $re) {
+			$b = implode("|", $re['bs']);
+			$plusOrStar = $re['ps'];
+			/** @noinspection RegExpUnnecessaryNonCapturingGroup -- They really are necessary. */
+			$pattern = "/\b(?:$b)\.?(?:[-\s,;&]*1?\d{1,2}:?(?:1?\d{1,2})?)$plusOrStar\b/i";
+
+			preg_match_all($pattern, $string, $matches);
+
+			foreach ($matches[0] as $m) {
+				$ints = static::stringToInts($m, $exceptions);
+				foreach($ints as $i) {
+					$results[] = new static($i);
+				}
+			}
+		}
+
+		return $results;
 	}
 
 	/**

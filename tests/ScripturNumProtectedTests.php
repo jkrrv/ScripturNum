@@ -49,7 +49,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$this->assertEquals(39, $verseEnd);
 	}
 
-	public function test_refNumStringToRefNums_10a() {
+	public function test_refNumStringToRefNums_0() {
 		$chapterStart = null;
 		$verseStart = null;
 		$chapterEnd = null;
@@ -62,7 +62,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$this->assertEquals(null, $verseEnd);
 	}
 
-	public function test_refNumStringToRefNums_10b() {
+	public function test_refNumStringToRefNums_10() {
 		$chapterStart = null;
 		$verseStart = null;
 		$chapterEnd = null;
@@ -110,7 +110,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$this->invokeProtected('refNumStringToRefNums', ['1:2', &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd]);
 		$this->assertEquals(1, $chapterStart);
 		$this->assertEquals(2, $verseStart);
-		$this->assertEquals(null, $chapterEnd);
+		$this->assertEquals(1, $chapterEnd);
 		$this->assertEquals(2, $verseEnd);
 	}
 
@@ -123,7 +123,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$this->invokeProtected('refNumStringToRefNums', ['1:2-3', &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd]);
 		$this->assertEquals(1, $chapterStart);
 		$this->assertEquals(2, $verseStart);
-		$this->assertEquals(null, $chapterEnd);
+		$this->assertEquals(1, $chapterEnd);
 		$this->assertEquals(3, $verseEnd);
 	}
 

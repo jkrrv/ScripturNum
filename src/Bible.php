@@ -13,7 +13,21 @@ abstract class Bible
 	 *
 	 * @var string[][]  The array of book names, grouped by book.
 	 */
-	private static $BOOK_NAMES = [];
+	protected static $BOOK_NAMES = [];
+
+	/**
+	 * An array containing book names that are common words in English. Must match the terms used in $BOOK_NAMES in
+	 * capitalization and spelling.
+	 *
+	 * @var string[]  The array of book names, grouped by book.
+	 */
+	protected static $COMMON_TERMS = [];
+
+	protected static $CONJUNCTIONS = [
+		"chapter" => "chapter",
+		"and"     => "and",
+		"through" => "through"
+	];
 
 	/**
 	 * An array containing the default ordinal strings.
@@ -112,15 +126,73 @@ abstract class Bible
 	}
 
 	/**
-	 * Prepare the Book Names array. To translate, override this method.
+	 * Prepare the Book Names array. To translate, override this method.  Also, when translating, be sure to use this
+	 * override to set new values for $CONJUNCTIONS.
 	 *
-	 * @return string[][] The array of book names, grouped by book.
+	 * @return void
 	 *
 	 * @since 2.0.0
 	 */
-	protected static function prepareBookNames(): array
+	protected static function prepareBookNames()
 	{
-		return [
+		static::$COMMON_TERMS = [
+			'Numbers',
+			'Joshua',
+			'Josh',
+			'Ruth',
+			'Rut',
+			'Ezra',
+			'Esther',
+			'Est',
+			'Job',
+			'Pro',
+			'SoS',
+			'Isaiah',
+			'Isa',
+			'Jeremiah',
+			'Jer',
+			'Lament',
+			'Ezekiel',
+			'Daniel',
+			'Dan',
+			'Hosea',
+			'Joel',
+			'Joe',
+			'Amos',
+			'Jonah',
+			'Micah',
+			'Mic',
+			'Nah',
+			'Zeph',
+			'Hag',
+			'Zechariah',
+			'Zech',
+			'Zec',
+			'Mal',
+			'Matthew',
+			'Matt',
+			'Mark',
+			'Luke',
+			'John',
+			'Acts',
+			'Romans',
+			'Rom',
+			'Gal',
+			'Phil',
+			'Co',
+			'Col',
+			'Colo',
+			'Titus',
+			'Tit',
+			'James',
+			'Jas',
+			'Jude',
+			'Revelation',
+			'Rev',
+			'Re'
+		];
+
+		static::$BOOK_NAMES = [
 			['Genesis', 'Ge', 'Gen'],
 			['Exodus', 'Ex', 'Exo'],
 			['Leviticus', 'Le', 'Lev'],
@@ -234,10 +306,30 @@ abstract class Bible
 	 */
 	public static function getBookNames(): array
 	{
-		if (self::$BOOK_NAMES === [])
-			self::$BOOK_NAMES = static::prepareBookNames();
+		if (static::$BOOK_NAMES === [])
+			static::prepareBookNames();
 
-		return self::$BOOK_NAMES;
+		return static::$BOOK_NAMES;
+	}
+
+	/**
+	 * Get the common terms, as prepared
+	 *
+	 * @return string[] The array of common names in the vernacular language.
+	 */
+	public static function getCommonTerms(): array
+	{
+		return static::$COMMON_TERMS;
+	}
+
+	/**
+	 * Get the conjunctions, as prepared
+	 *
+	 * @return string[] The array of some specific conjunctions so they're translatable.
+	 */
+	public static function getConjunctions(): array
+	{
+		return static::$CONJUNCTIONS;
 	}
 
 	/**

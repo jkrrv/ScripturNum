@@ -5,6 +5,7 @@ namespace ScripturNumTests;
 use PHPUnit\Framework\TestCase;
 use ScripturNum\Bible;
 use ScripturNum\ScripturNum;
+use ScripturNum\ScripturNumException;
 
 class ScripturNumPublicTests extends TestCase
 {
@@ -529,5 +530,98 @@ class ScripturNumPublicTests extends TestCase
 		$this->expectException('\ScripturNum\ScripturNumException');
 		$this->expectExceptionMessage('There are no more chapters in the Bible.');
 		$a->getPrevChapter();
+	}
+
+	public function test_extractFromString_chapter() {
+		$r = ScripturNum::extractFromString("let's turn in our bibles to Leviticus chapter 10 and verse 3.");
+		$this->assertIsArray($r);
+		$this->assertCount(1, $r);
+		$this->assertEquals("Leviticus 10",$r[0]->getLongString());
+	}
+
+	public function test_extractFromString_amp_chapters() {
+		$r = ScripturNum::extractFromString("See Romans 8-9 & 16 for more information");
+		$this->assertIsArray($r);
+		$this->assertCount(2, $r);
+		$this->assertEquals("Romans 8-9",$r[0]->getLongString());
+		$this->assertEquals("Romans 16",$r[1]->getLongString());
+	}
+
+	public function test_extractFromString_amp_verses() {
+		$r = ScripturNum::extractFromString("See Romans 8:9 & 16");
+		$this->assertIsArray($r);
+		$this->assertCount(2, $r);
+		$this->assertEquals("Romans 8:9",$r[0]->getLongString());
+		$this->assertEquals("Romans 8:16",$r[1]->getLongString());
+	}
+
+	public function test_extractFromString_amp_dual() {
+		$r = ScripturNum::extractFromString("See Romans 8:1-9:10 & 15:1-16:9");
+		$this->assertIsArray($r);
+		$this->assertCount(2, $r);
+		$this->assertEquals("Romans 8:1-9:10",$r[0]->getLongString());
+		$this->assertEquals("Romans 15:1-16:9",$r[1]->getLongString());
+	}
+
+	public function test_extractFromString_words_chaptersOnRight() {
+		$r = ScripturNum::extractFromString("See Romans 8 and 15 through 16");
+		$this->assertIsArray($r);
+		$this->assertCount(2, $r);
+		$this->assertEquals("Romans 8",$r[0]->getLongString());
+		$this->assertEquals("Romans 15-16",$r[1]->getLongString());
+	}
+
+	public function test_extractFromString_words_versesOnRight() {
+		$r = ScripturNum::extractFromString("See Romans 8:1 and 15 through 16");
+		$this->assertIsArray($r);
+		$this->assertCount(2, $r);
+		$this->assertEquals("Romans 8:1",$r[0]->getLongString());
+		$this->assertEquals("Romans 8:15-16",$r[1]->getLongString());
+	}
+
+	public function test_extractFromString_commonNames() {
+		$r = ScripturNum::extractFromString("Consider Matthew Henry's commentaries.");
+		$this->assertIsArray($r);
+		$this->assertCount(0, $r);
+	}
+
+	public function test_extractFromString_bookName() {
+		$r = ScripturNum::extractFromString("We're going to start a series on first John this fall.");
+		$this->assertIsArray($r);
+		$this->assertCount(1, $r);
+		$this->assertEquals("1 John",$r[0]->getLongString());
+	}
+
+	public function test_extractFromString_bookNameExcluded() {
+		$r = ScripturNum::extractFromString("We're going to start a series on first John this fall.", true);
+		$this->assertIsArray($r);
+		$this->assertCount(0, $r);
+	}
+
+	public function test_stringToInts_Ex_OutOfBounds_throw() {
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('A chapter was requested that does not exist within the requested book.');
+		ScripturNum::stringToInts('Genesis 110, 120');
+	}
+
+	public function test_stringToInts_Ex_OutOfBounds_return() {
+		$ex = [];
+		ScripturNum::stringToInts('Genesis 110, 120', $ex);
+		$this->assertCount(2, $ex);
+		$this->assertEquals(ScripturNumException::class, get_class($ex[0]));
+		$this->assertEquals(ScripturNumException::class, get_class($ex[1]));
+	}
+
+	public function test_stringToInts_Ex_invalidBook_throw() {
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectExceptionMessage('Book name is invalid.');
+		ScripturNum::stringToInts('Asdf 2');
+	}
+
+	public function test_stringToInts_Ex_invalidBook_return() {
+		$ex = [];
+		ScripturNum::stringToInts('Asdf 2', $ex);
+		$this->assertCount(1, $ex);
+		$this->assertEquals(ScripturNumException::class, get_class($ex[0]));
 	}
 }
