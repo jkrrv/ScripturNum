@@ -3,7 +3,7 @@
 
 namespace ScripturNum;
 
-use mysql_xdevapi\Exception;
+use TypeError;
 
 class ScripturNum
 {
@@ -32,7 +32,11 @@ class ScripturNum
 		if (is_numeric($intOrString)) {
 			$int = (int)$intOrString;
 		} else {
-			$int = self::stringToInt($intOrString);
+			try {
+				$int = self::stringToInt($intOrString);
+			} catch (TypeError $e) {
+				throw new ScripturNumException("Invalid value provided to ScripturNum constructor.");
+			}
 		}
 		self::intToRefNums($int, $this->book, $this->startCh, $this->startV, $this->endCh, $this->endV);
 		$this->int = $int;
@@ -505,6 +509,9 @@ class ScripturNum
 
 		foreach (explode(";", $ref) as $sA) {
 			foreach (explode(",", $sA) as $s) {
+				$s = trim($s);
+				if ($s === "" && isset($endCh))
+					continue;
 				try {
 					// Parse numbers
 					self::refNumStringToRefNums($s, $startCh, $startV, $endCh, $endV, true);

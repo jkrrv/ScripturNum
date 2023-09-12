@@ -150,21 +150,21 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue02_01(){
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('There are not that many books in the Bible.');
 
 		new ScripturNum(4496293888);
 	}
 
 	public function test_issue02_02() {
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('There are not that many verses in this book.');
 
 		new ScripturNum(739860913);
 	}
 
 	public function test_issue03_01() { // when a string is supposed to be created with bad settings
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Invalid key for creating a string.');
 
 		$n = new ScripturNum('Ro 1-8');
@@ -182,7 +182,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue03_03() { // New settings, incomplete
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Invalid space character.');
 
 		$n = new ScripturNum('Ro 1-8');
@@ -191,7 +191,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue04() {
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Unintelligible Reference');
 
 		new ScripturNum('Ps1:3-2');
@@ -203,7 +203,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue08_01() { // invalid separation character.
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Invalid chapter-verse separation character.');
 
 		$n = new ScripturNum('Ro 1-8');
@@ -212,7 +212,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue08_02() { // invalid range character.
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Invalid range character.');
 
 		$n = new ScripturNum('Ro 1-8');
@@ -221,7 +221,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue08_03() { // invalid separation character.
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Invalid name offset.');
 
 		$n = new ScripturNum('Ro 1-8');
@@ -230,7 +230,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue08_04() { // invalid separation character.
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Plurality is not defined.');
 
 		$n = new ScripturNum('Ro 1-8');
@@ -239,7 +239,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_issue08_05() { // invalid plurality.
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Plurality is not defined.');
 
 		$n = new ScripturNum('Ro 1-8');
@@ -482,7 +482,7 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_combineWithInt_notAdjacent() {
 		$this->expectExceptionMessage("Cannot combine passages that aren't overlapping or adjacent.");
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$bigger = new ScripturNum("Luke 2");
 		$smaller = new ScripturNum("Luke 4");
 		$bigger->combineWithInt($smaller->getInt());
@@ -717,7 +717,7 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_combineWith_notAdjacent() {
 		$this->expectExceptionMessage("Cannot combine passages that aren't overlapping or adjacent.");
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$bigger = new ScripturNum("Luke 2");
 		$smaller = new ScripturNum("Luke 4");
 		$bigger->combineWith($smaller);
@@ -765,7 +765,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_validateBookNames_exInvalid() {
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Duplicate book names exist: Fake');
 		ErrantBible::validateBookNamesEx();
 	}
@@ -826,7 +826,7 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_nextChapterAtEnd() {
 		$a = new ScripturNum("Rev 22");
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('There are no more chapters in the Bible.');
 		$a->getNextChapter();
 	}
@@ -858,7 +858,7 @@ class ScripturNumPublicTests extends TestCase
 
 	public function test_prevChapterAtEnd() {
 		$a = new ScripturNum("Gen 1");
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('There are no more chapters in the Bible.');
 		$a->getPrevChapter();
 	}
@@ -920,8 +920,13 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertCount(0, $r);
 	}
 
+	public function test_extractFromString_ArrayCombining() {
+		$r = ScripturNum::extractFromString("Genesis 1, 2, and 3 are essential for understanding the gospel.", true);
+		$this->assertCount(1, $r);
+	}
+
 	public function test_stringToInts_Ex_OutOfBounds_throw() {
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('A chapter was requested that does not exist within the requested book.');
 		ScripturNum::stringToInts('Genesis 110, 120');
 	}
@@ -935,7 +940,7 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_stringToInts_Ex_invalidBook_throw() {
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Book name is invalid.');
 		ScripturNum::stringToInts('Asdf 2');
 	}

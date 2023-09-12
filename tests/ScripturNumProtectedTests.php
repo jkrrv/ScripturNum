@@ -1,10 +1,12 @@
 <?php
+/** @noinspection PhpParamsInspection */
 
 namespace ScripturNumTests;
 
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ScripturNum\ScripturNum;
+use ScripturNum\ScripturNumException;
 
 class ScripturNumProtectedTests extends TestCase {
 
@@ -24,7 +26,7 @@ class ScripturNumProtectedTests extends TestCase {
 	}
 
 	public function test_bookNameToBookNum_bookNameInvalid() {
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Book name is invalid.');
 
 		$this->invokeProtected('bookNameToBookNum', ['Elizabeth']);
@@ -146,7 +148,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$chapterEnd = null;
 		$verseEnd = null;
 
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Badly formed numerical reference.');
 
 		$this->invokeProtected('refNumStringToRefNums', ['1:2:3', &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd]);
@@ -158,7 +160,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$chapterEnd = null;
 		$verseEnd = null;
 
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('Parse Ref only handles the numerical part of the reference.  Alphabetical characters are not permitted.');
 
 		$this->invokeProtected('refNumStringToRefNums', ['1:2b', &$chapterStart, &$verseStart, &$chapterEnd, &$verseEnd]);
@@ -188,7 +190,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$startV = 2;
 		$endCh = 3;
 		$endV = 4;
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('A chapter was requested that does not exist within the requested book.');
 		$this->invokeProtected('validateRefNums', [&$book, &$startCh, &$startV, &$endCh, &$endV]);
 	}
@@ -207,7 +209,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$startV = 30;
 		$endCh = 2;
 		$endV = 1;
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('A verse was requested that does not exist within the requested chapter.');
 		$this->invokeProtected('validateRefNums', [&$book, &$startCh, &$startV, &$endCh, &$endV]);
 
@@ -219,7 +221,7 @@ class ScripturNumProtectedTests extends TestCase {
 		$startV = 1;
 		$endCh = 2;
 		$endV = 40;
-		$this->expectException('\ScripturNum\ScripturNumException');
+		$this->expectException(ScripturNumException::class);
 		$this->expectExceptionMessage('A verse was requested that does not exist within the requested chapter.');
 		$this->invokeProtected('validateRefNums', [&$book, &$startCh, &$startV, &$endCh, &$endV]);
 	}

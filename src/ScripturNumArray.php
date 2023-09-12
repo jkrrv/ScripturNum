@@ -9,14 +9,80 @@ use Iterator;
 
 class ScripturNumArray implements ArrayAccess, Iterator, Countable
 {
+	/**
+	 * @var ScripturNum[]
+	 */
 	protected $container = [];
-	protected $position = 0;
-	
+	protected $sortEnqueued = false;
+
+
+	public function __construct($initialValues = [])
+	{
+		foreach ($initialValues as $k => $i) {
+			if (is_object($i) && get_class($i) === ScripturNum::class) {
+				$this->offsetSet($k, $i);
+				continue;
+			}
+			try {
+				$s = new ScripturNum($i);
+				$this->offsetSet($k, $s);
+			} catch (ScripturNumException $e) {}
+		}
+	}
+
+	/**
+	 * @param ScripturNum $a
+	 * @param ScripturNum $b
+	 *
+	 * @return int
+	 */
+	protected static function sortCompare(ScripturNum $a, ScripturNum $b): int
+	{
+		return $a->getInt() <=> $b->getInt();
+	}
+
+	/**
+	 * Sorts the container.
+	 *
+	 * @return void
+	 */
+	protected function sort()
+	{
+		uasort($this->container, [static::class, 'sortCompare']);
+	}
+
+	protected function combineAdjacents()
+	{
+		$prev = null;
+		$prevK = null;
+		foreach ($this->container as $k => $curr) {
+			if ($prev != null) {
+				if ($prev->overlapsOrAdjacent($curr)) {
+					$this->container[$prevK] = $prev->combineWith($curr);
+					unset($this->container[$k]);
+					$prev = $this->container[$prevK];
+					continue;
+				}
+			}
+			$prev = $curr;
+			$prevK = $k;
+		}
+	}
+
+	protected function sortAndCombineIfNeeded()
+	{
+		if ($this->sortEnqueued) {
+			$this->sort();
+			$this->combineAdjacents();
+			$this->sortEnqueued = false;
+		}
+	}
+
 	/**
 	 * Whether a offset exists
 	 * @link https://php.net/manual/en/arrayaccess.offsetexists.php
 	 *
-	 * @param mixed $offset 
+	 * @param mixed $offset
 	 * An offset to check for.
 	 *
 	 * @return bool true on success or false on failure.
@@ -32,14 +98,14 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 * Offset to retrieve
 	 * @link https://php.net/manual/en/arrayaccess.offsetget.php
 	 *
-	 * @param mixed $offset 
+	 * @param mixed $offset
 	 * The offset to retrieve.
-	 * 
 	 *
 	 * @return ScripturNum Value Can return all value types.
 	 */
 	public function offsetGet($offset): ScripturNum
 	{
+		$this->sortAndCombineIfNeeded();
 		return $this->container[$offset];
 	}
 
@@ -49,7 +115,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 *
 	 * @param mixed   $offset
 	 * The offset to assign the value to.
-	 * 
+	 *
 	 * @param ScripturNum $value
 	 * The value to set.
 	 *
@@ -59,14 +125,10 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	{
 		if (is_null($offset)) {
 			$this->container[] = $value;
-			end($this->container);
-			$this->keys[] = key($this->container);
 		} else {
 			$this->container[$offset] = $value;
-			if ( ! in_array($offset, $this->keys)) {
-				$this->keys[] = $offset;
-			}
 		}
+		$this->sortEnqueued = true;
 	}
 
 	/**
@@ -90,7 +152,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function current(): ScripturNum
 	{
-		return $this->container[$this->keys[$this->position]];
+		return current($this->container);
 	}
 
 	/**
@@ -100,17 +162,17 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function next()
 	{
-		$this->position++;
+		next($this->container);
 	}
 
 	/**
 	 * Return the key of the current element
 	 * @link https://php.net/manual/en/iterator.key.php
-	 * @return mixed TKey on success, or null on failure.
+	 * @return int|string|null TKey on success, or null on failure.
 	 */
 	public function key()
 	{
-		return $this->keys[$this->position] ?? null;
+		return key($this->container);
 	}
 
 	/**
@@ -119,9 +181,10 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 * @return bool The return value will be casted to boolean and then evaluated.
 	 * Returns true on success or false on failure.
 	 */
-	public function valid()
+	public function valid(): bool
 	{
-		return isset($this->keys[$this->position]);
+		$k = $this->key();
+		return isset($this->container[$k]);
 	}
 
 	/**
@@ -131,7 +194,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function rewind()
 	{
-		$this->position = 0;
+		reset($this->container);
 	}
 
 	/**
@@ -142,6 +205,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function count(): int
 	{
+		$this->sortAndCombineIfNeeded();
 		return count($this->container);
 	}
 
@@ -150,6 +214,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function __toString(): string
 	{
+		$this->sortAndCombineIfNeeded();
 		// TODO: Implement __toString() method.
 	}
 }
