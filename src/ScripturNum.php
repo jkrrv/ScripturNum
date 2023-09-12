@@ -3,6 +3,8 @@
 
 namespace ScripturNum;
 
+use mysql_xdevapi\Exception;
+
 class ScripturNum
 {
 	protected $int;
@@ -815,12 +817,12 @@ class ScripturNum
 	 * @param bool   $excludeAllBookOnlyRefs
 	 * @param null   $exceptions
 	 *
-	 * @return ScripturNum[]
+	 * @return ScripturNumArray
 	 * @throws ScripturNumException
 	 */
-	public static function extractFromString(string $string, bool $excludeAllBookOnlyRefs = false, &$exceptions = null): array
+	public static function extractFromString(string $string, bool $excludeAllBookOnlyRefs = false, &$exceptions = null): ScripturNumArray
 	{
-		$results = [];
+		$results = new ScripturNumArray();
 
 		$allBookNames = self::getBookNames();
 		$allBookNames = array_merge(...$allBookNames);
@@ -879,7 +881,7 @@ class ScripturNum
 	 *
 	 * @return bool
 	 */
-	public function isWithin(int $largerPassage): bool
+	public function isWithinInt(int $largerPassage): bool
 	{
 		if (($this->int & self::BOOK_MASK) != ($largerPassage & self::BOOK_MASK))
 			return false;
@@ -894,13 +896,25 @@ class ScripturNum
 	}
 
 	/**
+	 * Test whether a given passage is within a given larger passage.  Will also return true if they are the same.
+	 *
+	 * @param ScripturNum $largerPassage
+	 *
+	 * @return bool
+	 */
+	public function isWithin(ScripturNum $largerPassage): bool
+	{
+		return $this->isWithinInt($largerPassage->getInt());
+	}
+
+	/**
 	 * Test whether a given passage has any commonality with another passage.
 	 *
 	 * @param int $otherPassage
 	 *
 	 * @return bool
 	 */
-	public function overlapsWith(int $otherPassage): bool
+	public function overlapsWithInt(int $otherPassage): bool
 	{
 		if (($this->int & self::BOOK_MASK) != ($otherPassage & self::BOOK_MASK))
 			return false;
@@ -915,13 +929,89 @@ class ScripturNum
 	}
 
 	/**
+	 * Test whether a given passage has any commonality with another passage.
+	 *
+	 * @param ScripturNum $otherPassage
+	 *
+	 * @return bool
+	 */
+	public function overlapsWith(ScripturNum $otherPassage): bool
+	{
+		return $this->overlapsWithInt($otherPassage->getInt());
+	}
+
+	/**
+	 * Test whether a given passage has any commonality with another passage, or is adjacent to it.
+	 *
+	 * @param int $otherPassage
+	 *
+	 * @return bool
+	 */
+	public function overlapsOrAdjacentInt(int $otherPassage): bool
+	{
+		if (($this->int & self::BOOK_MASK) != ($otherPassage & self::BOOK_MASK))
+			return false;
+
+		if (($this->int & self::START_MASK) - (1 << 12) > (($otherPassage & self::END_MASK) << 12))
+			return false;
+
+		if ((($this->int & self::END_MASK) + 1) < (($otherPassage & self::START_MASK) >> 12))
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Test whether a given passage has any commonality with another passage, or is adjacent to it.
+	 *
+	 * @param ScripturNum $otherPassage
+	 *
+	 * @return bool
+	 */
+	public function overlapsOrAdjacent(ScripturNum $otherPassage): bool
+	{
+		return $this->overlapsOrAdjacentInt($otherPassage->getInt());
+	}
+
+	/**
+	 * @param int $otherPassage
+	 *
+	 * @return int
+	 * @throws ScripturNumException
+	 */
+	public function combineWithInt(int $otherPassage): int
+	{
+		if (!$this->overlapsOrAdjacentInt($otherPassage)) {
+			throw new ScripturNumException("Cannot combine passages that aren't overlapping or adjacent.");
+		}
+
+		$newInt = $this->int & self::BOOK_MASK;
+		$newInt += min($this->int & self::START_MASK, $otherPassage & self::START_MASK);
+		$newInt += max($this->int & self::END_MASK, $otherPassage & self::END_MASK);
+
+		return $newInt;
+	}
+
+	/**
+	 * @param ScripturNum $otherPassage
+	 *
+	 * @return ScripturNum
+	 * @throws ScripturNumException
+	 */
+	public function combineWith(ScripturNum $otherPassage): ScripturNum
+	{
+		$int = $this->combineWithInt($otherPassage->getInt());
+		return new ScripturNum($int);
+	}
+
+	/**
 	 * Test whether a given passage contains a given smaller passage.  Will also return true if they are the same.
 	 *
 	 * @param int $smallerPassage
 	 *
 	 * @return bool
 	 */
-	public function contains(int $smallerPassage): bool
+	public function containsInt(int $smallerPassage): bool
 	{
 		if (($this->int & self::BOOK_MASK) != ($smallerPassage & self::BOOK_MASK))
 			return false;
@@ -933,6 +1023,18 @@ class ScripturNum
 			return false;
 
 		return true;
+	}
+
+	/**
+	 * Test whether a given passage contains a given smaller passage.  Will also return true if they are the same.
+	 *
+	 * @param ScripturNum $smallerPassage
+	 *
+	 * @return bool
+	 */
+	public function contains(ScripturNum $smallerPassage): bool
+	{
+		return $this->containsInt($smallerPassage->getInt());
 	}
 
 	/**

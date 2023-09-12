@@ -262,145 +262,476 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals(221, $i & ScripturNum::END_MASK);
 	}
 
+	public function test_containsInt_true() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20:14");
+		$test = $bigger->containsInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_containsInt_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $bigger->containsInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_containsInt_differentPassage() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-20");
+		$test = $bigger->containsInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_containsInt_overlapLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-20");
+		$test = $bigger->containsInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_containsInt_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-21");
+		$test = $bigger->containsInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_containsInt_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->containsInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_isWithinInt_true() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20:14");
+		$test = $smaller->isWithinInt($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_isWithinInt_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $smaller->isWithinInt($bigger->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_isWithinInt_differentPassageLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-2:20");
+		$test = $smaller->isWithinInt($bigger->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_isWithinInt_differentPassageHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 21");
+		$test = $smaller->isWithinInt($bigger->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_isWithinInt_overlapLow() {
+		$bigger = new ScripturNum("Exodus 19-20");
+		$smaller = new ScripturNum("Exodus 20");
+		$test = $smaller->isWithinInt($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_isWithinInt_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 19-21");
+		$smaller = new ScripturNum("Exodus 20");
+		$test = $smaller->isWithinInt($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_isWithinInt_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20-21");
+		$smaller = new ScripturNum("Exodus 20");
+		$test = $smaller->isWithinInt($bigger->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWithInt_true() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20:14");
+		$test = $bigger->overlapsWithInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWithInt_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $bigger->overlapsWithInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsWithInt_differentPassageLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-20");
+		$test = $bigger->overlapsWithInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsWithInt_differentPassageHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 21");
+		$test = $bigger->overlapsWithInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsWithInt_overlapLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-20");
+		$test = $bigger->overlapsWithInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWithInt_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-21");
+		$test = $bigger->overlapsWithInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsWithInt_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->overlapsWithInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_differentPassageLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-20");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_adjacentLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_differentPassageHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 22");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_adjacentHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 21");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_oneHigh() {
+		$bigger = new ScripturNum("Psalm 1:5");
+		$smaller = new ScripturNum("Psalm 1:7");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_oneLow() {
+		$bigger = new ScripturNum("Psalm 1:5");
+		$smaller = new ScripturNum("Psalm 1:3");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_overlapLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-20");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-21");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacentInt_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->overlapsOrAdjacentInt($smaller->getInt());
+		$this->assertTrue($test);
+	}
+
+	public function test_combineWithInt_adjacentLow() {
+		$bigger = new ScripturNum("Matthew 5-6");
+		$smaller = new ScripturNum("Matthew 3-4");
+		$test = $bigger->combineWithInt($smaller->getInt());
+		$sn = new ScripturNum($test);
+		$this->assertEquals("Matthew 3-6", $sn->getLongString());
+	}
+
+	public function test_combineWithInt_notAdjacent() {
+		$this->expectExceptionMessage("Cannot combine passages that aren't overlapping or adjacent.");
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$bigger = new ScripturNum("Luke 2");
+		$smaller = new ScripturNum("Luke 4");
+		$bigger->combineWithInt($smaller->getInt());
+	}
+
+	public function test_combineWithInt_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 19-20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->combineWithInt($smaller->getInt());
+		$sn = new ScripturNum($test);
+		$this->assertEquals("Exodus 19-21", $sn->getLongString());
+	}
+
+
+
 	public function test_contains_true() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 20:14");
-		$test = $bigger->contains($smaller->getInt());
+		$test = $bigger->contains($smaller);
 		$this->assertTrue($test);
 	}
 
 	public function test_contains_wrongBook() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Genesis 20:14");
-		$test = $bigger->contains($smaller->getInt());
+		$test = $bigger->contains($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_contains_differentPassage() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 2:14-20");
-		$test = $bigger->contains($smaller->getInt());
+		$test = $bigger->contains($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_contains_overlapLow() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 19-20");
-		$test = $bigger->contains($smaller->getInt());
+		$test = $bigger->contains($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_contains_overlapBoth() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 19-21");
-		$test = $bigger->contains($smaller->getInt());
+		$test = $bigger->contains($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_contains_overlapHigh() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 20-21");
-		$test = $bigger->contains($smaller->getInt());
+		$test = $bigger->contains($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_isWithin_true() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 20:14");
-		$test = $smaller->isWithin($bigger->getInt());
+		$test = $smaller->isWithin($bigger);
 		$this->assertTrue($test);
 	}
 
 	public function test_isWithin_wrongBook() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Genesis 20:14");
-		$test = $smaller->isWithin($bigger->getInt());
+		$test = $smaller->isWithin($bigger);
 		$this->assertFalse($test);
 	}
 
 	public function test_isWithin_differentPassageLow() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 2:14-2:20");
-		$test = $smaller->isWithin($bigger->getInt());
+		$test = $smaller->isWithin($bigger);
 		$this->assertFalse($test);
 	}
 
 	public function test_isWithin_differentPassageHigh() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 21");
-		$test = $smaller->isWithin($bigger->getInt());
+		$test = $smaller->isWithin($bigger);
 		$this->assertFalse($test);
 	}
 
 	public function test_isWithin_overlapLow() {
 		$bigger = new ScripturNum("Exodus 19-20");
 		$smaller = new ScripturNum("Exodus 20");
-		$test = $smaller->isWithin($bigger->getInt());
+		$test = $smaller->isWithin($bigger);
 		$this->assertTrue($test);
 	}
 
 	public function test_isWithin_overlapBoth() {
 		$bigger = new ScripturNum("Exodus 19-21");
 		$smaller = new ScripturNum("Exodus 20");
-		$test = $smaller->isWithin($bigger->getInt());
+		$test = $smaller->isWithin($bigger);
 		$this->assertTrue($test);
 	}
 
 	public function test_isWithin_overlapHigh() {
 		$bigger = new ScripturNum("Exodus 20-21");
 		$smaller = new ScripturNum("Exodus 20");
-		$test = $smaller->isWithin($bigger->getInt());
+		$test = $smaller->isWithin($bigger);
 		$this->assertTrue($test);
 	}
 
 	public function test_overlapsWith_true() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 20:14");
-		$test = $bigger->overlapsWith($smaller->getInt());
+		$test = $bigger->overlapsWith($smaller);
 		$this->assertTrue($test);
 	}
 
 	public function test_overlapsWith_wrongBook() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Genesis 20:14");
-		$test = $bigger->overlapsWith($smaller->getInt());
+		$test = $bigger->overlapsWith($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_overlapsWith_differentPassageLow() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 2:14-20");
-		$test = $bigger->overlapsWith($smaller->getInt());
+		$test = $bigger->overlapsWith($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_overlapsWith_differentPassageHigh() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 21");
-		$test = $bigger->overlapsWith($smaller->getInt());
+		$test = $bigger->overlapsWith($smaller);
 		$this->assertFalse($test);
 	}
 
 	public function test_overlapsWith_overlapLow() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 19-20");
-		$test = $bigger->overlapsWith($smaller->getInt());
+		$test = $bigger->overlapsWith($smaller);
 		$this->assertTrue($test);
 	}
 
 	public function test_overlapsWith_overlapBoth() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 19-21");
-		$test = $bigger->overlapsWith($smaller->getInt());
+		$test = $bigger->overlapsWith($smaller);
 		$this->assertTrue($test);
 	}
 
 	public function test_overlapsWith_overlapHigh() {
 		$bigger = new ScripturNum("Exodus 20");
 		$smaller = new ScripturNum("Exodus 20-21");
-		$test = $bigger->overlapsWith($smaller->getInt());
+		$test = $bigger->overlapsWith($smaller);
 		$this->assertTrue($test);
 	}
+
+	public function test_overlapsOrAdjacent_wrongBook() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Genesis 20:14");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacent_differentPassageLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 2:14-20");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacent_adjacentLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacent_differentPassageHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 22");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacent_adjacentHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 21");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacent_oneHigh() {
+		$bigger = new ScripturNum("Psalm 1:5");
+		$smaller = new ScripturNum("Psalm 1:7");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacent_oneLow() {
+		$bigger = new ScripturNum("Psalm 1:5");
+		$smaller = new ScripturNum("Psalm 1:3");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertFalse($test);
+	}
+
+	public function test_overlapsOrAdjacent_overlapLow() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-20");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacent_overlapBoth() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 19-21");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertTrue($test);
+	}
+
+	public function test_overlapsOrAdjacent_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->overlapsOrAdjacent($smaller);
+		$this->assertTrue($test);
+	}
+
+	public function test_combineWith_adjacentLow() {
+		$bigger = new ScripturNum("Matthew 5-6");
+		$smaller = new ScripturNum("Matthew 3-4");
+		$test = $bigger->combineWith($smaller);
+		$this->assertEquals("Matthew 3-6", $test->getLongString());
+	}
+
+	public function test_combineWith_notAdjacent() {
+		$this->expectExceptionMessage("Cannot combine passages that aren't overlapping or adjacent.");
+		$this->expectException('\ScripturNum\ScripturNumException');
+		$bigger = new ScripturNum("Luke 2");
+		$smaller = new ScripturNum("Luke 4");
+		$bigger->combineWith($smaller);
+	}
+
+	public function test_combineWith_overlapHigh() {
+		$bigger = new ScripturNum("Exodus 19-20");
+		$smaller = new ScripturNum("Exodus 20-21");
+		$test = $bigger->combineWith($smaller);
+		$this->assertEquals("Exodus 19-21", $test->getLongString());
+	}
+
+
+
 
 	public function test_InclusiveSql() {
 		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
