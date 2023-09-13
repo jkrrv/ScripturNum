@@ -74,7 +74,6 @@ class ScripturNumArrayTests extends TestCase
 	public function test_ToStringParseable_1()
 	{
 		$a = new ScripturNumArray(['Genesis 3', 'Romans 8:10', 'Romans 8:11', 'Romans 8:1', 'Romans 3:28', 'Romans 16:19', 'Col 1:1-10']);
-		$this->expectsOutput();
 		$b = ScripturNum::extractFromString($a->getString());
 		$this->assertEquals($a->getString(), $b->getString());
 	}
@@ -82,7 +81,6 @@ class ScripturNumArrayTests extends TestCase
 	public function test_ToStringParseable_2()
 	{
 		$a = new ScripturNumArray(['Genesis 3', 'Romans 10', 'Romans 11', 'Romans 8:1', 'Romans 3:28', 'Romans 16:19', 'Col 1:1-10']);
-		$this->expectsOutput();
 		$b = ScripturNum::extractFromString($a->getString());
 		$this->assertEquals($a->getString(), $b->getString());
 	}
