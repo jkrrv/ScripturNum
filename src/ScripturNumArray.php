@@ -7,6 +7,12 @@ use ArrayAccess;
 use Countable;
 use Iterator;
 
+/**
+ * A class that contains a number of ScripturNum objects, but which can do useful things like print a human-readable
+ * string.
+ *
+ * @since 2.0.0
+ */
 class ScripturNumArray implements ArrayAccess, Iterator, Countable
 {
 	/**
@@ -67,11 +73,10 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 		foreach ($this->container as $k => $curr) {
 			if ($prev != null) {
 				if ($prev->overlapsOrAdjacent($curr)) {
-					try {
-						$this->container[$prevK] = $prev->combineWith($curr);
-						unset($this->container[$k]);
-						$prev = $this->container[$prevK];
-					} catch (ScripturNumException $e) {}
+					/** @noinspection PhpUnhandledExceptionInspection -- Exception won't happen with overlapsOrAdjacent check */
+					$this->container[$prevK] = $prev->combineWith($curr);
+					unset($this->container[$k]);
+					$prev = $this->container[$prevK];
 					continue;
 				}
 

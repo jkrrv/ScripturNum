@@ -55,6 +55,8 @@ class ScripturNum
 	/**
 	 * @param $what
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return int
 	 */
 	public function __get($what)
@@ -287,6 +289,8 @@ class ScripturNum
 	/**
 	 * Returns a ScripturNum for the current range, expanded to the whole chapter.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return static
 	 * @throws ScripturNumException
 	 */
@@ -302,6 +306,8 @@ class ScripturNum
 
 	/**
 	 * Returns a ScripturNum for the chapter after the current highest chapter.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return static
 	 * @throws ScripturNumException
@@ -323,6 +329,8 @@ class ScripturNum
 
 	/**
 	 * Returns a ScripturNum for the chapter prior to the current lowest chapter.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return static
 	 * @throws ScripturNumException
@@ -361,6 +369,8 @@ class ScripturNum
 
 	/**
 	 * Returns true if the passage is just a single verse.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return bool
 	 */
@@ -402,6 +412,8 @@ class ScripturNum
 	/**
 	 * @return string[][]
 	 *
+	 * @since 2.0.0
+	 *
 	 * @see Bible::getBookNames()
 	 */
 	protected static function getBookNames(): array
@@ -412,6 +424,8 @@ class ScripturNum
 	/**
 	 * @return string[]
 	 *
+	 * @since 2.0.0
+	 *
 	 * @see Bible::getCommonTerms()
 	 */
 	protected static function getCommonTerms(): array
@@ -421,6 +435,8 @@ class ScripturNum
 
 	/**
 	 * @return string[]
+	 *
+	 * @since 2.0.0
 	 *
 	 * @see Bible::getConjunctions()
 	 */
@@ -433,6 +449,8 @@ class ScripturNum
 	 * @param string $bookNameSingular
 	 *
 	 * @return string
+	 *
+	 * @since 2.0.0
 	 *
 	 * @see Bible::pluralizeBookName()
 	 */
@@ -491,6 +509,8 @@ class ScripturNum
 
 
 	/**
+	 * Takes a string that represents a single passage and returns it as an int.
+	 *
 	 * @param string $string A human-readable scripture reference that should be converted to an int.
 	 *
 	 * @return int The int.
@@ -526,11 +546,21 @@ class ScripturNum
 	}
 
 	/**
-	 * @param string $string A human-readable scripture reference that should be converted to one or more ints.
+	 * Takes a reference string and returns a plurality of ints for corresponding passages.  This should only be passed
+	 * values that are known to be references, not just any text. Use self::extractFromString for that.
+	 *
+	 * @param string     $string A human-readable scripture reference that should be converted to one or more ints.
 	 * Allows for commas and semicolons.
+	 * @param bool|array $exceptions Pass an array to this parameter, and it will be populated with any exceptions that
+	 * occur.  By passing an array, this will not throw the exception, and by not throwing the exception, execution
+	 * continues and you may be apprised of multiple errors that may exist.
 	 *
 	 * @return int[] The ints.
 	 * @throws ScripturNumException
+	 * @see self::extractFromString();
+	 *
+	 * @since 2.0.0
+	 *
 	 */
 	public static function stringToInts(string $string, &$exceptions = false): array
 	{
@@ -600,6 +630,8 @@ class ScripturNum
 
 	/**
 	 * Validate that reference numbers can be matched to verses that exist.
+	 *
+	 * @since 2.0.0  Previously, this functionality was handled within the refNumsToInt function.
 	 *
 	 * @param int  $book
 	 * @param ?int $startCh
@@ -692,7 +724,8 @@ class ScripturNum
 	 * @param        $verseStart
 	 * @param        $chapterEnd
 	 * @param        $verseEnd
-	 * @param bool   $useHints
+	 * @param bool   $useHints If true, will consider the values provided to the chapter and verse parameters in
+	 *     parsing the string.  Default false.
 	 *
 	 * @throws ScripturNumException
 	 */
@@ -884,6 +917,11 @@ class ScripturNum
 	}
 
 	/**
+	 * Given a string with any kind of text content, this method will search for any human-readable scripture references
+	 * and try to parse them into discrete passages.  Returns a ScripturNumArray.
+	 *
+	 * @since 2.0.0
+	 *
 	 * @param string $string
 	 * @param bool   $excludeAllBookOnlyRefs
 	 * @param null   $exceptions
@@ -948,6 +986,8 @@ class ScripturNum
 	/**
 	 * Test whether a given passage is within a given larger passage.  Will also return true if they are the same.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param int $largerPassage
 	 *
 	 * @return bool
@@ -969,6 +1009,8 @@ class ScripturNum
 	/**
 	 * Test whether a given passage is within a given larger passage.  Will also return true if they are the same.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param ScripturNum $largerPassage
 	 *
 	 * @return bool
@@ -980,6 +1022,8 @@ class ScripturNum
 
 	/**
 	 * Test whether a given passage has any commonality with another passage.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param int $otherPassage
 	 *
@@ -1002,6 +1046,8 @@ class ScripturNum
 	/**
 	 * Test whether a given passage has any commonality with another passage.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param ScripturNum $otherPassage
 	 *
 	 * @return bool
@@ -1013,6 +1059,8 @@ class ScripturNum
 
 	/**
 	 * Test whether a given passage has any commonality with another passage, or is adjacent to it.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param int $otherPassage
 	 *
@@ -1035,6 +1083,8 @@ class ScripturNum
 	/**
 	 * Test whether a given passage has any commonality with another passage, or is adjacent to it.
 	 *
+	 * @since 2.0.0
+	 *
 	 * @param ScripturNum $otherPassage
 	 *
 	 * @return bool
@@ -1045,10 +1095,15 @@ class ScripturNum
 	}
 
 	/**
+	 * Combines two adjacent or overlapping passages into one int.
+	 *
+	 * @since 2.0.0
+	 *
 	 * @param int $otherPassage
 	 *
 	 * @return int
 	 * @throws ScripturNumException
+	 *@since 2.0.0
 	 */
 	public function combineWithInt(int $otherPassage): int
 	{
@@ -1064,6 +1119,10 @@ class ScripturNum
 	}
 
 	/**
+	 * Combines two adjacent or overlapping passages into one ScripturNum.
+	 *
+	 * @since 2.0.0
+	 *
 	 * @param ScripturNum $otherPassage
 	 *
 	 * @return ScripturNum

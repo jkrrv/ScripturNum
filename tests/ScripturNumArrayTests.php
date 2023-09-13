@@ -5,6 +5,7 @@ namespace ScripturNumTests;
 use PHPUnit\Framework\TestCase;
 use ScripturNum\ScripturNum;
 use ScripturNum\ScripturNumArray;
+use ScripturNum\ScripturNumException;
 
 class ScripturNumArrayTests extends TestCase
 {
@@ -69,6 +70,18 @@ class ScripturNumArrayTests extends TestCase
 	{
 		$a = new ScripturNumArray([new ScripturNumDb()]);
 		$this->assertCount(0, $a);
+	}
+
+	public function test_stringFunctionsAreEqual()
+	{
+		$a = new ScripturNumArray([738197728]);
+		$this->assertEquals($a->getString(), (string)$a);
+	}
+
+	public function test_string_settingsInvalid()
+	{
+		$a = new ScripturNumArray([738197728]);
+		$this->assertEquals("", $a->getString(['settings' => 'do not exist']));
 	}
 
 	public function test_ToStringParseable_1()

@@ -315,6 +315,8 @@ abstract class Bible
 	/**
 	 * Get the common terms, as prepared
 	 *
+	 * @since 2.0.0
+	 *
 	 * @return string[] The array of common names in the vernacular language.
 	 */
 	public static function getCommonTerms(): array
@@ -324,6 +326,8 @@ abstract class Bible
 
 	/**
 	 * Get the conjunctions, as prepared
+	 *
+	 * @since 2.0.0
 	 *
 	 * @return string[] The array of some specific conjunctions so they're translatable.
 	 */
@@ -336,6 +340,8 @@ abstract class Bible
 	 * Pluralizes the books where singular and plural make a difference.  In English, Psalm(s) and Song(s) of Solomon.
 	 *
 	 * For translation, override this method.
+	 *
+	 * @since 2.0.0
 	 *
 	 * @param string $bookNameSingular  The singular book name
 	 *
@@ -433,5 +439,3 @@ abstract class Bible
 		return true;
 	}
 }
-
-
