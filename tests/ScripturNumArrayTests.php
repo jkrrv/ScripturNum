@@ -35,7 +35,7 @@ class ScripturNumArrayTests extends TestCase
 	public function test_iteration()
 	{
 		$a = new ScripturNumArray([738197728, 301993985]);
-		$this->expectOutputString("Romans 1-8Psalm 1:2");
+		$this->expectOutputString("Psalm 1:2Romans 1-8");
 		foreach ($a as $s) {
 			echo $s;
 		}
@@ -44,7 +44,7 @@ class ScripturNumArrayTests extends TestCase
 	public function test_iteration_assoc()
 	{
 		$a = new ScripturNumArray(['a' => 738197728, 'b' => 301993985]);
-		$this->expectOutputString("aRomans 1-8bPsalm 1:2");
+		$this->expectOutputString("bPsalm 1:2aRomans 1-8");
 		foreach ($a as $k => $s) {
 			echo $k . $s;
 		}
@@ -69,5 +69,21 @@ class ScripturNumArrayTests extends TestCase
 	{
 		$a = new ScripturNumArray([new ScripturNumDb()]);
 		$this->assertCount(0, $a);
+	}
+
+	public function test_ToStringParseable_1()
+	{
+		$a = new ScripturNumArray(['Genesis 3', 'Romans 8:10', 'Romans 8:11', 'Romans 8:1', 'Romans 3:28', 'Romans 16:19', 'Col 1:1-10']);
+		$this->expectsOutput();
+		$b = ScripturNum::extractFromString($a->getString());
+		$this->assertEquals($a->getString(), $b->getString());
+	}
+
+	public function test_ToStringParseable_2()
+	{
+		$a = new ScripturNumArray(['Genesis 3', 'Romans 10', 'Romans 11', 'Romans 8:1', 'Romans 3:28', 'Romans 16:19', 'Col 1:1-10']);
+		$this->expectsOutput();
+		$b = ScripturNum::extractFromString($a->getString());
+		$this->assertEquals($a->getString(), $b->getString());
 	}
 }

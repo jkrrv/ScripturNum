@@ -2,6 +2,7 @@
 
 namespace ScripturNumTests;
 
+use Error;
 use PHPUnit\Framework\TestCase;
 use ScripturNum\Bible;
 use ScripturNum\ScripturNum;
@@ -161,6 +162,15 @@ class ScripturNumPublicTests extends TestCase
 		$this->expectExceptionMessage('There are not that many verses in this book.');
 
 		new ScripturNum(739860913);
+	}
+
+	public function test_settingOption_doesNotExist() { // when a string is supposed to be created with bad settings
+		$this->expectException(ScripturNumException::class);
+		$this->expectExceptionMessage('Invalid key for creating a string.');
+
+		$n = new ScripturNum('Ro 1-8');
+
+		$n->getStringWithSettings(['settings' => 'settings that do not exist']);
 	}
 
 	public function test_issue03_01() { // when a string is supposed to be created with bad settings
@@ -950,5 +960,18 @@ class ScripturNumPublicTests extends TestCase
 		ScripturNum::stringToInts('Asdf 2', $ex);
 		$this->assertCount(1, $ex);
 		$this->assertEquals(ScripturNumException::class, get_class($ex[0]));
+	}
+
+	public function test_getter() {
+		$s = new ScripturNum(135252); // Genesis 2:3-4:5
+		$this->assertEquals(135252,$s->getInt());
+		$this->assertEquals(135252,$s->int);
+		$this->assertEquals(1,$s->book);
+		$this->assertEquals(2,$s->startCh);
+		$this->assertEquals(3,$s->startV);
+		$this->assertEquals(4,$s->endCh);
+		$this->assertEquals(5,$s->endV);
+		$this->expectException(Error::class);
+		$s->doesNotExist;
 	}
 }

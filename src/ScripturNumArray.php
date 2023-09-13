@@ -14,6 +14,9 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	protected $container = [];
 	protected $sortEnqueued = false;
+	protected $hasMultipleBooks = false;
+	protected $hasMultiplePassagesFromABook = false;
+	protected $hasMultiplePassagesFromAChapter = false;
 
 
 	public function __construct($initialValues = [])
@@ -51,17 +54,34 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 		uasort($this->container, [static::class, 'sortCompare']);
 	}
 
+	/**
+	 * @return void
+	 */
 	protected function combineAdjacents()
 	{
 		$prev = null;
 		$prevK = null;
+		$this->hasMultipleBooks = false;
+		$this->hasMultiplePassagesFromABook = false;
+		$this->hasMultiplePassagesFromAChapter = false;
 		foreach ($this->container as $k => $curr) {
 			if ($prev != null) {
 				if ($prev->overlapsOrAdjacent($curr)) {
-					$this->container[$prevK] = $prev->combineWith($curr);
-					unset($this->container[$k]);
-					$prev = $this->container[$prevK];
+					try {
+						$this->container[$prevK] = $prev->combineWith($curr);
+						unset($this->container[$k]);
+						$prev = $this->container[$prevK];
+					} catch (ScripturNumException $e) {}
 					continue;
+				}
+
+				if ($curr->book === $prev->book) {
+					$this->hasMultiplePassagesFromABook = true;
+					if ($prev->endCh === $curr->startCh) {
+						$this->hasMultiplePassagesFromAChapter = true;
+					}
+				} else {
+					$this->hasMultipleBooks = true;
 				}
 			}
 			$prev = $curr;
@@ -142,6 +162,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function offsetUnset($offset)
 	{
+		$this->sortEnqueued = true;
 		unset($this->container[$offset]);
 	}
 
@@ -152,6 +173,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function current(): ScripturNum
 	{
+		$this->sortAndCombineIfNeeded();
 		return current($this->container);
 	}
 
@@ -214,7 +236,46 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function __toString(): string
 	{
+		return $this->getString();
+	}
+
+	/**
+	 * @param array $options
+	 *
+	 * @return string
+	 */
+	public function getString(array $options = []): string
+	{
 		$this->sortAndCombineIfNeeded();
-		// TODO: Implement __toString() method.
+		$ret = "";
+
+		$prev = null;
+		foreach ($this->container as $curr) {
+			try {
+				$options['excludeCh'] = false;
+				$options['excludeBook'] = false;
+				if ($prev !== null) {
+					$c = ', ';
+					if ($prev->book === $curr->book) { // same book
+						$options['excludeBook'] = true;
+						if ($prev->startCh !== $curr->endCh && $this->hasMultiplePassagesFromABook) { // diff chapter
+							$c = '; ';
+						}
+						if ($this->hasMultiplePassagesFromAChapter && $prev->startCh === $curr->endCh) {
+							$options['excludeCh'] = true;
+						}
+					} else if ($this->hasMultiplePassagesFromABook) { // Different books, when a book has multiple items
+						$c = "; ";
+					}
+					$ret .= $c;
+				}
+				$ret .= $curr->getStringWithSettings($options);
+				$prev = $curr;
+			} catch (ScripturNumException $e) {
+				continue;
+			}
+		}
+
+		return $ret;
 	}
 }

@@ -5,6 +5,16 @@ namespace ScripturNum;
 
 use TypeError;
 
+/**
+ * The ScripturNum class, which represents a single continuous passage.
+ *
+ * @property-read ?int $int
+ * @property-read ?int $book
+ * @property-read ?int $startCh
+ * @property-read ?int $startV
+ * @property-read ?int $endCh
+ * @property-read ?int $endV
+ */
 class ScripturNum
 {
 	protected $int;
@@ -40,6 +50,35 @@ class ScripturNum
 		}
 		self::intToRefNums($int, $this->book, $this->startCh, $this->startV, $this->endCh, $this->endV);
 		$this->int = $int;
+	}
+
+	/**
+	 * @param $what
+	 *
+	 * @return int
+	 */
+	public function __get($what)
+	{
+		switch ($what) {
+			case "int":
+				return $this->getInt();
+
+			case "book":
+				return $this->book;
+
+			case "startCh":
+				return $this->startCh;
+
+			case "startV":
+				return $this->startV;
+
+			case "endCh":
+				return $this->endCh;
+
+			case "endV":
+				return $this->endV;
+		}
+		throw new \Error("The requested property does not exist.");
 	}
 
 
@@ -133,13 +172,21 @@ class ScripturNum
 	/**
 	 * Returns a human-readable string with the settings defined in a given setting set.
 	 *
-	 * @param string $settingKey The setting set to use.  Default options are 'abbrev' and 'long'
+	 * @param string|array $options The setting set to use, or an array of options.
 	 *
 	 * @return string The human-intelligible string.
 	 * @throws ScripturNumException  If a setting is invalid.
 	 */
-	public function getStringWithSettings($settingKey): string
+	public function getStringWithSettings($options): string
 	{
+		$settingKey = 'long';
+		if (is_string($options)) {
+			$settingKey = $options;
+			$options = [];
+		} else if (is_array($options) && isset($options['settings'])) {
+			$settingKey = $options['settings'];
+		}
+
 		if ( ! isset(static::$stringSettings[$settingKey])) {
 			throw new ScripturNumException('Invalid key for creating a string.');
 		}
@@ -170,18 +217,23 @@ class ScripturNum
 		$c = static::$stringSettings[$settingKey]['cvsep'];
 		$r = static::$stringSettings[$settingKey]['range'];
 		$n = (int)static::$stringSettings[$settingKey]['names'];
-		$p = ! ! static::$stringSettings[$settingKey]['plurl'];
+		$p = !! static::$stringSettings[$settingKey]['plurl'];
 
-		$b = static::getBookNames();
+		if (!isset($options['excludeBook']) || !$options['excludeBook']) {
+			$b = static::getBookNames();
 
-		if ($n > count($b[$this->book - 1])) {
-			$n = count($b[$this->book - 1]) - 1;
-		}
+			if ($n > count($b[$this->book - 1])) {
+				$n = count($b[$this->book - 1]) - 1;
+			}
 
-		$b = $b[$this->book - 1][$n];
+			$b = $b[$this->book - 1][$n];
 
-		if ($this->startCh !== $this->endCh && $p) {
-			$b = self::pluralizeBookName($b);
+			if ($this->startCh !== $this->endCh && $p) {
+				$b = self::pluralizeBookName($b);
+			}
+		} else {
+			$b = "";
+			$s = "";
 		}
 
 		if ($this->isWholeBook()) {
@@ -193,6 +245,14 @@ class ScripturNum
 
 			return $b . $s . $this->startCh . $r . $this->endCh;
 		} else {
+			$startC = $this->startCh;
+			$endC = $this->endCh;
+			if (isset($options['excludeCh']) && !!$options['excludeCh']) {
+				$startC = "";
+				$endC = "";
+				$c = "";
+			}
+
 			if ($this->bookHasSingleChapter()) {
 				if ($this->startV === $this->endV) {
 					return $b . $s . $this->startV;
@@ -201,13 +261,13 @@ class ScripturNum
 				return $b . $s . $this->startV . $r . $this->endV;
 			} elseif ($this->startCh === $this->endCh) {
 				if ($this->startV === $this->endV) {
-					return $b . $s . $this->startCh . $c . $this->startV;
+					return $b . $s . $startC . $c . $this->startV;
 				}
 
-				return $b . $s . $this->startCh . $c . $this->startV . $r . $this->endV;
+				return $b . $s . $startC . $c . $this->startV . $r . $this->endV;
 			}
 
-			return $b . $s . $this->startCh . $c . $this->startV . $r . $this->endCh . $c . $this->endV;
+			return $b . $s . $startC . $c . $this->startV . $r . $endC . $c . $this->endV;
 		}
 	}
 
@@ -507,7 +567,11 @@ class ScripturNum
 		// Remove all spaces from reference.
 		$ref = preg_replace("/\s*/", '', $ref);
 
+		$levelsOfCommas = (2 * (strpos($ref, ';') > -1) + (strpos($ref, ',') > -1));
 		foreach (explode(";", $ref) as $sA) {
+			if ($levelsOfCommas > 1) {
+				unset($startCh, $startV, $endCh, $endV);
+			}
 			foreach (explode(",", $sA) as $s) {
 				$s = trim($s);
 				if ($s === "" && isset($endCh))
