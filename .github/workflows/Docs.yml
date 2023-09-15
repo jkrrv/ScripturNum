@@ -29,12 +29,12 @@ jobs:
           cd docs
           git checkout master
           git config user.email "actions@github.com"
-          git config user.name "GitHub Actions - update submodules"
+          git config user.name "GitHub Actions - update documentation"
           git add *.md
           (git commit -m "Auto-Update Documentation" && git push) || echo "No changes to commit"
           cd ..
 
-      - name: Commit & Push Submodule Update
+      - name: Commit & Push Submodule Update to Main Repo
         uses: Andro999b/push@v1.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

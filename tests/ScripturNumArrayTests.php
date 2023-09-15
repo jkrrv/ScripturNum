@@ -97,4 +97,13 @@ class ScripturNumArrayTests extends TestCase
 		$b = ScripturNum::extractFromString($a->getString());
 		$this->assertEquals($a->getString(), $b->getString());
 	}
+
+	public function test_linkHandler()
+	{
+		$a = new ScripturNumArray(['Romans 10','Romans 16:19']);
+		$f = function (ScripturNum $sn) {
+			return "https://kurtz.es/scripture/" . strtolower($sn->getStringWithSettings('abbrev'));
+		};
+		$this->assertEquals($a->getString(['linkHandler' => $f]), '<a href="https://kurtz.es/scripture/ro10">Romans 10</a>; <a href="https://kurtz.es/scripture/ro16.19">16:19</a>');
+	}
 }
