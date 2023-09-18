@@ -170,7 +170,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 
-		$n->getStringWithSettings(['settings' => 'settings that do not exist']);
+		$n->toString(['settings' => 'settings that do not exist']);
 	}
 
 	public function test_issue03_01() { // when a string is supposed to be created with bad settings
@@ -179,7 +179,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 
-		$n->getStringWithSettings('settings that do not exist');
+		$n->toString('settings that do not exist');
 	}
 
 	public function test_issue03_02() { // when a default setting is overridden.
@@ -197,7 +197,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 		ScripturNum::setStringSettings('testSettings_03_03', []);
-		$n->getStringWithSettings('testSettings_03_03');
+		$n->toString('testSettings_03_03');
 	}
 
 	public function test_issue04() {
@@ -218,7 +218,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 		ScripturNum::setStringSettings('testSettings_08_01', ['space' => ' ']);
-		$n->getStringWithSettings('testSettings_08_01');
+		$n->toString('testSettings_08_01');
 	}
 
 	public function test_issue08_02() { // invalid range character.
@@ -227,7 +227,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 		ScripturNum::setStringSettings('testSettings_08_02', ['space' => ' ', 'cvsep' => ' ']);
-		$n->getStringWithSettings('testSettings_08_02');
+		$n->toString('testSettings_08_02');
 	}
 
 	public function test_issue08_03() { // invalid separation character.
@@ -236,7 +236,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 		ScripturNum::setStringSettings('testSettings_08_03', ['space' => ' ', 'cvsep' => ' ', 'range' => ' ']);
-		$n->getStringWithSettings('testSettings_08_03');
+		$n->toString('testSettings_08_03');
 	}
 
 	public function test_issue08_04() { // invalid separation character.
@@ -245,7 +245,7 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 		ScripturNum::setStringSettings('testSettings_08_04', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
-		$n->getStringWithSettings('testSettings_08_04');
+		$n->toString('testSettings_08_04');
 	}
 
 	public function test_issue08_05() { // invalid plurality.
@@ -254,13 +254,13 @@ class ScripturNumPublicTests extends TestCase
 
 		$n = new ScripturNum('Ro 1-8');
 		ScripturNum::setStringSettings('testSettings_08_05', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10]);
-		$n->getStringWithSettings('testSettings_08_05');
+		$n->toString('testSettings_08_05');
 	}
 
 	public function test_issue08_06() { // invalid separation character.
 		$n = new ScripturNum('Ro 1-8');
 		ScripturNum::setStringSettings('testSettings_08_06', ['space' => ' ', 'cvsep' => ':', 'range' => '-', 'names' => 10, 'plurl' => true]);
-		$this->assertEquals('Rmns 1-8', $n->getStringWithSettings('testSettings_08_06'));
+		$this->assertEquals('Rmns 1-8', $n->toString('testSettings_08_06'));
 	}
 
 	public function test_bits() {

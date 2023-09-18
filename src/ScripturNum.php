@@ -155,7 +155,7 @@ class ScripturNum
 	 */
 	public function getAbbrev(): string
 	{
-		return $this->getStringWithSettings('abbrev');
+		return $this->toString('abbrev');
 	}
 
 
@@ -167,7 +167,24 @@ class ScripturNum
 	 */
 	public function getLongString(): string
 	{
-		return $this->getStringWithSettings('long');
+		return $this->toString('long');
+	}
+
+
+	/**
+	 * Get a string.  Publically-accessible.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @throws ScripturNumException
+	 */
+	public function toString($options): string
+	{
+		$s = $this->getStringWithSettings($options);
+		if (isset($options['callback']) && is_callable($options['callback'])) {
+			$s = call_user_func($options['callback'], $s, $this);
+		}
+		return $s;
 	}
 
 
@@ -179,7 +196,7 @@ class ScripturNum
 	 * @return string The human-intelligible string.
 	 * @throws ScripturNumException  If a setting is invalid.
 	 */
-	public function getStringWithSettings($options): string
+	protected function getStringWithSettings($options): string
 	{
 		$settingKey = 'long';
 		if (is_string($options)) {

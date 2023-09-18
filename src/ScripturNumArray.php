@@ -274,14 +274,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 					}
 					$ret .= $c;
 				}
-				if (isset($options['linkHandler']) && is_callable($options['linkHandler'])) {
-					$l = call_user_func($options['linkHandler'], $curr);
-					$ret .= "<a href=\"$l\">";
-					$ret .= $curr->getStringWithSettings($options);
-					$ret .= "</a>";
-				} else {
-					$ret .= $curr->getStringWithSettings($options);
-				}
+				$ret .= $curr->toString($options);
 				$prev = $curr;
 			} catch (ScripturNumException $e) {
 				continue;
