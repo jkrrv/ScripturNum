@@ -52,4 +52,10 @@ class ReadmeTests extends TestCase
 
 		$this->assertEquals("SELECT * FROM scriptureData WHERE ( (Scripture & 4278190080) = 738197504 AND (Scripture & 16773120) <= 917504 AND (Scripture & 4095) >= 186 )", $queryString);
 	}
+
+	public function test_zeroIndex() {
+		echo (new ScripturNum(0))->getLongString();
+
+		$this->expectOutputString("Genesis 1:1");
+	}
 }

@@ -154,7 +154,7 @@ clause: `toSqlExclusive`, and `toSqlInclusive`.  Exclusive will include only the
 entirely contained within the range.  Inclusive will, instead, include all results that overlap with the given range at all,
 even if it isn't entirely contained within the range.
 
-For example, for a column names "Scripture", we could use this:
+For example, for a column named "Scripture", we could use this:
 
     $s = new ScripturNum('Romans 8');
     $wheres = $s->toSqlInclusive('Scripture');
@@ -175,9 +175,18 @@ This can easily be used in most flavors of SQL.  Two notes of caution:
 - If you want to use prepared statements, beware that you won't be able to re-use prepared statements with different
     passages.
 - Because you can't really prepare statements, beware of SQL injection.  In my application, I'm hard-coding the column
-    name (or, at least attaching it to a const), which eliminates this risk.  But, that may not be the case for you. 
+    name (or, at least attaching it to a const), which eliminates this risk.  But, that may not be the case for you.
 
-## Bitwise Storage
+## Sorting
+
+In general, sorting by ScrupturNum integer value will result in the passages being ordered in the same sequential order
+as in the Bible. Books take first priority, followed by start chapter, followed by start verse, followed by end
+chapter, followed by end verse.
+
+## Bitwise Operations
+
+The ScripturNum integer is just sequential numbers, bit-shifted to their respective positions.  All individual values 
+are zero-indexed.  Genesis is book 0.  Genesis 1:1 has the integer value of 0. 
 
 - The Book index << 24
 - Start reference << 12
