@@ -11,7 +11,7 @@ if (!file_exists(PHPDOC_PHAR_FILENAME) || (time() - filemtime(PHPDOC_PHAR_FILENA
 
 
 echo "Running PHPDoc Analysis...";
-exec("php " . PHPDOC_PHAR_FILENAME . " -d src -t docs/ --template=\"xml\"");
+exec("php " . PHPDOC_PHAR_FILENAME . " run -d src -t docs/ --template=\"xml\"");
 echo "    Complete\n";
 
 

@@ -4,6 +4,10 @@ namespace ScripturNumTests;
 
 use ScripturNum\Bible;
 
+/**
+ * A class that incorrectly defines the composition of a Bible, to ensure that the library still runs as expected, even
+ * when values are changed.  It is important for values to be changeable in order for translations to be applied.
+ */
 abstract class ErrantBible extends Bible
 {
 	/**
