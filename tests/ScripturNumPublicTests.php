@@ -931,8 +931,17 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_extractFromString_ArrayCombining() {
-		$r = ScripturNum::extractFromString("Genesis 1, 2, and 3 are essential for understanding the gospel.", true);
+		$r = ScripturNum::extractFromString("Genesis 1, 2, and 3 are essential for understanding the gospel.");
 		$this->assertCount(1, $r);
+	}
+
+	public function test_extractFromString_CheckJohns() {
+		$r = ScripturNum::extractFromString("1 Jn 1:9 and Jn 1:9 are thematically related.");
+		$test1 = $r[0]->overlapsWith($r[1]);
+		$this->assertFalse($test1);
+		$this->assertEquals("1 John 1:9", $r[0]->getLongString());
+		$this->assertEquals("John 1:9", $r[1]->getLongString());
+		$this->assertCount(2, $r);
 	}
 
 	public function test_stringToInts_Ex_OutOfBounds_throw() {
