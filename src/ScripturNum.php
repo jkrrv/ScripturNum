@@ -704,13 +704,13 @@ class ScripturNum
 			$startCh = 1;
 			$endCh   = count($v[$book]);
 		}
-		if ($endCh == null) { // single chapter
+		if ($endCh === null) { // single chapter
 			$endCh = $startCh;
 		}
-		$startCh--;
-		$startV--;
-		$endCh--;
-		$endV--;
+		if ($startCh !== null) $startCh--;
+		if ($startV !== null) $startV--;
+		if ($endCh !== null) $endCh--;
+		if ($endV !== null) $endV--;
 		if ($endV === null) {
 			$endV = $v[$book][$endCh] - 1;
 		}
