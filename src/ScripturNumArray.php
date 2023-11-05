@@ -1,6 +1,5 @@
 <?php
 
-
 namespace ScripturNum;
 
 use ArrayAccess;
@@ -145,7 +144,10 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 * The value to set.
 	 *
 	 * @return void
+	 *
+	 * @See Issue #11
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{
 		if (is_null($offset)) {
@@ -164,7 +166,10 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 * The offset to unset.
 	 *
 	 * @return void
+	 *
+	 * @See Issue #11
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset)
 	{
 		$this->sortEnqueued = true;
@@ -184,9 +189,14 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 
 	/**
 	 * Move forward to next element
+	 *
 	 * @link https://php.net/manual/en/iterator.next.php
+	 *
 	 * @return void Any returned value is ignored.
+	 *
+	 * @See Issue #11
 	 */
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		next($this->container);
@@ -194,9 +204,14 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 
 	/**
 	 * Return the key of the current element
+	 *
 	 * @link https://php.net/manual/en/iterator.key.php
+	 *
 	 * @return int|string|null TKey on success, or null on failure.
+	 *
+	 * @See Issue #11
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return key($this->container);
@@ -216,9 +231,14 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 
 	/**
 	 * Rewind the Iterator to the first element
+	 *
 	 * @link https://php.net/manual/en/iterator.rewind.php
+	 *
 	 * @return void Any returned value is ignored.
+	 *
+	 * @See Issue #11
 	 */
+	#[\ReturnTypeWillChange]
 	public function rewind()
 	{
 		reset($this->container);
@@ -226,9 +246,10 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 
 	/**
 	 * Count elements of an object
-	 * @link https://php.net/manual/en/countable.count.php
-	 * @return int<0,max> The custom count as an integer.
 	 *
+	 * @link https://php.net/manual/en/countable.count.php
+	 *
+	 * @return int<0,max> The custom count as an integer.
 	 */
 	public function count(): int
 	{
