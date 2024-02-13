@@ -1,6 +1,7 @@
 ScripturNum
 ===========
 
+[![Unit Tests](https://github.com/jkrrv/ScripturNum/actions/workflows/Unit_Tests.yml/badge.svg)](https://github.com/jkrrv/ScripturNum/actions/workflows/Unit_Tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/jkrrv/ScripturNum/badge.svg)](https://coveralls.io/github/jkrrv/ScripturNum)
 
 This is a PHP Library intended for working with scripture references. It can parse text-based scripture references, and
