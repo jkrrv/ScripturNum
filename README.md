@@ -1,7 +1,6 @@
 ScripturNum
 ===========
 
-
 [![Unit Tests](https://github.com/jkrrv/ScripturNum/actions/workflows/Unit_Tests.yml/badge.svg)](https://github.com/jkrrv/ScripturNum/actions/workflows/Unit_Tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/jkrrv/ScripturNum/badge.svg)](https://coveralls.io/github/jkrrv/ScripturNum)
 
