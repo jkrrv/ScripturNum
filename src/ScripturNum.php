@@ -514,8 +514,8 @@ class ScripturNum
 	 * @throws ScripturNumException A verse was requested that does not exist within the requested range.
 	 */
 	public static function newFromInts(int $book,
-		int $startCh, int $startV = null,
-		int $endCh = null, int $endV = null): ScripturNum
+		int $startCh, $startV = null,
+        $endCh = null, $endV = null): ScripturNum
 	{
 		self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
 		$int = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
