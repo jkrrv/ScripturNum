@@ -44,7 +44,7 @@ jobs:
       - name: Tests (PHPUnit 10)
         env:
           XDEBUG_MODE: coverage
-        run: ./vendor/bin/phpunit -c phpunit.xml  --coverage-clover clover.xml
+        run: ./vendor/bin/phpunit -c phpunit.10.xml  --coverage-clover clover.xml
         if: (matrix.php-versions == '8.1')
 
       - name: Tests (PHPUnit Latest)
