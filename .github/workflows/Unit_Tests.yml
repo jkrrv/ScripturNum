@@ -1,10 +1,8 @@
 name: Unit Tests
 
 on:
-  pull_request: null
-  push:
-    branches:
-      - master
+#  pull_request: null
+  push: null
 
 jobs:
   tests:
@@ -12,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: [ '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
+        php-versions: [ '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
 
     name: PHP ${{ matrix.php-versions }} Tests
     steps:
@@ -46,10 +44,23 @@ jobs:
       - name: Tests (PHPUnit 10)
         env:
           XDEBUG_MODE: coverage
+        run: ./vendor/bin/phpunit -c phpunit.10.xml  --coverage-clover clover.xml
+        if: (matrix.php-versions == '8.1')
+
+      - name: Tests (PHPUnit 11)
+        env:
+          XDEBUG_MODE: coverage
+        run: ./vendor/bin/phpunit -c phpunit.11.xml  --coverage-clover clover.xml
+        if: (matrix.php-versions == '8.2')
+
+      - name: Tests (PHPUnit Latest)
+        env:
+          XDEBUG_MODE: coverage
         run: ./vendor/bin/phpunit -c phpunit.xml  --coverage-clover clover.xml
-        if: (!contains(matrix.php-versions, '7.')) && (matrix.php-versions != '8.0')
+        if: (matrix.php-versions > 8.2)
 
       - name: Coveralls Test Submission
+        if: ${{ github.ref == 'refs/heads/master' }}
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_PARALLEL: true
@@ -58,6 +69,7 @@ jobs:
 
   finish:
     name: Close Coveralls Run
+    if: ${{ github.ref == 'refs/heads/master' }}
     needs: tests
     runs-on: ubuntu-latest
     steps:
