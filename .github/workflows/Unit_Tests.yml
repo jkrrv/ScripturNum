@@ -47,11 +47,17 @@ jobs:
         run: ./vendor/bin/phpunit -c phpunit.10.xml  --coverage-clover clover.xml
         if: (matrix.php-versions == '8.1')
 
+      - name: Tests (PHPUnit 11)
+        env:
+          XDEBUG_MODE: coverage
+        run: ./vendor/bin/phpunit -c phpunit.11.xml  --coverage-clover clover.xml
+        if: (matrix.php-versions == '8.2')
+
       - name: Tests (PHPUnit Latest)
         env:
           XDEBUG_MODE: coverage
         run: ./vendor/bin/phpunit -c phpunit.xml  --coverage-clover clover.xml
-        if: (!contains(matrix.php-versions, '7.')) && (matrix.php-versions != '8.0') && (matrix.php-versions != '8.1')
+        if: (matrix.php-versions > 8.2)
 
       - name: Coveralls Test Submission
         if: ${{ github.ref == 'refs/heads/master' }}
