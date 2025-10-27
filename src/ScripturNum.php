@@ -172,7 +172,7 @@ class ScripturNum
 
 
 	/**
-	 * Get a string.  Publically-accessible.
+	 * Get a string.  Publicly-accessible.
 	 *
 	 * @since 2.0.0
 	 *
@@ -662,8 +662,8 @@ class ScripturNum
 	protected static function validateRefNums(int $book, &$startCh, &$startV, &$endCh, &$endV)
 	{
 		$book--;
-		if ($startCh > count(Bible::getVerseCounts()[$book]) || $endCh > count(
-				Bible::getVerseCounts()[$book]
+		if ($startCh > count(Bible::getVerseCounts()[$book]) ||
+            $endCh > count(Bible::getVerseCounts()[$book]
 			)) { // invalid request OR request for a single-chapter book.
 			if (Bible::bookHasSingleChapter($book) && $startV === null && $endV === null) { // single-chapter book.
 				$startV  = $startCh;
