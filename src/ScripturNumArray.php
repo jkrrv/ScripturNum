@@ -226,6 +226,9 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	public function valid(): bool
 	{
 		$k = $this->key();
+        if ($k === null) {
+            $k = '';
+        }
 		return isset($this->container[$k]);
 	}
 
