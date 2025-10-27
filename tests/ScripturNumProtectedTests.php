@@ -13,6 +13,7 @@ class ScripturNumProtectedTests extends TestCase {
 	public function invokeProtected($method, array $parameters = []) {
 		$reflection = new ReflectionClass(ScripturNum::class);
 		$method = $reflection->getMethod($method);
+		@$method->setAccessible(true); // Deprecated in PHP 8.1, but required for older versions.
 		return $method->invokeArgs(null,$parameters);
 	}
 
