@@ -593,7 +593,7 @@ class ScripturNum
 
 		// Look for right-most alpha char.  This should separate book name from numerical ref.
 		preg_match('/.*([a-zA-Z])/', $string, $matches, PREG_OFFSET_CAPTURE);
-		$spaceIndex = (int)$matches[1][1] + 1; // Space index may not may not actually be a space.
+		$spaceIndex = (int)$matches[1][1] + 1; // Space index may not actually be a space.
 		$book       = trim(substr($string, 0, $spaceIndex));
 		$ref        = substr($string, $spaceIndex);
 
@@ -981,21 +981,38 @@ class ScripturNum
 		}
 		unset($allBookNames);
 
+        $combinedMatches = [];
 		foreach ($regExSets as $re) {
-			$b = implode("|", $re['bs']);
-			$plusOrStar = $re['ps'];
-			/** @noinspection RegExpUnnecessaryNonCapturingGroup -- They really are necessary. */
-			$pattern = "/\b(?:$b)\.?(?:[-\s,;&]*1?\d{1,2}:?(?:1?\d{1,2})?)$plusOrStar\b/i";
+            $b = implode("|", $re['bs']);
+            $plusOrStar = $re['ps'];
+            /** @noinspection RegExpUnnecessaryNonCapturingGroup -- They really are necessary. */
+            $pattern = "/\b(?:$b)\.?(?:[-\s,;&]*1?\d{1,2}:?(?:1?\d{1,2})?)$plusOrStar\b/i";
 
-			preg_match_all($pattern, $string, $matches);
+            preg_match_all($pattern, $string, $matches, PREG_OFFSET_CAPTURE);
 
-			foreach ($matches[0] as $m) {
-				$ints = static::stringToInts($m, $exceptions);
-				foreach($ints as $i) {
-					$results[] = new static($i);
-				}
-			}
-		}
+            $combinedMatches = array_merge($combinedMatches, $matches[0]);
+        }
+
+        // Sort matches by position in string
+        usort($combinedMatches, function($a, $b) {
+            return $a[1] - $b[1];
+        });
+
+        $lastBook = -1;
+        $lastEnd = -1;
+        foreach ($combinedMatches as $m) {
+            $ints = static::stringToInts($m[0], $exceptions);
+            foreach($ints as $i) {
+                $sn = new static($i);
+                if ($lastBook != $sn->book && $lastEnd > $m[1]) {
+                    // See issue #14
+                    continue;
+                }
+                $results[] = $sn;
+                $lastBook = $sn->book;
+            }
+            $lastEnd = $m[1] + strlen($m[0]);
+        }
 
 		return $results;
 	}

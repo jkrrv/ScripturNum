@@ -983,4 +983,21 @@ class ScripturNumPublicTests extends TestCase
 		$this->expectException(Error::class);
 		$s->doesNotExist;
 	}
+
+
+    public function test_issue14a()
+    {
+        $s = "1 John 1:1-5";
+        $a = ScripturNum::extractFromString($s);
+
+        $this->assertEquals($s, $a->getString());
+    }
+
+    public function test_issue14b()
+    {
+        $s = "1 John 1:1-5";
+        $a = ScripturNum::stringToInts($s);
+
+        $this->assertCount(1, $a);
+    }
 }
