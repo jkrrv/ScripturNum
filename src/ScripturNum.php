@@ -189,7 +189,7 @@ class ScripturNum
 
 
 	/**
-	 * Returns a human-readable string with the settings defined in a given setting set.
+	 * Returns a human-readable string with the settings defined in a given set of settings.
 	 *
 	 * @param string|array $options The setting set to use, or an array of options.
 	 *
@@ -1001,7 +1001,12 @@ class ScripturNum
         $lastBook = -1;
         $lastEnd = -1;
         foreach ($combinedMatches as $m) {
-            $ints = static::stringToInts($m[0], $exceptions);
+            if (is_array($exceptions)) {
+                $ints = static::stringToInts($m[0], $exceptions);
+            } else {
+                $e = []; // functionally suppressing exceptions
+                $ints = static::stringToInts($m[0], $e);
+            }
             foreach($ints as $i) {
                 $sn = new static($i);
                 if ($lastBook != $sn->book && $lastEnd > $m[1]) {

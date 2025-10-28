@@ -1000,4 +1000,27 @@ class ScripturNumPublicTests extends TestCase
 
         $this->assertCount(1, $a);
     }
+
+    public function test_issue15a()
+    {
+        $a = "1 John 2:18-27";
+        $sn = ScripturNum::extractFromString($a);
+        $this->assertEquals($a, $sn->getString());
+    }
+
+    public function test_issue15b()
+    {
+        $a = "1 John 2:18-27";
+        $sn = ScripturNum::stringToInts($a);
+        $this->assertCount(1, $sn);
+    }
+
+
+    public function test_issue15c()
+    {
+        $a = "1 John 2:28-3:10";
+        $e = [];
+        $sn = ScripturNum::extractFromString($a, false, $e);
+        $this->assertEquals($a, $sn->getString());
+    }
 }
