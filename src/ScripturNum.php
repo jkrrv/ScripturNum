@@ -944,7 +944,6 @@ class ScripturNum
 	 * @param null   $exceptions
 	 *
 	 * @return ScripturNumArray
-	 * @throws ScripturNumException
 	 */
 	public static function extractFromString(string $string, bool $excludeAllBookOnlyRefs = false, &$exceptions = null): ScripturNumArray
 	{
@@ -1001,14 +1000,17 @@ class ScripturNum
         $lastBook = -1;
         $lastEnd = -1;
         foreach ($combinedMatches as $m) {
-            if (is_array($exceptions)) {
+            try {
                 $ints = static::stringToInts($m[0], $exceptions);
-            } else {
-                $e = []; // functionally suppressing exceptions
-                $ints = static::stringToInts($m[0], $e);
+            } catch (ScripturNumException $e) {
+                continue;
             }
             foreach($ints as $i) {
-                $sn = new static($i);
+                try {
+                    $sn = new static($i);
+                } catch (ScripturNumException $e) {
+                    continue;
+                }
                 if ($lastBook != $sn->book && $lastEnd > $m[1]) {
                     // See issue #14
                     continue;
