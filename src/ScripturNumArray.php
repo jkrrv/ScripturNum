@@ -265,7 +265,11 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function __toString(): string
 	{
-		return $this->toString();
+        try {
+            return $this->toString();
+        } catch (ScripturNumException $e) {
+            return '';
+        }
 	}
 
     /**
