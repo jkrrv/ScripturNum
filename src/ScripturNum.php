@@ -187,6 +187,58 @@ class ScripturNum
 		return $s;
 	}
 
+    /**
+     * Parse and standardize string options.
+     *
+     * @param $options
+     * @return array
+     * @throws ScripturNumException
+     *
+     * @internal
+     */
+    public static function parseStringOptions($options): array
+    {
+        $settingKey = 'long';
+        if (is_string($options)) {
+            $settingKey = $options;
+            $options = [];
+        } else if (is_array($options) && isset($options['settings'])) {
+            $settingKey = $options['settings'];
+        }
+
+        if ( ! isset(static::$stringSettings[$settingKey])) {
+            throw new ScripturNumException('Invalid key for creating a string.');
+        }
+
+        if ( ! isset(static::$stringSettings[$settingKey]['space'])) {
+            throw new ScripturNumException('Invalid space character.');
+        }
+
+        if ( ! isset(static::$stringSettings[$settingKey]['cvsep'])) {
+            throw new ScripturNumException('Invalid chapter-verse separation character.');
+        }
+
+        if ( ! isset(static::$stringSettings[$settingKey]['range'])) {
+            throw new ScripturNumException('Invalid range character.');
+        }
+
+        if ( ! isset(static::$stringSettings[$settingKey]['names']) ||
+            ! is_numeric(static::$stringSettings[$settingKey]['names'])) {
+            throw new ScripturNumException('Invalid name offset.');
+        }
+
+        if ( ! isset(static::$stringSettings[$settingKey]['plurl'])) {
+            throw new ScripturNumException('Plurality is not defined.');
+        }
+
+        $options['space'] = $options['space'] ?? static::$stringSettings[$settingKey]['space'];
+        $options['cvsep'] = $options['cvsep'] ?? static::$stringSettings[$settingKey]['cvsep'];
+        $options['range'] = $options['range'] ?? static::$stringSettings[$settingKey]['range'];
+        $options['names'] = isset($options['names']) ? intval($options['names']) : intval(static::$stringSettings[$settingKey]['names']);
+        $options['plurl'] = isset($options['plurl']) ? !!$options['plurl'] : !!static::$stringSettings[$settingKey]['plurl'];
+
+        return $options;
+    }
 
 	/**
 	 * Returns a human-readable string with the settings defined in a given set of settings.
@@ -196,47 +248,15 @@ class ScripturNum
 	 * @return string The human-intelligible string.
 	 * @throws ScripturNumException  If a setting is invalid.
 	 */
-	protected function getStringWithSettings($options): string
+	protected function getStringWithSettings(&$options): string
 	{
-		$settingKey = 'long';
-		if (is_string($options)) {
-			$settingKey = $options;
-			$options = [];
-		} else if (is_array($options) && isset($options['settings'])) {
-			$settingKey = $options['settings'];
-		}
+		$options = static::parseStringOptions($options);
 
-		if ( ! isset(static::$stringSettings[$settingKey])) {
-			throw new ScripturNumException('Invalid key for creating a string.');
-		}
-
-		if ( ! isset(static::$stringSettings[$settingKey]['space'])) {
-			throw new ScripturNumException('Invalid space character.');
-		}
-
-		if ( ! isset(static::$stringSettings[$settingKey]['cvsep'])) {
-			throw new ScripturNumException('Invalid chapter-verse separation character.');
-		}
-
-		if ( ! isset(static::$stringSettings[$settingKey]['range'])) {
-			throw new ScripturNumException('Invalid range character.');
-		}
-
-		if ( ! isset(static::$stringSettings[$settingKey]['names']) ||
-		     ! is_numeric(static::$stringSettings[$settingKey]['names'])) {
-			throw new ScripturNumException('Invalid name offset.');
-		}
-
-		if ( ! isset(static::$stringSettings[$settingKey]['plurl'])) {
-			throw new ScripturNumException('Plurality is not defined.');
-		}
-
-
-		$s = static::$stringSettings[$settingKey]['space'];
-		$c = static::$stringSettings[$settingKey]['cvsep'];
-		$r = static::$stringSettings[$settingKey]['range'];
-		$n = (int)static::$stringSettings[$settingKey]['names'];
-		$p = !! static::$stringSettings[$settingKey]['plurl'];
+		$s = $options['space'];
+		$c = $options['cvsep'];
+		$r = $options['range'];
+		$n = $options['names'];
+		$p = $options['plurl'];
 
 		if (!isset($options['excludeBook']) || !$options['excludeBook']) {
 			$b = static::getBookNames();
@@ -933,18 +953,19 @@ class ScripturNum
 		$verse = $index;
 	}
 
-	/**
-	 * Given a string with any kind of text content, this method will search for any human-readable scripture references
-	 * and try to parse them into discrete passages.  Returns a ScripturNumArray.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param string $string
-	 * @param bool   $excludeAllBookOnlyRefs
-	 * @param null   $exceptions
-	 *
-	 * @return ScripturNumArray
-	 */
+    /**
+     * Given a string with any kind of text content, this method will search for any human-readable scripture references
+     * and try to parse them into discrete passages.  Returns a ScripturNumArray.
+     *
+     * @param string $string
+     * @param bool $excludeAllBookOnlyRefs
+     * @param null $exceptions  To have exceptions collected rather than thrown, pass an array to this parameter.
+     *
+     * @return ScripturNumArray
+     * @throws ScripturNumException
+     * @since 2.0.0
+     *
+     */
 	public static function extractFromString(string $string, bool $excludeAllBookOnlyRefs = false, &$exceptions = null): ScripturNumArray
 	{
 		$results = new ScripturNumArray();
@@ -997,27 +1018,20 @@ class ScripturNum
             return $a[1] - $b[1];
         });
 
-        $lastBook = -1;
+        $lastStart = -1;
         $lastEnd = -1;
         foreach ($combinedMatches as $m) {
-            try {
-                $ints = static::stringToInts($m[0], $exceptions);
-            } catch (ScripturNumException $e) {
+            if ($m[1] !== $lastStart && $m[1] < $lastEnd) {
+                // Overlapping match.  Skip it.
                 continue;
             }
+
+            $ints = static::stringToInts($m[0], $exceptions);
+
             foreach($ints as $i) {
-                try {
-                    $sn = new static($i);
-                } catch (ScripturNumException $e) {
-                    continue;
-                }
-                if ($lastBook != $sn->book && $lastEnd > $m[1]) {
-                    // See issue #14
-                    continue;
-                }
-                $results[] = $sn;
-                $lastBook = $sn->book;
+                $results[] = new static($i);
             }
+            $lastStart = $m[1];
             $lastEnd = $m[1] + strlen($m[0]);
         }
 

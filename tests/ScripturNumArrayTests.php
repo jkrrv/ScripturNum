@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use ScripturNum\ScripturNum;
 use ScripturNum\ScripturNumArray;
 use ScripturNum\ScripturNumException;
+use function PHPUnit\Framework\assertEquals;
 
 class ScripturNumArrayTests extends TestCase
 {
@@ -51,6 +52,20 @@ class ScripturNumArrayTests extends TestCase
 		}
 	}
 
+    public function test_getString_deprecated()
+    {
+        $a = new ScripturNumArray(['a' => 738197728, 'b' => 301993985]);
+        $this->expectOutputString("Psalm 1:2, Romans 1-8");
+        echo $a->getString();
+    }
+
+    public function test_getString_exception()
+    {
+        $n = new ScripturNumArray(['Ro 1-8']);
+
+        $this->assertEquals('', $n->getString(['settings' => 'settings that do not exist']));
+    }
+
 	public function test_offsetExists()
 	{
 		$a = new ScripturNumArray(['a' => 738197728, 'b' => 301993985]);
@@ -75,27 +90,31 @@ class ScripturNumArrayTests extends TestCase
 	public function test_stringFunctionsAreEqual()
 	{
 		$a = new ScripturNumArray([738197728]);
-		$this->assertEquals($a->getString(), (string)$a);
+		$this->assertEquals($a->toString(), (string)$a);
 	}
 
 	public function test_string_settingsInvalid()
 	{
-		$a = new ScripturNumArray([738197728]);
-		$this->assertEquals("", $a->getString(['settings' => 'do not exist']));
+        $this->expectException(ScripturNumException::class);
+        $this->expectExceptionMessage('Invalid key for creating a string.');
+
+        $n = new ScripturNumArray(['Ro 1-8']);
+
+        $n->toString(['settings' => 'settings that do not exist']);
 	}
 
 	public function test_ToStringParseable_1()
 	{
 		$a = new ScripturNumArray(['Genesis 3', 'Romans 8:10', 'Romans 8:11', 'Romans 8:1', 'Romans 3:28', 'Romans 16:19', 'Col 1:1-10']);
-		$b = ScripturNum::extractFromString($a->getString());
-		$this->assertEquals($a->getString(), $b->getString());
+		$b = ScripturNum::extractFromString($a->toString());
+		$this->assertEquals($a->toString(), $b->toString());
 	}
 
 	public function test_ToStringParseable_2()
 	{
 		$a = new ScripturNumArray(['Genesis 3', 'Romans 10', 'Romans 11', 'Romans 8:1', 'Romans 3:28', 'Romans 16:19', 'Col 1:1-10']);
-		$b = ScripturNum::extractFromString($a->getString());
-		$this->assertEquals($a->getString(), $b->getString());
+		$b = ScripturNum::extractFromString($a->toString());
+		$this->assertEquals($a->toString(), $b->toString());
 	}
 
 	public function test_linkHandler()
@@ -104,6 +123,12 @@ class ScripturNumArrayTests extends TestCase
 		$f = function (string $s, ScripturNum $sn) {
 			return "<a href=\"https://kurtz.es/scripture/" . strtolower($sn->toString('abbrev')) . "\">$s</a>";
 		};
-		$this->assertEquals('<a href="https://kurtz.es/scripture/ro10">Romans 10</a>; <a href="https://kurtz.es/scripture/ro16.19">16:19</a>', $a->getString(['callback' => $f]));
+		$this->assertEquals('<a href="https://kurtz.es/scripture/ro10">Romans 10</a>; <a href="https://kurtz.es/scripture/ro16.19">16:19</a>', $a->toString(['callback' => $f]));
 	}
+
+    public function test_arrayAbbrev()
+    {
+        $a = new ScripturNumArray(['Genesis 1:1-5', 'Exodus 3:1-10', 'John 3:16']);
+        $this->assertEquals('Ge1.1-5, Ex3.1-10, Jn3.16', $a->toString('abbrev'));
+    }
 }

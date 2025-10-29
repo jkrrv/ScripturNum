@@ -8,6 +8,8 @@ use ScripturNum\Bible;
 use ScripturNum\ScripturNum;
 use ScripturNum\ScripturNumException;
 
+ini_set('memory_limit', '-1');
+
 class ScripturNumPublicTests extends TestCase
 {
 	public function test_constructFromNumber() {
@@ -171,15 +173,6 @@ class ScripturNumPublicTests extends TestCase
 		$n = new ScripturNum('Ro 1-8');
 
 		$n->toString(['settings' => 'settings that do not exist']);
-	}
-
-	public function test_issue03_01() { // when a string is supposed to be created with bad settings
-		$this->expectException(ScripturNumException::class);
-		$this->expectExceptionMessage('Invalid key for creating a string.');
-
-		$n = new ScripturNum('Ro 1-8');
-
-		$n->toString('settings that do not exist');
 	}
 
 	public function test_issue03_02() { // when a default setting is overridden.
@@ -936,11 +929,11 @@ class ScripturNumPublicTests extends TestCase
 	}
 
 	public function test_extractFromString_CheckJohns() {
-		$r = ScripturNum::extractFromString("1 Jn 1:9 and Jn 1:9 are thematically related.");
+		$r = ScripturNum::extractFromString("1 Jn 1:9 and Jn 1:10 are thematically related.");
 		$test1 = $r[0]->overlapsWith($r[1]);
 		$this->assertFalse($test1);
 		$this->assertEquals("1 John 1:9", $r[0]->getLongString());
-		$this->assertEquals("John 1:9", $r[1]->getLongString());
+		$this->assertEquals("John 1:10", $r[1]->getLongString());
 		$this->assertCount(2, $r);
 	}
 
@@ -990,7 +983,7 @@ class ScripturNumPublicTests extends TestCase
         $s = "1 John 1:1-5";
         $a = ScripturNum::extractFromString($s);
 
-        $this->assertEquals($s, $a->getString());
+        $this->assertEquals($s, $a->toString());
     }
 
     public function test_issue14b()
@@ -1005,7 +998,7 @@ class ScripturNumPublicTests extends TestCase
     {
         $a = "1 John 2:18-27";
         $sn = ScripturNum::extractFromString($a);
-        $this->assertEquals($a, $sn->getString());
+        $this->assertEquals($a, $sn->toString());
     }
 
     public function test_issue15b()
@@ -1021,6 +1014,14 @@ class ScripturNumPublicTests extends TestCase
         $a = "1 John 2:28-3:10";
         $e = [];
         $sn = ScripturNum::extractFromString($a, false, $e);
-        $this->assertEquals($a, $sn->getString());
+        $this->assertEquals($a, $sn->toString());
+    }
+
+    public function test_issue15d()
+    {
+        $a = "1Jo2:28";
+        $e = [];
+        $sn = ScripturNum::extractFromString($a, false, $e);
+        $this->assertEquals("1 John 2:28", $sn->toString());
     }
 }

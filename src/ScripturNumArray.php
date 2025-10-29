@@ -265,44 +265,64 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 */
 	public function __toString(): string
 	{
-		return $this->getString();
+		return $this->toString();
 	}
 
-	/**
-	 * @param array $options
-	 *
-	 * @return string
-	 */
-	public function getString(array $options = []): string
+    /**
+     * Alias for toString(), but returns an empty string on error.
+     *
+     * @see toString()
+     *
+     * @param string|array $options
+     * @return string
+     */
+    public function getString($options = []): string
+    {
+        try {
+            return $this->toString($options);
+        } catch (ScripturNumException $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Return a human-readable string representation of the contained passages.
+     *
+     * @param string|array $options The setting set to use, or an array of options.
+     *
+     * @since 2.1.0
+     *
+     * @return string
+     * @throws ScripturNumException
+     */
+	public function toString($options = []): string
 	{
+        $options = ScripturNum::parseStringOptions($options);
+
 		$this->sortAndCombineIfNeeded();
 		$ret = "";
 
 		$prev = null;
 		foreach ($this->container as $curr) {
-			try {
-				$options['excludeCh'] = false;
-				$options['excludeBook'] = false;
-				if ($prev !== null) {
-					$c = ', ';
-					if ($prev->book === $curr->book) { // same book
-						$options['excludeBook'] = true;
-						if ($prev->startCh !== $curr->endCh && $this->hasMultiplePassagesFromABook) { // diff chapter
-							$c = '; ';
-						}
-						if ($this->hasMultiplePassagesFromAChapter && $prev->startCh === $curr->endCh) {
-							$options['excludeCh'] = true;
-						}
-					} else if ($this->hasMultiplePassagesFromABook) { // Different books, when a book has multiple items
-						$c = "; ";
-					}
-					$ret .= $c;
-				}
-				$ret .= $curr->toString($options);
-				$prev = $curr;
-			} catch (ScripturNumException $e) {
-				continue;
-			}
+            $options['excludeCh'] = false;
+            $options['excludeBook'] = false;
+            if ($prev !== null) {
+                $c = ', ';
+                if ($prev->book === $curr->book) { // same book
+                    $options['excludeBook'] = true;
+                    if ($prev->startCh !== $curr->endCh && $this->hasMultiplePassagesFromABook) { // diff chapter
+                        $c = '; ';
+                    }
+                    if ($this->hasMultiplePassagesFromAChapter && $prev->startCh === $curr->endCh) {
+                        $options['excludeCh'] = true;
+                    }
+                } else if ($this->hasMultiplePassagesFromABook) { // Different books, when a book has multiple items
+                    $c = "; ";
+                }
+                $ret .= $c;
+            }
+            $ret .= $curr->toString($options);
+            $prev = $curr;
 		}
 
 		return $ret;
