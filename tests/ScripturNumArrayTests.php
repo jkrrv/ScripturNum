@@ -131,4 +131,32 @@ class ScripturNumArrayTests extends TestCase
         $a = new ScripturNumArray(['Genesis 1:1-5', 'Exodus 3:1-10', 'John 3:16']);
         $this->assertEquals('Ge1.1-5, Ex3.1-10, Jn3.16', $a->toString('abbrev'));
     }
+
+    public function test_removeItem()
+    {
+        $a = new ScripturNumArray(['Genesis 1:1-5', 'Exodus 3:1-10', 'John 3:16']);
+        $b = new ScripturNum('Genesis 1:1-5');
+        $c = $a->remove($b);
+        $this->assertCount(2, $c);
+        $this->assertEquals('Exodus 3:1-10', (string)$c[0]);
+        $this->assertEquals('John 3:16', (string)$c[1]);
+    }
+
+    public function test_removeItem_notFound()
+    {
+        $a = new ScripturNumArray(['Genesis 1:1-5', 'Exodus 3:1-10', 'John 3:16']);
+        $b = new ScripturNum('Romans 1:1-5');
+        $c = $a->remove($b);
+        $this->assertCount(3, $c);
+    }
+
+    public function test_removeAll()
+    {
+        $a = new ScripturNumArray(['Genesis 1:1-5', 'Exodus 3:1-10', 'John 3', 'Genesis 1:1-5']);
+        $b = new ScripturNumArray(['Genesis 1:1-5', 'John 3:16']);
+        $c = $a->removeAll($b);
+        $this->assertCount(3, $c);
+        $this->assertEquals('Exodus 3:1-10', (string)$c[0]);
+        $this->assertEquals('John 3:1-15', (string)$c[1]);
+    }
 }

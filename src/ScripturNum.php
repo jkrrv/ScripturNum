@@ -80,8 +80,18 @@ class ScripturNum
 			case "endV":
 				return $this->endV;
 		}
-		throw new \Error("The requested property does not exist.");
+		throw new \Error("The requested property ($what) does not exist.");
 	}
+
+    protected function startInt(): int
+    {
+        return ($this->int & (self::BOOK_MASK | self::START_MASK)) >> 12;
+    }
+
+    protected function endInt(): int
+    {
+        return ($this->int & self::BOOK_MASK) >> 12 | ($this->int & self::END_MASK);
+    }
 
 
 	protected static $stringSettings = [
@@ -178,7 +188,7 @@ class ScripturNum
 	 *
 	 * @throws ScripturNumException
 	 */
-	public function toString($options): string
+	public function toString($options = []): string
 	{
 		$s = $this->getStringWithSettings($options);
 		if (isset($options['callback']) && is_callable($options['callback'])) {
@@ -309,6 +319,54 @@ class ScripturNum
 			return $b . $s . $startC . $c . $this->startV . $r . $endC . $c . $this->endV;
 		}
 	}
+
+    /**
+     * Remove a passage from this passage, returning an array of ScripturNum objects that represent the difference.
+     *
+     * @see ScripturNumArray::remove()
+     *
+     * @param $passageToRemove
+     * @return ScripturNumArray
+     * @throws ScripturNumException
+     */
+    public function remove($passageToRemove): ScripturNumArray
+    {
+        // if no overlap at all, keep whole (condition 1)
+        if (!$this->overlapsWith($passageToRemove)) {
+            return new ScripturNumArray([$this]);
+        }
+
+        // if fully contained, do not keep (condition 2)
+        if ($passageToRemove->contains($this)) {
+            return new ScripturNumArray([]);
+        }
+
+        $return = new ScripturNumArray();
+
+        // if sn starts before other starts, keep sn start to other start-1 (condition 3)
+        if ($this->startInt() < $passageToRemove->startInt()) {
+            $return[] = static::newFromInts(
+                $this->book,
+                $this->startCh,
+                $this->startV,
+                $passageToRemove->startCh,
+                $passageToRemove->startV - 1
+            );
+        }
+
+        // if sn ends after other ends, keep other end+1 to sn end (condition 4)
+        if ($this->endInt() > $passageToRemove->endInt()) {
+            $return[] = static::newFromInts(
+                $this->book,
+                $passageToRemove->endCh,
+                $passageToRemove->endV + 1,
+                $this->endCh,
+                $this->endV
+            );
+        }
+
+        return $return;
+    }
 
 
 	/**

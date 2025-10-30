@@ -260,16 +260,45 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 		return count($this->container);
 	}
 
+    public function remove(ScripturNum $other): ScripturNumArray
+    {
+        $result = new ScripturNumArray();
+
+        $this->sortAndCombineIfNeeded();
+
+        foreach ($this->container as $sn) {
+            $r = $sn->remove($other);
+            foreach ($r as $s) {
+                $result[] = $s;
+            }
+        }
+
+        $result->sortAndCombineIfNeeded();
+
+        return $result;
+    }
+
+    public function removeAll(ScripturNumArray $others): ScripturNumArray
+    {
+        $this->sortAndCombineIfNeeded();
+        $others->sortAndCombineIfNeeded();
+
+        $r = new ScripturNumArray($this->container);
+
+        foreach ($others as $o) {
+            $r = $r->remove($o);
+        }
+
+        $r->sortAndCombineIfNeeded();
+        return $r;
+    }
+
 	/**
 	 * @return string
 	 */
 	public function __toString(): string
 	{
-        try {
-            return $this->toString();
-        } catch (ScripturNumException $e) {
-            return '';
-        }
+        return $this->getString();
 	}
 
     /**

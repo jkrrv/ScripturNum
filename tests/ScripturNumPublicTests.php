@@ -145,6 +145,12 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals(19001002, $concatEnd);
 	}
 
+    public function test_stringNoOption()
+    {
+        $n = new ScripturNum('John 3:16');
+        $this->assertEquals('John 3:16', $n->toString());
+    }
+
 
 
 	public function test_issue01() {
@@ -1023,5 +1029,57 @@ class ScripturNumPublicTests extends TestCase
         $e = [];
         $sn = ScripturNum::extractFromString($a, false, $e);
         $this->assertEquals("1 John 2:28", $sn->toString());
+    }
+
+    public function test_remove_noOverlap()
+    {
+        $a = new ScripturNum("Exodus 20");
+        $b = new ScripturNum("Exodus 21");
+        $result = $a->remove($b);
+        $this->assertEquals("Exodus 20", $result->toString());
+    }
+
+    public function test_remove_noOverlap_book()
+    {
+        $a = new ScripturNum("Exodus 20");
+        $b = new ScripturNum("Genesis 21");
+        $result = $a->remove($b);
+        $this->assertEquals("Exodus 20", $result->toString());
+    }
+
+    public function test_remove_fullyContained()
+    {
+        $a = new ScripturNum("Exodus 20:5");
+        $b = new ScripturNum("Exodus 20");
+        $result = $a->remove($b);
+        $this->assertCount(0, $result);
+    }
+
+    public function test_remove_split()
+    {
+        $a = new ScripturNum("Exodus 20");
+        $b = new ScripturNum("Exodus 20:5");
+        $result = $a->remove($b);
+        $this->assertCount(2, $result);
+        $this->assertEquals("Exodus 20:1-4", (string)$result[0]);
+        $this->assertEquals("Exodus 20:6-26", (string)$result[1]);
+    }
+
+    public function test_remove_overlapEnd()
+    {
+        $a = new ScripturNum("Exodus 20-21");
+        $b = new ScripturNum("Exodus 21-22");
+        $result = $a->remove($b);
+        $this->assertCount(1, $result);
+        $this->assertEquals("Exodus 20", (string)$result);
+    }
+
+    public function test_remove_overlapStart()
+    {
+        $a = new ScripturNum("Exodus 20-21");
+        $b = new ScripturNum("Exodus 19-20");
+        $result = $a->remove($b);
+        $this->assertCount(1, $result);
+        $this->assertEquals("Exodus 21", (string)$result);
     }
 }
