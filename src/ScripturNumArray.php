@@ -24,6 +24,12 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	protected $hasMultiplePassagesFromAChapter = false;
 
 
+    /**
+     * Constructor
+     *
+     * @param array $initialValues An array of initial values to add to the container. These can be ScripturNum objects
+     * or strings/integers that can be parsed into ScripturNum objects.
+     */
 	public function __construct($initialValues = [])
 	{
 		foreach ($initialValues as $k => $i) {
@@ -61,7 +67,8 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 
 	/**
 	 * @return void
-	 */
+     * @noinspection PhpDocMissingThrowsInspection
+     */
 	protected function combineAdjacents()
 	{
 		$prev = null;
@@ -103,7 +110,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	}
 
 	/**
-	 * Whether a offset exists
+	 * Whether an offset exists
 	 * @link https://php.net/manual/en/arrayaccess.offsetexists.php
 	 *
 	 * @param mixed $offset
@@ -111,7 +118,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	 *
 	 * @return bool true on success or false on failure.
 	 *
-	 * The return value will be casted to boolean if non-boolean was returned.
+	 * The return value will be cast to boolean if non-boolean was returned.
 	 */
 	public function offsetExists($offset): bool
 	{
@@ -220,7 +227,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	/**
 	 * Checks if current position is valid
 	 * @link https://php.net/manual/en/iterator.valid.php
-	 * @return bool The return value will be casted to boolean and then evaluated.
+	 * @return bool The return value will be cast to boolean and then evaluated.
 	 * Returns true on success or false on failure.
 	 */
 	public function valid(): bool
@@ -260,6 +267,15 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 		return count($this->container);
 	}
 
+    /**
+     * Subtract a passage from this array of passages.
+     *
+     * @since 2.1.0
+     *
+     * @param ScripturNum $other
+     * @return ScripturNumArray
+     * @throws ScripturNumException
+     */
     public function remove(ScripturNum $other): ScripturNumArray
     {
         $result = new ScripturNumArray();
@@ -278,6 +294,15 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
         return $result;
     }
 
+    /**
+     * Subtract all passages in another ScripturNumArray from this array of passages.
+     *
+     * @since 2.1.0
+     *
+     * @param ScripturNumArray $others
+     * @return ScripturNumArray
+     * @throws ScripturNumException
+     */
     public function removeAll(ScripturNumArray $others): ScripturNumArray
     {
         $this->sortAndCombineIfNeeded();
