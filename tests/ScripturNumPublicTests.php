@@ -1082,4 +1082,32 @@ class ScripturNumPublicTests extends TestCase
         $this->assertCount(1, $result);
         $this->assertEquals("Exodus 21", (string)$result);
     }
+
+    /**
+     * @throws ScripturNumException
+     */
+    public function test_getWholeBible()
+    {
+        $s = ScripturNum::getWholeBible();
+        $this->assertCount(66, $s);
+        $this->assertEquals("Revelation", (string)$s[65]);
+    }
+
+    public function test_wholeBibleMinusBook()
+    {
+        $whole = ScripturNum::getWholeBible();
+        $toRemove = new ScripturNum("Exodus");
+        $result = $whole->remove($toRemove);
+        $this->assertCount(65, $result);
+        $this->assertEquals("Leviticus", (string)$result[1]);
+    }
+
+    public function test_wholeBibleMinusChapter()
+    {
+        $whole = ScripturNum::getWholeBible();
+        $toRemove = new ScripturNum("Exodus 1");
+        $result = $whole->remove($toRemove);
+        $this->assertCount(66, $result);
+        $this->assertEquals("Exodus 2-40", (string)$result[1]);
+    }
 }

@@ -1338,4 +1338,21 @@ class ScripturNum
 
 		return "( " . implode(" AND ", $r) . " )";
 	}
+
+
+    /**
+     * Get a ScripturNumArray representing the whole Bible.
+     *
+     * @return ScripturNumArray
+     * @throws ScripturNumException -- would only be thrown if there's something peculiar with a custom Bible class.
+     * @since 2.1.0
+     */
+    public static function getWholeBible(): ScripturNumArray
+    {
+        $sna = new ScripturNumArray();
+        foreach (ScripturNum::getBookNames() as $bookNames) {
+            $sna[] = new ScripturNum($bookNames[0]);
+        }
+        return $sna;
+    }
 }
