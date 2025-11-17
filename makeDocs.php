@@ -30,7 +30,21 @@ $argv[6] = "_Sidebar.md";
 include "vendor/skayo/phpdoc-md/bin/phpdocmd";
 echo "    Complete.\n";
 
-//
-//echo "Committing and pushing to Repository...";
-//echo exec("cd " . __DIR__ . "/docs && git add *.md && git commit -m \"Auto-Updated Documentation\" && git push");
-//echo "    Complete.\n";
+// if git diff has no results, exit.
+$diff = trim(exec("cd " . __DIR__ . "/docs && git diff --stat"));
+if ($diff === "") {
+    echo "No changes detected in documentation. Exiting.\n";
+    exit(0);
+}
+
+
+echo "Committing and pushing to Repository...";
+echo exec("cd " . __DIR__ . "/docs && git add *.md && git commit -m \"Auto-Updated Documentation\"");
+echo "    Complete.\n";
+
+// if --push is set, push the changes.
+if (in_array("--push", $argv)) {
+    echo "Pushing to remote repository...";
+    echo exec("cd " . __DIR__ . "/docs && git push");
+    echo "    Complete.\n";
+}
