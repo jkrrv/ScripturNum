@@ -13,7 +13,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Initialize and update submodule
+        run: |
+          git submodule update --init --remote docs
+          cd docs
+          git checkout master
+          git pull origin master
+          cd ..
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
