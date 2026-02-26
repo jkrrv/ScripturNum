@@ -4,6 +4,7 @@ namespace ScripturNumTests;
 
 use PHPUnit\Framework\TestCase;
 use ScripturNum\ScripturNum;
+use ScripturNum\ScripturNumArray;
 
 /**
  * This test suite should mirror the README to validate that all examples in the README are true.
@@ -58,4 +59,14 @@ class ReadmeTests extends TestCase
 
 		$this->expectOutputString("Genesis 1:1");
 	}
+
+    public function test_linkExample()
+    {
+        $a = new ScripturNumArray(['John 3:16']);
+        $f = function (string $s, ScripturNum $sn) {
+            $sc = $sn->getWholeChapters();
+            return "<a href=\"https://www.esv.org/" . strtolower($sc->toString('abbrev')) . "\">$s</a>";
+        };
+        $this->assertEquals('<a href="https://www.esv.org/jn3">John 3:16</a>', $a->toString(['callback' => $f]));
+    }
 }

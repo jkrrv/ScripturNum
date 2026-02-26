@@ -344,7 +344,8 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
     }
 
     /**
-     * Return a human-readable string representation of the contained passages.
+     * Return a human-readable string representation of the contained passages.  Throws an exception on error.
+     * To get an empty string on error instead, use getString() instead of this method.
      *
      * @param string|array $options The setting set to use, or an array of options.
      *

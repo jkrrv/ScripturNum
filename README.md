@@ -12,7 +12,7 @@ It handles all the weird exceptions with how we talk about scripture, including:
 
 - Books with only a single chapter won't list the chapter.  (e.g. 3 John 11)
 - Psalm is singular and Psalms is plural. (e.g. Psalm 23 and Psalms 101-102)  Same for Song(s) of Solomon. This behavior
-  can be changed with the 'plurl' option. (The misspelling is deliberate--all options are five letters.)
+  can be changed with the 'plurl' option. (The misspelling is deliberate--most options are five letters.)
 
 ## Installation
 
@@ -53,7 +53,7 @@ From a technical perspective, having a closed cannon is *vital* because verses a
 Should insertions or omissions be made, numbering would be askew for the rest of that book.
 
 The author of this library is protestant, and holds to a closed canon consisting of the 66
-books [listed as western protestantism here](https://en.wikipedia.org/wiki/Biblical_canon#Western_Church). Changing the versification of scripture would be disastrous for any 
+books [listed as Western Protestantism here](https://en.wikipedia.org/wiki/Biblical_canon#Western_Church). Changing the versification of scripture would be disastrous for any 
 integer ScripturNums that are saved.
 
 ## Usage
@@ -64,67 +64,75 @@ The two most common ways of referring to a passage of scripture are, probably, h
 database. The constructor takes both of these forms.
 
 For instance:
-
-    $s = new ScripturNum('Romans 1-8');
-    var_dump($s);
-    echo $s;
+```php
+$s = new ScripturNum('Romans 1-8');
+var_dump($s);
+echo $s;
+```
 
 Produces the result:
-
-    object(ScripturNum\ScripturNum)
-      protected 'int' => int 738197728
-      protected 'book' => int 45
-      protected 'startCh' => int 1
-      protected 'startV' => int 1
-      protected 'endCh' => int 8
-      protected 'endV' => int 39
-    Romans 1-8
+```
+object(ScripturNum\ScripturNum)
+  protected 'int' => int 738197728
+  protected 'book' => int 45
+  protected 'startCh' => int 1
+  protected 'startV' => int 1
+  protected 'endCh' => int 8
+  protected 'endV' => int 39
+Romans 1-8
+```
 
 Or, start with a number:
-
-    $s = new ScripturNum(739119536);
-    var_dump($s);
-    echo $s;
+```php
+$s = new ScripturNum(739119536);
+var_dump($s);
+echo $s;
+```
 
 Produces the output:
-
-    object(ScripturNum\ScripturNum)
-      protected 'int' => int 739119536
-      protected 'book' => int 45
-      protected 'startCh' => int 9
-      protected 'startV' => int 1
-      protected 'endCh' => int 16
-      protected 'endV' => int 27
-    Romans 9-16
+```
+object(ScripturNum\ScripturNum)
+  protected 'int' => int 739119536
+  protected 'book' => int 45
+  protected 'startCh' => int 9
+  protected 'startV' => int 1
+  protected 'endCh' => int 16
+  protected 'endV' => int 27
+Romans 9-16
+```
 
 ### Starting with Other Numerical References
 
 If you've already parsed a string input and have broken apart the numerical portions, you may need a different means.
 
 (Matthew is the 40th book.)
-
-    //   ScripturNum::newFromInts($book, $startCh, $startV = 1, $endCh = null, $endV = null)
-    $n = ScripturNum::newFromInts(40, 8, null, 9);
-    var_dump($n);
-    echo $n;
+```php
+//   ScripturNum::newFromInts($book, $startCh, $startV = 1, $endCh = null, $endV = null)
+$n = ScripturNum::newFromInts(40, 8, null, 9);
+var_dump($n);
+echo $n;
+```
 
 Produces the output:
-
-    object(ScripturNum\ScripturNum)[3]
-      protected 'int' => int 655134992
-      protected 'book' => int 40
-      protected 'startCh' => int 8
-      protected 'startV' => int 1
-      protected 'endCh' => int 9
-      protected 'endV' => int 38
-    Matthew 8-9
+```
+object(ScripturNum\ScripturNum)[3]
+  protected 'int' => int 655134992
+  protected 'book' => int 40
+  protected 'startCh' => int 8
+  protected 'startV' => int 1
+  protected 'endCh' => int 9
+  protected 'endV' => int 38
+Matthew 8-9
+```
 
 ### Getting Strings Out: Full Name
 
 The object supports direct conversion to strings. Doing so will produce the same output as the `getLongString` function.
 For example:
 
-    echo new ScripturNum('1Jo1:9')
+```php
+echo new ScripturNum('1Jo1:9')
+```
 
 Produces the output:
 
@@ -137,8 +145,9 @@ each book in the array of names in the Bible class.
 
 Abbreviated references are available through the `getAbbrev` function. By default, these are intended for use in a URL.
 Thus, they use a period in place of a colon to avoid the need for escaping.
-
-	echo (new ScripturNum('John 3:16'))->getAbbrev();
+```php
+echo (new ScripturNum('John 3:16'))->getAbbrev();
+```
 
 Produces the output:
 
@@ -146,6 +155,24 @@ Produces the output:
 
 By default, abbreviations use the numerical ordinal (2, as opposed to II or Second), and the *second* name given for
 each book in the array of names in the Bible class.
+
+### Getting Strings Out: Links
+
+You can provide a callback function to generate links or other special formatting for scripture references in a 
+`callback` option.  The callback will be given two parameters: the string to print, and the ScripturNum object that can 
+be used to generate the link.  For example:
+```php
+$a = new ScripturNumArray(['John 3:16']);
+$f = function (string $s, ScripturNum $sn) {
+    $sc = $sn->getWholeChapters();
+    return "<a href=\"https://www.esv.org/" . strtolower($sc->toString('abbrev')) . "\">$s</a>";
+};
+echo $a->toString(['callback' => $f]);
+```
+Results in:
+```html
+<a href="https://www.esv.org/jn3">John 3:16</a>
+```
 
 ### Database Querying
 
@@ -156,21 +183,22 @@ entirely contained within the range.  Inclusive will, instead, include all resul
 even if it isn't entirely contained within the range.
 
 For example, for a column named "Scripture", we could use this:
-
-    $s = new ScripturNum('Romans 8');
-    $wheres = $s->toSqlInclusive('Scripture');
-
+```php
+$s = new ScripturNum('Romans 8');
+$wheres = $s->toSqlInclusive('Scripture');
+```
 At this point, `$wheres` has a value of:
-
-    ( (Scripture & 4278190080) = 738197504 AND (Scripture & 16773120) <= 917504 AND (Scripture & 4095) >= 186 )
-
+```sql
+( (Scripture & 4278190080) = 738197504 AND (Scripture & 16773120) <= 917504 AND (Scripture & 4095) >= 186 )
+```
 So, we can insert this into a query:
-
-    $queryString = "SELECT * FROM scriptureData WHERE $wheres";
-
+```php
+$queryString = "SELECT * FROM scriptureData WHERE $wheres";
+```
 `$queryString` now has the value:
-
-    SELECT * FROM scriptureData WHERE ( (Scripture & 4278190080) = 738197504 AND (Scripture & 16773120) <= 917504 AND (Scripture & 4095) >= 186 )
+```sql
+SELECT * FROM scriptureData WHERE ( (Scripture & 4278190080) = 738197504 AND (Scripture & 16773120) <= 917504 AND (Scripture & 4095) >= 186 )
+```
 
 This can easily be used in most flavors of SQL.  Two notes of caution:
 - If you want to use prepared statements, beware that you won't be able to re-use prepared statements with different
@@ -180,7 +208,7 @@ This can easily be used in most flavors of SQL.  Two notes of caution:
 
 ## Sorting
 
-In general, sorting by ScrupturNum integer value will result in the passages being ordered in the same sequential order
+In general, sorting by ScripturNum integer value will result in the passages being ordered in the same sequential order
 as in the Bible. Books take first priority, followed by start chapter, followed by start verse, followed by end
 chapter, followed by end verse.
 
