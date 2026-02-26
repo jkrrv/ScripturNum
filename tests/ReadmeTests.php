@@ -62,7 +62,7 @@ class ReadmeTests extends TestCase
 
     public function test_linkExample()
     {
-        $a = new ScripturNumArray(['John 3:16']);
+        $a = new ScripturNum('John 3:16');
         $f = function (string $s, ScripturNum $sn) {
             $sc = $sn->getWholeChapters();
             return "<a href=\"https://www.esv.org/" . strtolower($sc->toString('abbrev')) . "\">$s</a>";

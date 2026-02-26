@@ -16,8 +16,8 @@ abstract class Bible
 	protected static $BOOK_NAMES = [];
 
 	/**
-	 * An array containing book names that are common words in English. Must match the terms used in $BOOK_NAMES in
-	 * capitalization and spelling.
+	 * An array containing book names that are common words in English (or the used language). Must match the terms used
+     * in $BOOK_NAMES in capitalization and spelling.
 	 *
 	 * @var string[]  The array of book names, grouped by book.
 	 */

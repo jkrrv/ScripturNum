@@ -162,7 +162,7 @@ You can provide a callback function to generate links or other special formattin
 `callback` option.  The callback will be given two parameters: the string to print, and the ScripturNum object that can 
 be used to generate the link.  For example:
 ```php
-$a = new ScripturNumArray(['John 3:16']);
+$a = new ScripturNum('John 3:16');
 $f = function (string $s, ScripturNum $sn) {
     $sc = $sn->getWholeChapters();
     return "<a href=\"https://www.esv.org/" . strtolower($sc->toString('abbrev')) . "\">$s</a>";

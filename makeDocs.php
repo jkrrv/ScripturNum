@@ -20,7 +20,7 @@ array_map('unlink', glob('docs/*.md'));
 echo "    Complete.\n";
 
 
-echo "Creating Markdown files...";
+echo "Creating Markdown files...\n";
 $argv[1] = "docs/structure.xml";
 $argv[2] = "docs";
 $argv[3] = "--lt";
