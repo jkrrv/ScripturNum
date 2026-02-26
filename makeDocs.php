@@ -10,13 +10,8 @@ if (!file_exists(PHPDOC_PHAR_FILENAME) || (time() - filemtime(PHPDOC_PHAR_FILENA
 }
 
 
-echo "Clearing git status...";
-echo exec("cd " . __DIR__ . "/docs && git reset --hard && git checkout master");
-echo "    Complete.\n";
-
-
 echo "Running PHPDoc Analysis...";
-exec("cd .. && php " . PHPDOC_PHAR_FILENAME . " run -d src -t docs/ --template=\"xml\"");
+exec("php " . PHPDOC_PHAR_FILENAME . " run -d src -t docs/ --template=\"xml\"");
 echo "    Complete\n";
 
 
@@ -40,6 +35,8 @@ $diff = trim(exec("cd " . __DIR__ . "/docs && git diff --stat"));
 if ($diff === "") {
     echo "No changes detected in documentation. Exiting.\n";
     exit(0);
+} else {
+    echo "Changes detected in documentation.  Will commit and push if --push is set.\n";
 }
 
 // if --push is set, push the changes.
