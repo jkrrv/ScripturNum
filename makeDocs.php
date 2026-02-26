@@ -50,3 +50,6 @@ if (in_array("--push", $argv)) {
     echo exec("git push");
     echo "    Complete.\n";
 }
+
+// delete the xml file.
+unlink("docs/structure.xml");
