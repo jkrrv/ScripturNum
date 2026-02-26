@@ -47,6 +47,6 @@ if (in_array("--push", $argv)) {
     echo "    Complete.\n";
 
     echo "Pushing to remote repository...";
-    echo exec("cd " . __DIR__ . "/docs && git push");
+    echo exec("git push");
     echo "    Complete.\n";
 }
