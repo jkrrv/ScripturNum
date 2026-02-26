@@ -30,6 +30,7 @@ $argv[6] = "_Sidebar.md";
 include "vendor/skayo/phpdoc-md/bin/phpdocmd";
 echo "    Complete.\n";
 
+
 // if git diff has no results, exit.
 $diff = trim(exec("cd " . __DIR__ . "/docs && git diff --stat"));
 if ($diff === "") {
