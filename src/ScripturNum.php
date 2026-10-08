@@ -1313,6 +1313,35 @@ class ScripturNum
 	}
 
 	/**
+	 * Generate a query statement that can be used to search three numeric columns in generic SQL for a passage that is
+	 * entirely contained within the given ScripturNum.  The three columns should represent book, start index, and end
+	 * index respectively.
+	 *
+	 * @param string $bookColumnRef  The name of the column or value to use for the book index.
+	 * @param string $startColumnRef The name of the column or value to use for the start index.
+	 * @param string $endColumnRef   The name of the column or value to use for the end index.
+	 *
+	 * @return string
+	 */
+	public function toSqlExclusive3(string $bookColumnRef, string $startColumnRef, string $endColumnRef): string
+	{
+		$bookValue = $this->int >> 24;
+		$startValue = ($this->int & self::START_MASK) >> 12;
+		$endValue = ($this->int & self::END_MASK);
+
+		if ($this->isSingleVerse()) {
+			return "( $bookColumnRef = $bookValue AND $startColumnRef = $startValue AND $endColumnRef = $endValue )";
+		}
+
+		$r = [];
+		$r[] = "$bookColumnRef = $bookValue";
+		$r[] = "$startColumnRef >= $startValue";
+		$r[] = "$endColumnRef <= $endValue";
+
+		return "( " . implode(" AND ", $r) . " )";
+	}
+
+	/**
 	 * Generate a query statement that can be used to search an int column in generic SQL for a passage that overlaps
 	 * with the given ScripturNum.
 	 *
@@ -1335,6 +1364,31 @@ class ScripturNum
 		$mask = self::END_MASK;
 		$value = ($this->int & self::START_MASK) >> 12;
 		$r[] = "($columnRef & $mask) >= $value";
+
+		return "( " . implode(" AND ", $r) . " )";
+	}
+
+	/**
+	 * Generate a query statement that can be used to search three numeric columns in generic SQL for a passage that
+	 * overlaps with the given ScripturNum.  The three columns should represent book, start index, and end index
+	 * respectively.
+	 *
+	 * @param string $bookColumnRef  The name of the column or value to use for the book index.
+	 * @param string $startColumnRef The name of the column or value to use for the start index.
+	 * @param string $endColumnRef   The name of the column or value to use for the end index.
+	 *
+	 * @return string
+	 */
+	public function toSqlInclusive3(string $bookColumnRef, string $startColumnRef, string $endColumnRef): string
+	{
+		$bookValue = $this->int >> 24;
+		$startValue = ($this->int & self::START_MASK) >> 12;
+		$endValue = ($this->int & self::END_MASK);
+
+		$r = [];
+		$r[] = "$bookColumnRef = $bookValue";
+		$r[] = "$startColumnRef <= $endValue";
+		$r[] = "$endColumnRef >= $startValue";
 
 		return "( " . implode(" AND ", $r) . " )";
 	}

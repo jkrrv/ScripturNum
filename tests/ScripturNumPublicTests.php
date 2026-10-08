@@ -752,9 +752,24 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals('( (theColumn & 4278190080) = 83886080 AND (theColumn & 16773120) >= 16384 AND (theColumn & 4095) <= 221 )', $n->toSqlExclusive("theColumn"));
 	}
 
+	public function test_InclusiveSql3() {
+		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
+		$this->assertEquals('( bookColumn = 5 AND startColumn <= 221 AND endColumn >= 4 )', $n->toSqlInclusive3("bookColumn", "startColumn", "endColumn"));
+	}
+
+	public function test_ExclusiveSql3() {
+		$n = new ScripturNum((5 << 24) + (4 << 12) + 221);
+		$this->assertEquals('( bookColumn = 5 AND startColumn >= 4 AND endColumn <= 221 )', $n->toSqlExclusive3("bookColumn", "startColumn", "endColumn"));
+	}
+
 	public function test_ExclusiveSql_Single() {
 		$n = new ScripturNum((8 << 24) + (255 << 12) + 255);
 		$this->assertEquals('theColumn = 135262463', $n->toSqlExclusive("theColumn"));
+	}
+
+	public function test_ExclusiveSql3_Single() {
+		$n = new ScripturNum((8 << 24) + (255 << 12) + 255);
+		$this->assertEquals('( bookColumn = 8 AND startColumn = 255 AND endColumn = 255 )', $n->toSqlExclusive3("bookColumn", "startColumn", "endColumn"));
 	}
 
 	public function test_validateBookNames_exValid() {
@@ -1109,5 +1124,17 @@ class ScripturNumPublicTests extends TestCase
         $result = $whole->remove($toRemove);
         $this->assertCount(66, $result);
         $this->assertEquals("Exodus 2-40", (string)$result[1]);
+    }
+
+    public function test_firstVerse()
+    {
+        $gen1 = new ScripturNum("Genesis 1");
+        $this->assertEquals("Genesis 1", (string)$gen1);
+    }
+
+    public function test_lastVerse()
+    {
+        $rev22 = new ScripturNum("Revelation 22");
+        $this->assertEquals(21, $rev22->endV);
     }
 }

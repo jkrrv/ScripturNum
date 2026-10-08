@@ -106,6 +106,20 @@ class ScripturNumSqlTests extends TestCase
 		$this->assertTrue(!!$r);
 	}
 
+	public function test_InclusiveSql3_overlapHigh() {
+		$a = new ScripturNum("Revelation 12-13");
+		$b = new ScripturNum("Revelation 13-14");
+
+		$db = new ScripturNumDb();
+		$where = $b->toSqlInclusive3("book", "start", "end");
+
+		$aInt = $a->getInt();
+		$query = "SELECT COUNT(*) FROM (SELECT ($aInt >> 24) as book, (($aInt & 16773120) >> 12) as start, ($aInt & 4095) as end) as t WHERE $where;";
+
+		$r = $db->querySingle($query);
+		$this->assertTrue(!!$r);
+	}
+
 
 	public function test_ExclusiveSql_within() {
 		$a = new ScripturNum("Revelation 12:16");
@@ -201,6 +215,20 @@ class ScripturNumSqlTests extends TestCase
 
 		$aInt = $a->getInt();
 		$query = "SELECT COUNT(*) FROM (SELECT $aInt as ref) as t WHERE $where;";
+
+		$r = $db->querySingle($query);
+		$this->assertFalse(!!$r);
+	}
+
+	public function test_ExclusiveSql3_overlapHigh() {
+		$a = new ScripturNum("Revelation 12-13");
+		$b = new ScripturNum("Revelation 13-14");
+
+		$db = new ScripturNumDb();
+		$where = $b->toSqlExclusive3("book", "start", "end");
+
+		$aInt = $a->getInt();
+		$query = "SELECT COUNT(*) FROM (SELECT ($aInt >> 24) as book, (($aInt & 16773120) >> 12) as start, ($aInt & 4095) as end) as t WHERE $where;";
 
 		$r = $db->querySingle($query);
 		$this->assertFalse(!!$r);
