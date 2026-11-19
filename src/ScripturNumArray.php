@@ -33,7 +33,7 @@ class ScripturNumArray implements ArrayAccess, Iterator, Countable
 	public function __construct($initialValues = [])
 	{
 		foreach ($initialValues as $k => $i) {
-			if (is_object($i) && get_class($i) === ScripturNum::class) {
+			if ($i instanceof ScripturNum) {
 				$this->offsetSet($k, $i);
 				continue;
 			}
