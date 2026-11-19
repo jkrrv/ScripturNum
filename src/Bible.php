@@ -349,7 +349,7 @@ abstract class Bible
 	 */
 	public static function pluralizeBookName(string $bookNameSingular): string
 	{
-		return str_replace(['Psalm', 'Song of Solomon'], ['Psalms', 'Songs of Solomon'], $bookNameSingular);
+		return str_replace(['Psalm'], ['Psalms'], $bookNameSingular);
 	}
 
 	/**
