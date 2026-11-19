@@ -621,6 +621,32 @@ class ScripturNum
 	}
 
 
+    /**
+     * Either throws the exception, or--if an array was provided to collect them--adds it to the array.  If the
+     * exception doesn't already know what text it couldn't read, it is told.
+     *
+     * @since 2.3.0
+     *
+     * @param ScripturNumException $e
+     * @param bool|array|null      $exceptions If an array, the exception is appended to it.  Otherwise, it is thrown.
+     * @param string|null          $input      The text that couldn't be read.
+     *
+     * @return void
+     * @throws ScripturNumException
+     */
+    protected static function report(ScripturNumException $e, &$exceptions, $input = null)
+    {
+        if ($e->getInput() === null && $input !== null) {
+            $e->setInput($input);
+        }
+        if (is_array($exceptions)) {
+            $exceptions[] = $e;
+            return;
+        }
+        throw $e;
+    }
+
+
 	/**
 	 * Takes a string that represents a single passage and returns it as an int.
 	 *
@@ -677,6 +703,21 @@ class ScripturNum
 	 */
 	public static function stringToInts(string $string, &$exceptions = false): array
 	{
+		return static::parseSpan($string, $exceptions);
+	}
+
+	/**
+	 * Standardizes the punctuation and whitespace of reference text, so that conjunctions, "through", and the like are
+	 * expressed as the separators that the parser understands.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	protected static function normalize(string $string): string
+	{
 		$cj = static::getConjunctions();
 
 		// standardize punctuation bits
@@ -685,7 +726,25 @@ class ScripturNum
 		                      $string);
 
 		// Remove duplicate spaces (Can't remove all spaces because spaces may occur in book names like Song of Songs
-		$string = preg_replace("/\s\s+/", ' ', $string);
+		return preg_replace("/\s\s+/", ' ', $string);
+	}
+
+	/**
+	 * Parses a single span: one book's name, followed by any number of references within that book.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param string     $string     The span, e.g. "John 3:16, 18; 4:2"
+	 * @param bool|array $exceptions Pass an array to have exceptions collected, rather than thrown.
+	 *
+	 * @return int[]
+	 * @throws ScripturNumException
+	 */
+	protected static function parseSpan(string $string, &$exceptions = false): array
+	{
+		$original = trim($string);
+
+		$string = static::normalize($string);
 
 		// Look for right-most alpha char.  This should separate book name from numerical ref.
 		preg_match('/.*([a-zA-Z])/', $string, $matches, PREG_OFFSET_CAPTURE);
@@ -697,11 +756,7 @@ class ScripturNum
 		try {
 			$book = self::bookNameToBookNum($book);
 		} catch (ScripturNumException $e) {
-			if (is_array($exceptions)) {
-				$exceptions[] = $e;
-			} else {
-				throw $e;
-			}
+			static::report($e, $exceptions, $original);
 			return [];
 		}
 
@@ -733,11 +788,7 @@ class ScripturNum
 					$ints[] = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 
 				} catch (ScripturNumException $e) {
-					if (is_array($exceptions)) {
-						$exceptions[] = $e;
-					} else {
-						throw $e;
-					}
+					static::report($e, $exceptions, $original);
 					continue;
 				}
 			}
