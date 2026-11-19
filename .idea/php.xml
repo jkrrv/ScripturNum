@@ -127,6 +127,10 @@
       <path value="C:/Dev/ScripturNum/vendor/guzzlehttp/psr7" />
       <path value="C:/Dev/ScripturNum/vendor/php-coveralls/php-coveralls" />
       <path value="C:/Dev/ScripturNum/vendor/staabm/side-effects-detector" />
+      <path value="C:/Dev/ScripturNum/vendor/symfony/polyfill-php80" />
+      <path value="C:/Dev/ScripturNum/vendor/symfony/polyfill-php85" />
+      <path value="C:/Dev/ScripturNum/vendor/sebastian/git-state" />
+      <path value="C:/Dev/ScripturNum/vendor/sebastian/file-filter" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.0">

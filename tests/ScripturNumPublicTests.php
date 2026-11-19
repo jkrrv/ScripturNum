@@ -1137,4 +1137,85 @@ class ScripturNumPublicTests extends TestCase
         $rev22 = new ScripturNum("Revelation 22");
         $this->assertEquals(21, $rev22->endV);
     }
+
+	// Issue #17: "Songs of Solomon" is not a name of the book.
+
+	public function test_wholeSongOfSolomonIsSingular() {
+		$n = new ScripturNum('Song of Solomon');
+		$this->assertEquals('Song of Solomon', $n->getLongString());
+	}
+
+	public function test_wholeSongOfSolomonIsSingular_fromAlias() {
+		$n = new ScripturNum('Songs of Solomon');
+		$this->assertEquals('Song of Solomon', (string)$n);
+	}
+
+	public function test_partOfSongOfSolomonIsSingular() {
+		$n = new ScripturNum('Song of Solomon 2:1-3:5');
+		$this->assertEquals('Song of Solomon 2:1-3:5', (string)$n);
+	}
+
+	public function test_wholePsalmsIsPlural() {
+		$n = new ScripturNum('Psalms');
+		$this->assertEquals('Psalms', $n->getLongString());
+	}
+
+	public function test_pluralizeBookName_doesNotPluralizeSongOfSolomon() {
+		$this->assertEquals('Song of Solomon', Bible::pluralizeBookName('Song of Solomon'));
+		$this->assertEquals('Psalms', Bible::pluralizeBookName('Psalm'));
+	}
+
+	// Issue #16: a trailing (or doubled) separator must not add a whole book.
+
+	public function test_stringToInts_trailingSemicolon() {
+		$this->assertEquals(
+			[(new ScripturNum('John 3:16'))->getInt()],
+			ScripturNum::stringToInts('John 3:16;'));
+	}
+
+	public function test_stringToInts_trailingSemicolon_wholeChapter() {
+		$this->assertEquals(
+			[(new ScripturNum('Exodus 2'))->getInt()],
+			ScripturNum::stringToInts('Exodus 2;'));
+	}
+
+	public function test_stringToInts_doubledTrailingSemicolon() {
+		$this->assertEquals(
+			[(new ScripturNum('John 3:16'))->getInt()],
+			ScripturNum::stringToInts('John 3:16;;'));
+	}
+
+	public function test_stringToInts_trailingSemicolonWithSpace() {
+		$this->assertEquals(
+			[(new ScripturNum('John 3:16'))->getInt()],
+			ScripturNum::stringToInts('John 3:16; '));
+	}
+
+	public function test_stringToInts_trailingComma() {
+		$this->assertEquals(
+			[(new ScripturNum('John 3:16'))->getInt()],
+			ScripturNum::stringToInts('John 3:16, '));
+	}
+
+	public function test_stringToInts_doubledSemicolonBetweenRefs() {
+		$this->assertEquals(
+			[(new ScripturNum('John 3:16'))->getInt(), (new ScripturNum('John 4:2'))->getInt()],
+			ScripturNum::stringToInts('John 3:16;;4:2'));
+	}
+
+	public function test_stringToInts_trailingSemicolon_noExceptions() {
+		$ex = [];
+		ScripturNum::stringToInts('John 3:16;', $ex);
+		$this->assertCount(0, $ex);
+	}
+
+	public function test_stringToInts_bareBookStillWholeBook() {
+		$this->assertEquals(
+			[(new ScripturNum('John'))->getInt()],
+			ScripturNum::stringToInts('John'));
+	}
+
+	public function test_constructFromStringWithTrailingSemicolon() {
+		$this->assertEquals('John 3:16', (string)new ScripturNum('John 3:16;'));
+	}
 }
