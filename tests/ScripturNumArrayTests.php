@@ -159,4 +159,57 @@ class ScripturNumArrayTests extends TestCase
         $this->assertEquals('Exodus 3:1-10', (string)$c[0]);
         $this->assertEquals('John 3:1-15', (string)$c[1]);
     }
+
+	// Issue #20: subclasses of ScripturNum must survive being put in an array.
+
+	public function test_construct_keepsSubclassObjects()
+	{
+		$sub = new ScripturNumSubclass('John 3:16');
+		$a = new ScripturNumArray([$sub]);
+		$this->assertCount(1, $a);
+		$this->assertSame($sub, $a[0]);
+		$this->assertInstanceOf(ScripturNumSubclass::class, $a[0]);
+	}
+
+	public function test_offsetSet_keepsSubclassObjects()
+	{
+		$sub = new ScripturNumSubclass('John 3:16');
+		$a = new ScripturNumArray();
+		$a[] = $sub;
+		$this->assertSame($sub, $a[0]);
+	}
+
+	public function test_iteration_keepsSubclassObjects()
+	{
+		$a = new ScripturNumArray([new ScripturNumSubclass('John 3:16'), new ScripturNumSubclass('Romans 8')]);
+		$this->assertCount(2, $a);
+		foreach ($a as $s) {
+			$this->assertInstanceOf(ScripturNumSubclass::class, $s);
+		}
+	}
+
+	public function test_toString_callbackReceivesSubclassObjects()
+	{
+		$a = new ScripturNumArray([new ScripturNumSubclass('John 3:16'), new ScripturNumSubclass('Romans 8')]);
+		$classes = [];
+		$a->toString(['callback' => function (string $s, ScripturNum $sn) use (&$classes) {
+			$classes[] = get_class($sn);
+			return $s;
+		}]);
+		$this->assertEquals([ScripturNumSubclass::class, ScripturNumSubclass::class], $classes);
+	}
+
+	public function test_construct_plainObjectsStillPlain()
+	{
+		$a = new ScripturNumArray([new ScripturNum('John 3:16')]);
+		$this->assertEquals(ScripturNum::class, get_class($a[0]));
+	}
+}
+
+class ScripturNumSubclass extends ScripturNum
+{
+	public function extraMethod(): string
+	{
+		return 'extra';
+	}
 }
