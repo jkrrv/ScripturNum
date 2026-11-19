@@ -717,7 +717,7 @@ class ScripturNum
 			}
 			foreach (explode(",", $sA) as $s) {
 				$s = trim($s);
-				if ($s === "" && isset($endCh))
+				if ($s === "")
 					continue;
 				try {
 					// Parse numbers

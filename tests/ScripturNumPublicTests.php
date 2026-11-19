@@ -887,6 +887,19 @@ class ScripturNumPublicTests extends TestCase
 		$a->getPrevChapter();
 	}
 
+    public function test_wholeBookSingle() {
+        $a = new ScripturNum("Exodus 20:10-12");
+        $b = $a->getWholeBook();
+        $this->assertEquals("Exodus", $b->getLongString());
+    }
+
+    public function test_wholeBookAlready() {
+        $a = new ScripturNum("Romans");
+        $b = $a->getWholeBook();
+        $this->assertEquals($a, $b);
+        $this->assertEquals($a->getLongString(), $a->getLongString());
+    }
+
 	public function test_extractFromString_chapter() {
 		$r = ScripturNum::extractFromString("let's turn in our bibles to Leviticus chapter 10 and verse 3.");
 		$this->assertCount(1, $r);
