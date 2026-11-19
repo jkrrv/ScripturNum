@@ -1228,7 +1228,52 @@ class ScripturNumPublicTests extends TestCase
 			ScripturNum::stringToInts('John'));
 	}
 
+	public function test_stringToInts_bareBookWithStraySeparator() {
+		$this->assertEquals(
+			[(new ScripturNum('John'))->getInt()],
+			ScripturNum::stringToInts('John;'));
+	}
+
 	public function test_constructFromStringWithTrailingSemicolon() {
 		$this->assertEquals('John 3:16', (string)new ScripturNum('John 3:16;'));
+	}
+
+	// Exceptions carry the text that couldn't be read (see ScripturNumException::getInput()).
+
+	public function test_stringToInts_invalidBook_exceptionHasInput() {
+		$ex = [];
+		ScripturNum::stringToInts('Hezekiah 1', $ex);
+		$this->assertCount(1, $ex);
+		$this->assertEquals('Hezekiah 1', $ex[0]->getInput());
+	}
+
+	public function test_stringToInts_invalidBook_thrownExceptionHasInput() {
+		try {
+			ScripturNum::stringToInts(' Hezekiah 1 ');
+			$this->fail('Expected an exception.');
+		} catch (ScripturNumException $e) {
+			$this->assertEquals('Hezekiah 1', $e->getInput());
+		}
+	}
+
+	public function test_stringToInts_outOfBounds_exceptionHasInput() {
+		$ex = [];
+		ScripturNum::stringToInts('John 3:99', $ex);
+		$this->assertCount(1, $ex);
+		$this->assertEquals('John 3:99', $ex[0]->getInput());
+	}
+
+	public function test_stringToInts_outOfBounds_inputIsWholeSpan() {
+		$ex = [];
+		$ints = ScripturNum::stringToInts('John 3:16; 3:99', $ex);
+		$this->assertCount(1, $ints);
+		$this->assertCount(1, $ex);
+		$this->assertEquals('John 3:16; 3:99', $ex[0]->getInput());
+	}
+
+	public function test_stringToInts_noExceptionsWhenValid() {
+		$ex = [];
+		ScripturNum::stringToInts('John 3:16', $ex);
+		$this->assertCount(0, $ex);
 	}
 }
