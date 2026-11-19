@@ -446,6 +446,24 @@ class ScripturNum
 		return new static($i);
 	}
 
+    /**
+     * Get a ScripturNum for the whole book of the Bible that this passage is in, or this one if already a whole book.
+     *
+     * @return ScripturNum
+     * @throws ScripturNumException
+     */
+    public function getWholeBook(): ScripturNum
+    {
+        if ($this->isWholeBook()) {
+            return $this;
+        }
+
+        $v = Bible::getVerseCounts();
+
+        $i = static::refNumsToInt($this->book, 1, null, count($v[$this->book - 1]), null);
+        return new static($i);
+    }
+
 	/**
 	 * Returns true if the passage is a whole book.
 	 *
