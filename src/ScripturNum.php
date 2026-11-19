@@ -710,6 +710,11 @@ class ScripturNum
 		// Remove all spaces from reference.
 		$ref = preg_replace("/\s*/", '', $ref);
 
+		// A reference of nothing but separators (e.g. "John;") is just a bare book name.
+		if (trim($ref, ',;') === '') {
+			$ref = '';
+		}
+
 		$levelsOfCommas = (2 * (strpos($ref, ';') > -1) + (strpos($ref, ',') > -1));
 		foreach (explode(";", $ref) as $sA) {
 			if ($levelsOfCommas > 1) {
@@ -717,7 +722,7 @@ class ScripturNum
 			}
 			foreach (explode(",", $sA) as $s) {
 				$s = trim($s);
-				if ($s === "")
+				if ($s === "" && $ref !== "") // empty items are ignored, unless there's nothing but a book name.
 					continue;
 				try {
 					// Parse numbers
