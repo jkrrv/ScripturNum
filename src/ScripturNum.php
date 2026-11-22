@@ -28,6 +28,32 @@ class ScripturNum
 	const START_MASK = 16773120;
 	const END_MASK = 4095;
 
+	/**
+	 * For parseString(): never match a book name without chapters or verses after it.
+	 */
+	const BARE_BOOKS_NONE = 'none';
+
+	/**
+	 * For parseString(): match a book name on its own, unless the name is a common word (see Bible::getCommonTerms()).
+	 */
+	const BARE_BOOKS_UNCOMMON = 'uncommon';
+
+	/**
+	 * For parseString(): match any book name on its own, even if it is a common word.
+	 */
+	const BARE_BOOKS_ALL = 'all';
+
+	/**
+	 * For parseString(): text that is not a reference is skipped silently.  Suitable for prose.
+	 */
+	const UNREADABLE_IGNORE = 'ignore';
+
+	/**
+	 * For parseString(): text that is not a reference is reported as an exception.  Suitable for text that is known to be
+	 * a list of references.
+	 */
+	const UNREADABLE_REPORT = 'report';
+
 	protected static $bibleClass = Bible::class;
 
 	/**
@@ -1168,6 +1194,206 @@ class ScripturNum
         }
 
 		return $results;
+	}
+
+	/**
+	 * Finds and parses the scripture references in a string, which may be prose or a list of references.
+	 *
+	 * - For prose, use the defaults.  Text that isn't a reference is skipped, and a book name on its own is found only
+	 *   if it isn't a common word.
+	 * - For text that is known to be a list of references (for instance, from an editing field), use
+	 *   BARE_BOOKS_ALL and UNREADABLE_REPORT.  Every reference that can be read is returned, and every item that can't
+	 *   is reported, with its text available from the exception's getInput().
+	 *
+	 * References that are found but are not valid (e.g. John 3:99) are always reported, whatever $unreadableText is.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param string     $string         The text to read.
+	 * @param string     $bareBookNames  Whether a book name with nothing after it counts as a reference to the whole
+	 *                                   book.  One of the BARE_BOOKS_* constants.
+	 * @param string     $unreadableText What to do with text that isn't a reference.  One of the UNREADABLE_*
+	 *                                   constants.
+	 * @param bool|array $exceptions     To have exceptions collected rather than thrown, pass an array.  Otherwise, the
+	 *                                   first exception is thrown.
+	 *
+	 * @return ScripturNumArray
+	 * @throws ScripturNumException  If an exception occurs and $exceptions isn't an array.
+	 * @throws \InvalidArgumentException  If $bareBookNames or $unreadableText isn't one of the constants.
+	 */
+	public static function parseString(string $string,
+	                                   string $bareBookNames = self::BARE_BOOKS_UNCOMMON,
+	                                   string $unreadableText = self::UNREADABLE_IGNORE,
+	                                   &$exceptions = null): ScripturNumArray
+	{
+		if (!in_array($bareBookNames, [self::BARE_BOOKS_NONE, self::BARE_BOOKS_UNCOMMON, self::BARE_BOOKS_ALL], true)) {
+			throw new \InvalidArgumentException("Invalid value for \$bareBookNames: $bareBookNames");
+		}
+		if (!in_array($unreadableText, [self::UNREADABLE_IGNORE, self::UNREADABLE_REPORT], true)) {
+			throw new \InvalidArgumentException("Invalid value for \$unreadableText: $unreadableText");
+		}
+
+		$results = new ScripturNumArray();
+		$masked = static::maskPunctuation($string);
+		$reportGaps = $unreadableText === self::UNREADABLE_REPORT;
+
+		$pos = 0;
+		foreach (static::scan($masked, $bareBookNames) as $m) {
+			$start = $m[1];
+			$end = $start + strlen($m[0]);
+
+			if ($reportGaps) {
+				$gap = static::unreadableText($string, $masked, $pos, $start);
+				if ($gap !== null) {
+					static::report(new ScripturNumException("Text is not a scripture reference.", 0, null, $gap), $exceptions);
+				}
+			}
+
+			foreach (static::parseSpan(substr($string, $start, $end - $start), $exceptions) as $i) {
+				$results[] = new static($i);
+			}
+			$pos = max($pos, $end);
+		}
+
+		if ($reportGaps) {
+			$gap = static::unreadableText($string, $masked, $pos, strlen($string));
+			if ($gap !== null) {
+				static::report(new ScripturNumException("Text is not a scripture reference.", 0, null, $gap), $exceptions);
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Replaces conjunctions, dashes, and the like with the separator they stand for, so that they can be recognized when
+	 * scanning.  The length in bytes is preserved, so that offsets in the result are also offsets in the original.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	protected static function maskPunctuation(string $string): string
+	{
+		$cj = static::getConjunctions();
+		$replacements = [
+			$cj['and']     => ',',
+			$cj['through'] => '-',
+			$cj['chapter'] => ' ',
+			'&endash;'     => '-',
+			'&ndash;'      => '-',
+			"\u{2013}"     => '-', // en dash
+		];
+
+		foreach ($replacements as $word => $sep) {
+			$word = (string)$word;
+			if ($word === '') {
+				continue;
+			}
+			$quoted = preg_quote($word, '/');
+			$pattern = '/' . $quoted . '/iu';
+			if (preg_match('/^[\p{L}\p{N}]/u', $word)) { // words (as opposed to punctuation) need to stand alone
+				$pattern = '/(?<![\p{L}\p{N}])' . $quoted . '(?![\p{L}\p{N}])/iu';
+			}
+			$masked = preg_replace_callback($pattern, function ($m) use ($sep) {
+				return str_pad($sep, strlen($m[0]), ' ');
+			}, $string);
+			if ($masked !== null) { // null if the string isn't valid UTF-8.
+				$string = $masked;
+			}
+		}
+
+		return $string;
+	}
+
+	/**
+	 * Finds the spans of a string that look like references.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param string $masked        The string, as processed by maskPunctuation().
+	 * @param string $bareBookNames One of the BARE_BOOKS_* constants.
+	 *
+	 * @return array[]  Each is [the matched text, its offset], in the order found.  Matches that overlap an earlier one
+	 *                  are left out.
+	 */
+	protected static function scan(string $masked, string $bareBookNames): array
+	{
+		$allBookNames = array_merge(...static::getBookNames());
+
+		switch ($bareBookNames) {
+			case self::BARE_BOOKS_NONE:
+				$sets = [[$allBookNames, '+']];
+				break;
+
+			case self::BARE_BOOKS_ALL:
+				$sets = [[$allBookNames, '*']];
+				break;
+
+			default: // BARE_BOOKS_UNCOMMON
+				$common = static::getCommonTerms();
+				$sets = [
+					[array_diff($allBookNames, $common), '*'],
+					[$common, '+']
+				];
+		}
+
+		$matches = [];
+		foreach ($sets as $set) {
+			if (count($set[0]) === 0) {
+				continue;
+			}
+			$b = implode("|", array_map(function ($n) {
+				return preg_quote($n, '/');
+			}, $set[0]));
+			$pattern = "/\\b(?:$b)\\.?(?:[-\\s,;&]*1?\\d{1,2}:?(?:1?\\d{1,2})?){$set[1]}\\b/i";
+			preg_match_all($pattern, $masked, $found, PREG_OFFSET_CAPTURE);
+			$matches = array_merge($matches, $found[0]);
+		}
+
+		usort($matches, function ($a, $b) {
+			return $a[1] - $b[1];
+		});
+
+		$ret = [];
+		$lastStart = -1;
+		$lastEnd = -1;
+		foreach ($matches as $m) {
+			if ($m[1] !== $lastStart && $m[1] < $lastEnd) {
+				continue; // Overlapping match.
+			}
+			$ret[] = $m;
+			$lastStart = $m[1];
+			$lastEnd = $m[1] + strlen($m[0]);
+		}
+		return $ret;
+	}
+
+	/**
+	 * Gets the part of the original string that is neither a reference nor a mere separator, if there is any.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @param string $original
+	 * @param string $masked   The string, as processed by maskPunctuation().
+	 * @param int    $from     Offset of the start of the part to check.
+	 * @param int    $to       Offset of the end of the part to check.
+	 *
+	 * @return string|null  The original text, without surrounding separators, or null if there is nothing there.
+	 */
+	protected static function unreadableText(string $original, string $masked, int $from, int $to)
+	{
+		if ($to <= $from) {
+			return null;
+		}
+		$gap = substr($masked, $from, $to - $from);
+		if (!preg_match('/[^\s,;&.:-]/', $gap, $first, PREG_OFFSET_CAPTURE)) {
+			return null;
+		}
+		$last = strlen(rtrim($gap, " \t\r\n,;&.:-"));
+		return substr($original, $from + $first[0][1], $last - $first[0][1]);
 	}
 
 	/**
