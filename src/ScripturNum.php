@@ -3,6 +3,7 @@
 
 namespace ScripturNum;
 
+use InvalidArgumentException;
 use TypeError;
 
 /**
@@ -711,8 +712,20 @@ class ScripturNum
 	}
 
 	/**
-	 * Takes a reference string and returns a plurality of ints for corresponding passages.  This should only be passed
-	 * values that are known to be references, not just any text. Use self::extractFromString for that.
+	 * Takes a reference string for a single book and returns a plurality of ints for corresponding passages.  This
+	 * should only be passed values that are known to be references, not just any text.
+	 *
+	 * Replacement: use parseString() with every book name allowed and unreadable text reported:
+	 *
+	 *     $passages = ScripturNum::parseString($string, ScripturNum::BARE_BOOKS_ALL, ScripturNum::UNREADABLE_REPORT, $exceptions);
+	 *
+	 * The differences are that the replacement:
+	 * - Returns a ScripturNumArray, not an array of ints.  Call getInt() on each passage to get the ints.
+	 * - Puts the passages in the order of the Bible, and combines any that overlap or are adjacent (so "John 3:16, 17"
+	 *   is one passage, not two), whereas this method keeps the passages in the order written.
+	 * - Reads references to more than one book (e.g. "John 3:16; Romans 8"), which this method does not.
+	 *
+	 * Passing an array for $exceptions has the same effect in both.  Without one, the first exception is thrown.
 	 *
 	 * @param string     $string A human-readable scripture reference that should be converted to one or more ints.
 	 * Allows for commas and semicolons.
@@ -722,10 +735,10 @@ class ScripturNum
 	 *
 	 * @return int[] The ints.
 	 * @throws ScripturNumException
-	 * @see self::extractFromString();
+	 * @see self::parseString()
 	 *
 	 * @since 2.0.0
-	 *
+	 * @deprecated 2.3.0 Use parseString() instead; see above.  This will be removed in 3.0.0.
 	 */
 	public static function stringToInts(string $string, &$exceptions = false): array
 	{
@@ -1111,99 +1124,71 @@ class ScripturNum
 		$verse = $index;
 	}
 
-    /**
-     * Given a string with any kind of text content, this method will search for any human-readable scripture references
-     * and try to parse them into discrete passages.  Returns a ScripturNumArray.
-     *
-     * @param string $string
-     * @param bool $excludeAllBookOnlyRefs
-     * @param null $exceptions  To have exceptions collected rather than thrown, pass an array to this parameter.
-     *
-     * @return ScripturNumArray
-     * @throws ScripturNumException
-     * @since 2.0.0
-     *
-     */
+	/**
+	 * Given a string with any kind of text content, this method will search for any human-readable scripture references
+	 * and try to parse them into discrete passages.  Returns a ScripturNumArray.
+	 *
+	 * Replacement: use parseString(), which returns the same thing and takes the same $exceptions.  The
+	 * $excludeAllBookOnlyRefs flag becomes the $bareBookNames option:
+	 *
+	 *     // extractFromString($string, false, $exceptions) is the same as:
+	 *     ScripturNum::parseString($string, ScripturNum::BARE_BOOKS_UNCOMMON, ScripturNum::UNREADABLE_IGNORE, $exceptions);
+	 *
+	 *     // extractFromString($string, true, $exceptions) is the same as:
+	 *     ScripturNum::parseString($string, ScripturNum::BARE_BOOKS_NONE, ScripturNum::UNREADABLE_IGNORE, $exceptions);
+	 *
+	 * The options in the first example are the defaults, so if $exceptions isn't needed, it is simply `parseString($string)`.
+	 *
+	 * @param string $string
+	 * @param bool $excludeAllBookOnlyRefs
+	 * @param null $exceptions  To have exceptions collected rather than thrown, pass an array to this parameter.
+	 *
+	 * @return ScripturNumArray
+	 * @throws ScripturNumException
+	 * @since 2.0.0
+	 * @deprecated 2.3.0 Use parseString() instead; see above.  This will be removed in 3.0.0.
+	 *
+	 * @see self::parseString()
+	 */
 	public static function extractFromString(string $string, bool $excludeAllBookOnlyRefs = false, &$exceptions = null): ScripturNumArray
 	{
-		$results = new ScripturNumArray();
-
-		$allBookNames = self::getBookNames();
-		$allBookNames = array_merge(...$allBookNames);
-
-		$cj = static::getConjunctions();
-
-		$string = str_replace([$cj['and'], $cj['through'], $cj['chapter']], [',', '-', ''], $string);
-
-		if ($excludeAllBookOnlyRefs) {
-			$regExSets = [
-				[
-					'bs' => $allBookNames,
-					'ps' => '+'
-				]
-			];
-		} else {
-			$b2 = self::getCommonTerms();
-			$b1 = array_diff($allBookNames, $b2);
-			$regExSets = [
-				[
-					'bs' => $b1,
-					'ps' => '*'
-				],
-				[
-					'bs' => $b2,
-					'ps' => '+'
-				]
-			];
-			unset($b1, $b2);
-		}
-		unset($allBookNames);
-
-        $combinedMatches = [];
-		foreach ($regExSets as $re) {
-            $b = implode("|", $re['bs']);
-            $plusOrStar = $re['ps'];
-            /** @noinspection RegExpUnnecessaryNonCapturingGroup -- They really are necessary. */
-            $pattern = "/\b(?:$b)\.?(?:[-\s,;&]*1?\d{1,2}:?(?:1?\d{1,2})?)$plusOrStar\b/i";
-
-            preg_match_all($pattern, $string, $matches, PREG_OFFSET_CAPTURE);
-
-            $combinedMatches = array_merge($combinedMatches, $matches[0]);
-        }
-
-        // Sort matches by position in string
-        usort($combinedMatches, function($a, $b) {
-            return $a[1] - $b[1];
-        });
-
-        $lastStart = -1;
-        $lastEnd = -1;
-        foreach ($combinedMatches as $m) {
-            if ($m[1] !== $lastStart && $m[1] < $lastEnd) {
-                // Overlapping match.  Skip it.
-                continue;
-            }
-
-            $ints = static::stringToInts($m[0], $exceptions);
-
-            foreach($ints as $i) {
-                $results[] = new static($i);
-            }
-            $lastStart = $m[1];
-            $lastEnd = $m[1] + strlen($m[0]);
-        }
-
-		return $results;
+		return static::parseString(
+			$string,
+			$excludeAllBookOnlyRefs ? self::BARE_BOOKS_NONE : self::BARE_BOOKS_UNCOMMON,
+			self::UNREADABLE_IGNORE,
+			$exceptions);
 	}
 
 	/**
-	 * Finds and parses the scripture references in a string, which may be prose or a list of references.
+	 * Finds and parses the scripture references in a string.  The string may be prose with references in it, or text
+	 * that is known to be a list of references, such as what a person types into a "scripture" field.  The options say
+	 * which of these to expect.
 	 *
-	 * - For prose, use the defaults.  Text that isn't a reference is skipped, and a book name on its own is found only
-	 *   if it isn't a common word.
-	 * - For text that is known to be a list of references (for instance, from an editing field), use
-	 *   BARE_BOOKS_ALL and UNREADABLE_REPORT.  Every reference that can be read is returned, and every item that can't
-	 *   is reported, with its text available from the exception's getInput().
+	 * Prose (the defaults): references are found wherever they appear, and everything else is skipped.
+	 *
+	 *     ScripturNum::parseString('Read John 3:16 and Romans 8 today.');   // John 3:16, Romans 8
+	 *
+	 * A list of references: every reference that can be read is returned, and every item that can't is reported with
+	 * its text, so that a person can be told what wasn't understood.  Book names are always allowed on their own, since
+	 * there's no prose to protect.
+	 *
+	 *     $exceptions = [];
+	 *     $passages = ScripturNum::parseString('Romans 8; Hezekiah 1; Acts 2:38',
+	 *                                          ScripturNum::BARE_BOOKS_ALL,
+	 *                                          ScripturNum::UNREADABLE_REPORT,
+	 *                                          $exceptions);
+	 *     // $passages has Acts 2:38 and Romans 8.  $exceptions has one exception, and $exceptions[0]->getInput() is
+	 *     // "Hezekiah 1".
+	 *
+	 * Items can be separated by semicolons, commas, line breaks, and the language's conjunction for "and".  A separator
+	 * followed by chapters or verses continues the same book ("John 3:16; 4:2" is John 3:16 and John 4:2), and one
+	 * followed by a book name starts a new passage.  Empty items are ignored.
+	 *
+	 * Book names, common terms and conjunctions are those of the class that this is called on, so a class with another
+	 * language's Bible reads that language.
+	 *
+	 * The passages are returned in a ScripturNumArray, which puts them in the order of the Bible and combines any that
+	 * overlap or are adjacent.  Each is an instance of the class this was called on.
 	 *
 	 * References that are found but are not valid (e.g. John 3:99) are always reported, whatever $unreadableText is.
 	 *
@@ -1211,15 +1196,27 @@ class ScripturNum
 	 *
 	 * @param string     $string         The text to read.
 	 * @param string     $bareBookNames  Whether a book name with nothing after it counts as a reference to the whole
-	 *                                   book.  One of the BARE_BOOKS_* constants.
-	 * @param string     $unreadableText What to do with text that isn't a reference.  One of the UNREADABLE_*
-	 *                                   constants.
+	 *                                   book.  One of:
+	 *                                   - BARE_BOOKS_NONE: never.  "John 3" is found, but "John" is not.
+	 *                                   - BARE_BOOKS_UNCOMMON: only if the name isn't a common word, as listed by
+	 *                                     Bible::getCommonTerms().  "Genesis" is found, but "Mark" and "Job" are not,
+	 *                                     which keeps "mark my words" from being read as the book of Mark.  This is the
+	 *                                     default.
+	 *                                   - BARE_BOOKS_ALL: always, even for common words.
+	 *                                   A name that is part of a longer reference ("John 3:16") is not also returned
+	 *                                   as the whole book.
+	 * @param string     $unreadableText What to do with text that isn't a reference.  One of:
+	 *                                   - UNREADABLE_IGNORE: skip it.  This is the default.
+	 *                                   - UNREADABLE_REPORT: report it as an exception, with the text available from
+	 *                                     the exception's getInput().  Separators and conjunctions don't count as text.
 	 * @param bool|array $exceptions     To have exceptions collected rather than thrown, pass an array.  Otherwise, the
 	 *                                   first exception is thrown.
 	 *
 	 * @return ScripturNumArray
 	 * @throws ScripturNumException  If an exception occurs and $exceptions isn't an array.
-	 * @throws \InvalidArgumentException  If $bareBookNames or $unreadableText isn't one of the constants.
+	 * @throws InvalidArgumentException  If $bareBookNames or $unreadableText isn't one of the constants.
+	 *
+	 * @see ScripturNumException::getInput()
 	 */
 	public static function parseString(string $string,
 	                                   string $bareBookNames = self::BARE_BOOKS_UNCOMMON,
@@ -1227,10 +1224,10 @@ class ScripturNum
 	                                   &$exceptions = null): ScripturNumArray
 	{
 		if (!in_array($bareBookNames, [self::BARE_BOOKS_NONE, self::BARE_BOOKS_UNCOMMON, self::BARE_BOOKS_ALL], true)) {
-			throw new \InvalidArgumentException("Invalid value for \$bareBookNames: $bareBookNames");
+			throw new InvalidArgumentException("Invalid value for \$bareBookNames: $bareBookNames");
 		}
 		if (!in_array($unreadableText, [self::UNREADABLE_IGNORE, self::UNREADABLE_REPORT], true)) {
-			throw new \InvalidArgumentException("Invalid value for \$unreadableText: $unreadableText");
+			throw new InvalidArgumentException("Invalid value for \$unreadableText: $unreadableText");
 		}
 
 		$results = new ScripturNumArray();
