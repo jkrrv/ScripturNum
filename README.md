@@ -11,7 +11,7 @@ single unsigned integer in most DBs.
 It handles all the weird exceptions with how we talk about scripture, including:
 
 - Books with only a single chapter won't list the chapter.  (e.g. 3 John 11)
-- Psalm is singular and Psalms is plural. (e.g. Psalm 23 and Psalms 101-102)  Same for Song(s) of Solomon. This behavior
+- Psalm is singular and Psalms is plural. (e.g. Psalm 23 and Psalms 101-102)  This behavior
   can be changed with the 'plurl' option. (The misspelling is deliberate--most options are five letters.)
 
 ## Installation
