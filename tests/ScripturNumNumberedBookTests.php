@@ -101,9 +101,13 @@ class ScripturNumNumberedBookTests extends TestCase
 
 	public function test_issue23_severalInARow()
 	{
+		// as prose (in list mode, "Read" and "today." would rightly be reported as unreadable)
+		$this->assertSame(
+			['1 Kings 1:1', 'John 3:16', '1 John 1:9'],
+			self::strings(ScripturNum::parseString('Read John 3:16; 1 John 1:9 and 1 Kings 1:1 today.')));
 		$this->assertReadsAs(
 			['1 Kings 1:1', 'John 3:16', '1 John 1:9'],
-			'Read John 3:16; 1 John 1:9 and 1 Kings 1:1 today.');
+			'John 3:16; 1 John 1:9 and 1 Kings 1:1');
 		$this->assertReadsAs(
 			['1 Corinthians 13', '2 Corinthians 5', '1 John 4'],
 			'1 Corinthians 13, 2 Corinthians 5, 1 John 4');
