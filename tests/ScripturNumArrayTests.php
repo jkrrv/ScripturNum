@@ -162,7 +162,7 @@ class ScripturNumArrayTests extends TestCase
 
 	// Issue #20: subclasses of ScripturNum must survive being put in an array.
 
-	public function test_construct_keepsSubclassObjects()
+	public function test_issue20_construct_keepsSubclassObjects()
 	{
 		$sub = new ScripturNumSubclass('John 3:16');
 		$a = new ScripturNumArray([$sub]);
@@ -171,7 +171,7 @@ class ScripturNumArrayTests extends TestCase
 		$this->assertInstanceOf(ScripturNumSubclass::class, $a[0]);
 	}
 
-	public function test_offsetSet_keepsSubclassObjects()
+	public function test_issue20_offsetSet_keepsSubclassObjects()
 	{
 		$sub = new ScripturNumSubclass('John 3:16');
 		$a = new ScripturNumArray();
@@ -179,7 +179,7 @@ class ScripturNumArrayTests extends TestCase
 		$this->assertSame($sub, $a[0]);
 	}
 
-	public function test_iteration_keepsSubclassObjects()
+	public function test_issue20_iteration_keepsSubclassObjects()
 	{
 		$a = new ScripturNumArray([new ScripturNumSubclass('John 3:16'), new ScripturNumSubclass('Romans 8')]);
 		$this->assertCount(2, $a);
@@ -188,7 +188,7 @@ class ScripturNumArrayTests extends TestCase
 		}
 	}
 
-	public function test_toString_callbackReceivesSubclassObjects()
+	public function test_issue20_toString_callbackReceivesSubclassObjects()
 	{
 		$a = new ScripturNumArray([new ScripturNumSubclass('John 3:16'), new ScripturNumSubclass('Romans 8')]);
 		$classes = [];
@@ -199,10 +199,83 @@ class ScripturNumArrayTests extends TestCase
 		$this->assertEquals([ScripturNumSubclass::class, ScripturNumSubclass::class], $classes);
 	}
 
-	public function test_construct_plainObjectsStillPlain()
+	public function test_issue20_construct_plainObjectsStillPlain()
 	{
 		$a = new ScripturNumArray([new ScripturNum('John 3:16')]);
 		$this->assertEquals(ScripturNum::class, get_class($a[0]));
+	}
+
+	public function test_issue20_combinedPassagesKeepTheClass()
+	{
+		// Passages that are adjacent are combined into one, which should still be of the same class.
+		$a = new ScripturNumArray([new ScripturNumSubclass('John 3:1-5'), new ScripturNumSubclass('John 3:6-10')]);
+		$this->assertCount(1, $a);
+		$this->assertInstanceOf(ScripturNumSubclass::class, $a[0]);
+		$this->assertEquals('John 3:1-10', (string)$a[0]);
+	}
+
+	public function test_issue20_combinedPassages_callbackReceivesSubclassObjects()
+	{
+		$a = new ScripturNumArray([new ScripturNumSubclass('John 3:1-5'), new ScripturNumSubclass('John 3:6-10')]);
+		$classes = [];
+		$a->toString(['callback' => function (string $s, ScripturNum $sn) use (&$classes) {
+			$classes[] = get_class($sn);
+			return $s;
+		}]);
+		$this->assertEquals([ScripturNumSubclass::class], $classes);
+	}
+
+	public function test_issue20_combinedPlainPassagesStayPlain()
+	{
+		$a = new ScripturNumArray([new ScripturNum('John 3:1-5'), new ScripturNum('John 3:6-10')]);
+		$this->assertCount(1, $a);
+		$this->assertEquals(ScripturNum::class, get_class($a[0]));
+	}
+
+	public function test_issue20_combinedPassages_inAnotherLanguage()
+	{
+		// Combined passages are written with the names of the language they are in.
+		$a = new ScripturNumArray([new TestScripturNum('Ioannes 3:1-5'), new TestScripturNum('Ioannes 3:6-10')]);
+		$this->assertCount(1, $a);
+		$this->assertEquals('Ioannes 3:1-10', (string)$a);
+	}
+
+	public function test_issue20_remove_keepsSubclassObjects()
+	{
+		$a = new ScripturNumArray([new ScripturNumSubclass('John 3')]);
+		$r = $a->remove(new ScripturNum('John 3:16'));
+		$this->assertCount(2, $r);
+		foreach ($r as $s) {
+			$this->assertInstanceOf(ScripturNumSubclass::class, $s);
+		}
+	}
+
+	public function test_issue20_remove_ofAPassageThatDoesNotOverlapKeepsTheSameObject()
+	{
+		$sub = new ScripturNumSubclass('John 3');
+		$a = new ScripturNumArray([$sub]);
+		$r = $a->remove(new ScripturNum('Genesis 1'));
+		$this->assertCount(1, $r);
+		$this->assertSame($sub, $r[0]);
+	}
+
+	public function test_issue20_removeAll_keepsSubclassObjects()
+	{
+		$a = new ScripturNumArray([new ScripturNumSubclass('John 3-5')]);
+		$r = $a->removeAll(new ScripturNumArray(['John 4']));
+		$this->assertCount(2, $r);
+		foreach ($r as $s) {
+			$this->assertInstanceOf(ScripturNumSubclass::class, $s);
+		}
+	}
+
+	public function test_issue20_stringsAndIntsBecomePlainPassages()
+	{
+		// There's no way to know that a subclass is wanted for a string or an int.
+		$a = new ScripturNumArray(['John 3:16', 738197728]);
+		foreach ($a as $s) {
+			$this->assertEquals(ScripturNum::class, get_class($s));
+		}
 	}
 }
 

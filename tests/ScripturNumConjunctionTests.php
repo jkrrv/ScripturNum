@@ -69,26 +69,26 @@ class ScripturNumConjunctionTests extends TestCase
 
 	// ---- The conjunction is inside a book's name ----
 
-	public function test_conjunctionInsideABookName_noSpace()
+	public function test_issue22_conjunctionInsideABookName_noSpace()
 	{
 		$this->assertReadsAs(['1 Reyes 1'], '1Rey1');
 		$this->assertReadsAs(['2 Reyes 3'], '2Rey3');
 	}
 
-	public function test_conjunctionInsideABookName_spaces()
+	public function test_issue22_conjunctionInsideABookName_spaces()
 	{
 		$this->assertReadsAs(['1 Reyes 1'], '1 Reyes 1');
 		$this->assertReadsAs(['1 Reyes 1'], '1 Rey 1');
 		$this->assertReadsAs(['2 Reyes 3'], '2 Reyes 3');
 	}
 
-	public function test_conjunctionInsideABookName_withVerses()
+	public function test_issue22_conjunctionInsideABookName_withVerses()
 	{
 		$this->assertReadsAs(['1 Reyes 1:2-4'], '1 Reyes 1:2-4');
 		$this->assertReadsAs(['1 Reyes 1:2-4'], '1Rey1:2-4');
 	}
 
-	public function test_conjunctionInsideABookName_aWholeBook()
+	public function test_issue22_conjunctionInsideABookName_aWholeBook()
 	{
 		$this->assertReadsAs(['1 Reyes'], '1 Reyes');
 		$this->assertReadsAs(['2 Reyes'], '2Reyes');
@@ -96,7 +96,7 @@ class ScripturNumConjunctionTests extends TestCase
 
 	// ---- The conjunction stands alone, with whatever may be around it ----
 
-	public function test_conjunctionBetweenVerses()
+	public function test_issue22_conjunctionBetweenVerses()
 	{
 		foreach ([
 			'Juan 3:16 y 18',
@@ -112,7 +112,7 @@ class ScripturNumConjunctionTests extends TestCase
 		}
 	}
 
-	public function test_conjunctionBetweenBooks()
+	public function test_issue22_conjunctionBetweenBooks()
 	{
 		foreach ([
 			'Juan 3:16 y Romanos 8',
@@ -124,21 +124,21 @@ class ScripturNumConjunctionTests extends TestCase
 		}
 	}
 
-	public function test_conjunctionBetweenBooks_oneOfWhichHasItInItsName()
+	public function test_issue22_conjunctionBetweenBooks_oneOfWhichHasItInItsName()
 	{
 		$this->assertReadsAs(['1 Reyes 1', 'Juan 3:16'], '1 Reyes 1 y Juan 3:16');
 		$this->assertReadsAs(['1 Reyes 1', 'Juan 3:16'], '1Rey1 y Juan 3:16');
 		$this->assertReadsAs(['1 Reyes 1', '2 Reyes 3'], '1Rey1 y 2Rey3');
 	}
 
-	public function test_conjunctionBetweenChapters()
+	public function test_issue22_conjunctionBetweenChapters()
 	{
 		$this->assertReadsAs(['1 Reyes 1', '1 Reyes 3'], '1 Reyes 1 y 3');
 		$this->assertReadsAs(['1 Reyes 1', '1 Reyes 3'], '1Rey1 y 3');
 		$this->assertReadsAs(['1 Reyes 1', '1 Reyes 3'], '1Rey1,y 3');
 	}
 
-	public function test_aConjunctionWithDigitsNextToIt_isPartOfAWord()
+	public function test_issue22_aConjunctionWithDigitsNextToIt_isPartOfAWord()
 	{
 		// "y" next to digits isn't standing alone, so it can't be read as a conjunction.
 		$ex = [];
@@ -149,7 +149,7 @@ class ScripturNumConjunctionTests extends TestCase
 		}, $ex));
 	}
 
-	public function test_aConjunctionWithADigitOnOnlyOneSide_isPartOfAWord()
+	public function test_issue22_aConjunctionWithADigitOnOnlyOneSide_isPartOfAWord()
 	{
 		$input = function ($e) {
 			return $e->getInput();
@@ -170,7 +170,7 @@ class ScripturNumConjunctionTests extends TestCase
 
 	// ---- The words for "chapter" and "through" are the same ----
 
-	public function test_otherWordsMustAlsoStandAlone()
+	public function test_issue22_otherWordsMustAlsoStandAlone()
 	{
 		// "hasta" is "through", and "capitulo" is "chapter".
 		$this->assertReadsAs(['Juan 3-4'], 'Juan 3 hasta 4');
@@ -181,7 +181,7 @@ class ScripturNumConjunctionTests extends TestCase
 
 	// ---- English is unchanged ----
 
-	public function test_english()
+	public function test_issue22_english()
 	{
 		$this->assertReadsAs(['John 3:16', 'John 3:18'], 'John 3:16 and 18', ScripturNum::class);
 		$this->assertReadsAs(['John 3:16', 'John 3:18'], 'John 3:16,and 18', ScripturNum::class);
@@ -190,7 +190,7 @@ class ScripturNumConjunctionTests extends TestCase
 		$this->assertReadsAs(['John 3-4'], 'John 3 through 4', ScripturNum::class);
 	}
 
-	public function test_englishWordsContainingAConjunction()
+	public function test_issue22_englishWordsContainingAConjunction()
 	{
 		// None of these books has "and" in its name, but they show that "and" within a word isn't a conjunction.
 		$ex = [];
@@ -203,7 +203,7 @@ class ScripturNumConjunctionTests extends TestCase
 
 	// ---- The conjunction is as it is in the language's translation ----
 
-	public function test_theLanguagesOwnConjunctionIsTheOnlyOneUsed()
+	public function test_issue22_theLanguagesOwnConjunctionIsTheOnlyOneUsed()
 	{
 		// In Spanish, "and" isn't a conjunction.
 		$ex = [];
@@ -213,7 +213,7 @@ class ScripturNumConjunctionTests extends TestCase
 		$this->assertSame('and 18', $ex[0]->getInput());
 	}
 
-	public function test_spanishNamesAreNotEnglishNames()
+	public function test_issue22_spanishNamesAreNotEnglishNames()
 	{
 		$ex = [];
 		$r = TestSpanishScripturNum::parseString('Reyes 1', ScripturNum::BARE_BOOKS_ALL, ScripturNum::UNREADABLE_REPORT, $ex);

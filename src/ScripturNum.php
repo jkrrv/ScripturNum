@@ -1573,7 +1573,7 @@ class ScripturNum
 	public function combineWith(ScripturNum $otherPassage): ScripturNum
 	{
 		$int = $this->combineWithInt($otherPassage->getInt());
-		return new ScripturNum($int);
+		return new static($int);
 	}
 
 	/**
@@ -1733,8 +1733,8 @@ class ScripturNum
     public static function getWholeBible(): ScripturNumArray
     {
         $sna = new ScripturNumArray();
-        foreach (ScripturNum::getBookNames() as $bookNames) {
-            $sna[] = new ScripturNum($bookNames[0]);
+        foreach (static::getBookNames() as $bookNames) {
+            $sna[] = new static($bookNames[0]);
         }
         return $sna;
     }

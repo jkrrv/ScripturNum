@@ -55,7 +55,9 @@ class ScripturNumParseStringTests extends TestCase
 
 	// ---- Lists of references (the examples from issue #16) ----
 
-	public function test_list_cleanInputs()
+	// The tests directly of an issue are named test_issueNN_..., after the issue.
+
+	public function test_issue16_list_cleanInputs()
 	{
 		$cases = [
 			'John 3:16'                    => ['John 3:16'],
@@ -79,7 +81,7 @@ class ScripturNumParseStringTests extends TestCase
 		}
 	}
 
-	public function test_list_empty()
+	public function test_issue16_list_empty()
 	{
 		foreach (['', '   ', ';', " \n ; \n"] as $input) {
 			$r = self::readList($input, $ex);
@@ -88,7 +90,7 @@ class ScripturNumParseStringTests extends TestCase
 		}
 	}
 
-	public function test_list_unreadableItemIsReported()
+	public function test_issue16_list_unreadableItemIsReported()
 	{
 		$r = self::readList('Romans 8; Hezekiah 1', $ex);
 		$this->assertSame(['Romans 8'], self::strings($r));
@@ -97,42 +99,42 @@ class ScripturNumParseStringTests extends TestCase
 		$this->assertSame('Hezekiah 1', $ex[0]->getInput());
 	}
 
-	public function test_list_unreadableItemInTheMiddle()
+	public function test_issue16_list_unreadableItemInTheMiddle()
 	{
 		$r = self::readList('Romans 8; Hezekiah 1; Acts 2:38', $ex);
 		$this->assertSame(['Acts 2:38', 'Romans 8'], self::strings($r));
 		$this->assertSame(['Hezekiah 1'], self::inputs($ex));
 	}
 
-	public function test_list_unreadableItemAtTheStart()
+	public function test_issue16_list_unreadableItemAtTheStart()
 	{
 		$r = self::readList('Hezekiah 1, Romans 8', $ex);
 		$this->assertSame(['Romans 8'], self::strings($r));
 		$this->assertSame(['Hezekiah 1'], self::inputs($ex));
 	}
 
-	public function test_list_severalUnreadableItems()
+	public function test_issue16_list_severalUnreadableItems()
 	{
 		$r = self::readList('Hezekiah 1; Romans 8; Fred; Acts 2', $ex);
 		$this->assertSame(['Acts 2', 'Romans 8'], self::strings($r));
 		$this->assertSame(['Hezekiah 1', 'Fred'], self::inputs($ex));
 	}
 
-	public function test_list_invalidReference()
+	public function test_issue16_list_invalidReference()
 	{
 		$r = self::readList('John 3:99', $ex);
 		$this->assertCount(0, $r);
 		$this->assertSame(['John 3:99'], self::inputs($ex));
 	}
 
-	public function test_list_invalidReferenceNextToValidOnes()
+	public function test_issue16_list_invalidReferenceNextToValidOnes()
 	{
 		$r = self::readList('Romans 8; John 3:99; Acts 2:38', $ex);
 		$this->assertSame(['Acts 2:38', 'Romans 8'], self::strings($r));
 		$this->assertSame(['John 3:99'], self::inputs($ex));
 	}
 
-	public function test_list_firstExceptionIsThrownWithoutAnArray()
+	public function test_issue16_list_firstExceptionIsThrownWithoutAnArray()
 	{
 		try {
 			ScripturNum::parseString('Romans 8; Hezekiah 1', ScripturNum::BARE_BOOKS_ALL, ScripturNum::UNREADABLE_REPORT);
@@ -142,20 +144,20 @@ class ScripturNumParseStringTests extends TestCase
 		}
 	}
 
-	public function test_list_inputKeepsOriginalText()
+	public function test_issue16_list_inputKeepsOriginalText()
 	{
 		// The words in the unreadable text shouldn't be altered by the way that conjunctions are handled.
 		self::readList('Romans 8; Candle 1', $ex);
 		$this->assertSame(['Candle 1'], self::inputs($ex));
 	}
 
-	public function test_list_aConjunctionSeparatesUnreadableItems()
+	public function test_issue16_list_aConjunctionSeparatesUnreadableItems()
 	{
 		self::readList('Romans 8; Candle and Hezekiah 1', $ex);
 		$this->assertSame(['Candle', 'Hezekiah 1'], self::inputs($ex));
 	}
 
-	public function test_list_lineBreaksSeparateItems()
+	public function test_issue16_list_lineBreaksSeparateItems()
 	{
 		foreach (["\n", "\r\n", "\r"] as $break) {
 			self::readList("Fred{$break}Hezekiah 1{$break}Romans 8{$break}Barney{$break}", $ex);
@@ -163,14 +165,14 @@ class ScripturNumParseStringTests extends TestCase
 		}
 	}
 
-	public function test_list_unreadableItemsAreReportedSeparately()
+	public function test_issue16_list_unreadableItemsAreReportedSeparately()
 	{
 		self::readList("Fred; Hezekiah 1, Sandy
 Romans 8 & Barney", $ex);
 		$this->assertSame(['Fred', 'Hezekiah 1', 'Sandy', 'Barney'], self::inputs($ex));
 	}
 
-	public function test_list_bareBookNamesNone_reportsBareBooks()
+	public function test_issue16_list_bareBookNamesNone_reportsBareBooks()
 	{
 		$ex = [];
 		$r = ScripturNum::parseString('Romans 8; John', ScripturNum::BARE_BOOKS_NONE, ScripturNum::UNREADABLE_REPORT, $ex);
@@ -180,7 +182,7 @@ Romans 8 & Barney", $ex);
 
 	// ---- The same, with different words ----
 
-	public function test_list_otherLanguage_cleanInputs()
+	public function test_issue16_list_otherLanguage_cleanInputs()
 	{
 		$cases = [
 			'Ioannes 3:16'                => ['Ioannes 3:16'],
@@ -203,14 +205,14 @@ Romans 8 & Barney", $ex);
 		}
 	}
 
-	public function test_list_otherLanguage_unreadableItemIsReported()
+	public function test_issue16_list_otherLanguage_unreadableItemIsReported()
 	{
 		$r = self::readList('Romani 8; Hezekiah 1; Actus 2:38', $ex, TestScripturNum::class);
 		$this->assertSame(['Actus 2:38', 'Romani 8'], self::strings($r));
 		$this->assertSame(['Hezekiah 1'], self::inputs($ex));
 	}
 
-	public function test_list_otherLanguage_englishNamesAndConjunctionsAreNotUsedWhereTheyWereReplaced()
+	public function test_issue16_list_otherLanguage_englishNamesAndConjunctionsAreNotUsedWhereTheyWereReplaced()
 	{
 		// "John" was replaced by "Ioannes", and "and" by "et".
 		$r = self::readList('John 3; Romani 8', $ex, TestScripturNum::class);
@@ -222,9 +224,17 @@ Romans 8 & Barney", $ex);
 		$this->assertSame(['and'], self::inputs($ex));
 	}
 
-	public function test_list_otherLanguage_resultsAreOfTheClassUsed()
+	public function test_issue16_list_otherLanguage_resultsAreOfTheClassUsed()
 	{
 		$r = self::readList('Ioannes 3:16', $ex, TestScripturNum::class);
+		$this->assertInstanceOf(TestScripturNum::class, $r[0]);
+	}
+
+	public function test_issue20_list_combinedPassagesAreWrittenInTheLanguageTheyAreIn()
+	{
+		// Passages that are adjacent are combined, and the combined passage is still in the same language.
+		$r = self::readList('Ioannes 3:1-5, 6-10', $ex, TestScripturNum::class);
+		$this->assertSame(['Ioannes 3:1-10'], self::strings($r));
 		$this->assertInstanceOf(TestScripturNum::class, $r[0]);
 	}
 
@@ -243,13 +253,13 @@ Romans 8 & Barney", $ex);
 		$this->assertSame(['Romans 8'], self::strings($r));
 	}
 
-	public function test_prose_bareUncommonNameIsFoundByDefault()
+	public function test_issue19_prose_bareUncommonNameIsFoundByDefault()
 	{
 		$r = ScripturNum::parseString("We're going to start a series on first John this fall.");
 		$this->assertSame(['1 John'], self::strings($r));
 	}
 
-	public function test_prose_commonWordIsNotFoundByDefault()
+	public function test_issue19_prose_commonWordIsNotFoundByDefault()
 	{
 		$this->assertCount(0, ScripturNum::parseString('mark my words'));
 		$this->assertCount(0, ScripturNum::parseString('Joe Smith'));
@@ -257,13 +267,13 @@ Romans 8 & Barney", $ex);
 		$this->assertCount(0, ScripturNum::parseString('Am I late?'));
 	}
 
-	public function test_prose_commonWordAbbreviationsAreStillFoundWithANumber()
+	public function test_issue19_prose_commonWordAbbreviationsAreStillFoundWithANumber()
 	{
 		$this->assertSame(['Amos 3'], self::strings(ScripturNum::parseString('Read Am 3 today.')));
 		$this->assertSame(['Philemon 4'], self::strings(ScripturNum::parseString('Read Pm 4 today.')));
 	}
 
-	public function test_prose_bareBookNamesNone()
+	public function test_issue19_prose_bareBookNamesNone()
 	{
 		$r = ScripturNum::parseString("We're going to start a series on first John this fall.", ScripturNum::BARE_BOOKS_NONE);
 		$this->assertCount(0, $r);
@@ -272,7 +282,7 @@ Romans 8 & Barney", $ex);
 		$this->assertSame(['John 3:16'], self::strings($r));
 	}
 
-	public function test_prose_bareBookNamesAll()
+	public function test_issue19_prose_bareBookNamesAll()
 	{
 		$r = ScripturNum::parseString('mark my words', ScripturNum::BARE_BOOKS_ALL);
 		$this->assertSame(['Mark'], self::strings($r));
@@ -281,7 +291,7 @@ Romans 8 & Barney", $ex);
 		$this->assertSame(['Mark'], self::strings($r));
 	}
 
-	public function test_prose_aNameInALongerMatchIsNotAlsoFoundOnItsOwn()
+	public function test_issue19_prose_aNameInALongerMatchIsNotAlsoFoundOnItsOwn()
 	{
 		foreach ([ScripturNum::BARE_BOOKS_NONE, ScripturNum::BARE_BOOKS_UNCOMMON, ScripturNum::BARE_BOOKS_ALL] as $mode) {
 			$r = ScripturNum::parseString('sermons on John 3:16', $mode);
@@ -289,7 +299,7 @@ Romans 8 & Barney", $ex);
 		}
 	}
 
-	public function test_prose_otherLanguage()
+	public function test_issue19_prose_otherLanguage()
 	{
 		$c = TestScripturNum::class;
 
