@@ -614,13 +614,13 @@ class ScripturNumParseStringMatrixTests extends TestCase
 				ScripturNum::parseString('John 3:16', $value);
 				$this->fail("Expected an exception for bareBookNames: '$value'");
 			} catch (\InvalidArgumentException $e) {
-				$this->assertStringContainsString('bareBookNames', $e->getMessage());
+				$this->assertTrue(strpos($e->getMessage(), 'bareBookNames') !== false, 'The message names the option: ' . $e->getMessage());
 			}
 			try {
 				ScripturNum::parseString('John 3:16', ScripturNum::BARE_BOOKS_ALL, $value);
 				$this->fail("Expected an exception for unreadableText: '$value'");
 			} catch (\InvalidArgumentException $e) {
-				$this->assertStringContainsString('unreadableText', $e->getMessage());
+				$this->assertTrue(strpos($e->getMessage(), 'unreadableText') !== false, 'The message names the option: ' . $e->getMessage());
 			}
 		}
 	}
@@ -640,7 +640,7 @@ class ScripturNumParseStringMatrixTests extends TestCase
 			ScripturNum::parseString('John 3:16', 'x', 'y');
 			$this->fail('Expected an exception.');
 		} catch (\InvalidArgumentException $e) {
-			$this->assertStringContainsString('bareBookNames', $e->getMessage());
+			$this->assertTrue(strpos($e->getMessage(), 'bareBookNames') !== false, 'The message names the option: ' . $e->getMessage());
 		}
 	}
 
