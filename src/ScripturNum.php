@@ -1362,6 +1362,18 @@ class ScripturNum
 				];
 		}
 
+		// A number that begins the name of a numbered book (as the 1 in "John 3:16 and 1 Kings 1" does) belongs to that book,
+		// and not to the reference before it.
+		$ordinalBooks = '';
+		$ordinals = array_filter($allBookNames, function ($n) {
+			return preg_match('/^\d/', $n) === 1;
+		});
+		if (count($ordinals) > 0) {
+			$ordinalBooks = '(?!(?:' . implode('|', array_map(function ($n) {
+				return preg_quote($n, '/');
+			}, $ordinals)) . ')\b)';
+		}
+
 		$matches = [];
 		foreach ($sets as $set) {
 			if (count($set[0]) === 0) {
@@ -1370,7 +1382,7 @@ class ScripturNum
 			$b = implode("|", array_map(function ($n) {
 				return preg_quote($n, '/');
 			}, $set[0]));
-			$pattern = "/\\b(?:$b)\\.?(?:[-\\s,;&]*1?\\d{1,2}:?(?:1?\\d{1,2})?){$set[1]}\\b/i";
+			$pattern = "/\\b(?:$b)\\.?(?:[-\\s,;&]*{$ordinalBooks}1?\\d{1,2}:?(?:1?\\d{1,2})?){$set[1]}\\b/i";
 			preg_match_all($pattern, $masked, $found, PREG_OFFSET_CAPTURE);
 			$matches = array_merge($matches, $found[0]);
 		}

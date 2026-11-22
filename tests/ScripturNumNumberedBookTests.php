@@ -130,6 +130,20 @@ class ScripturNumNumberedBookTests extends TestCase
 		$this->assertReadsAs(['Romans 8:1', 'Romans 8:15-16'], 'Romans 8:1 and 15 through 16');
 	}
 
+	public function test_issue23_unchanged_chaptersBeforeAnUnnumberedBook()
+	{
+		// The 2 is followed by a comma, and then the name of a book that has no number, so it is a chapter of Mark.
+		$this->assertReadsAs(['Mark 1-2', 'John 1'], 'Mark 1, 2, John 1');
+		$this->assertReadsAs(['Mark 1-2', 'John 1'], 'Mark 1, 2 and John 1');
+		$this->assertReadsAs(['Mark 1-2', 'John 1'], 'Mark 1; 2; John 1');
+	}
+
+	public function test_issue23_chaptersBeforeANumberedBook_theNumberIsTheBooks()
+	{
+		// Without the comma, the 2 begins the name of "2 John", so it isn't a chapter of Mark.
+		$this->assertReadsAs(['Mark 1', '2 John'], 'Mark 1, 2 John 1');
+	}
+
 	public function test_issue23_unchanged_aNumberThatBeginsAnotherWord()
 	{
 		// "1 Kingsley" isn't "1 Kings", so the 1 is still a verse.
