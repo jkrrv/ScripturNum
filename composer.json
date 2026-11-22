@@ -19,6 +19,11 @@
     "ext-sqlite3": "*",
     "skayo/phpdoc-md": "dev-master"
   },
+  "config": {
+    "audit": {
+      "block-insecure": false
+    }
+  },
   "autoload": {
     "psr-4": {
       "ScripturNum\\": "src/",
