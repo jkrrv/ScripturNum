@@ -757,15 +757,58 @@ class ScripturNum
 	 */
 	protected static function normalize(string $string): string
 	{
-		$cj = static::getConjunctions();
-
 		// standardize punctuation bits
-		$string = str_replace([$cj['and'], '&', $cj['chapter'], $cj['through'], '&endash;', '–'],
-		                      [',', ',', '', '-', '-', '-'],
-		                      $string);
+		foreach (static::punctuationPatterns() as $p) {
+			$normalized = preg_replace($p[0], $p[1], $string);
+			if ($normalized !== null) { // null if the string isn't valid UTF-8.
+				$string = $normalized;
+			}
+		}
+		$string = str_replace('&', ',', $string); // after the HTML entities for dashes, so as not to break them up.
 
 		// Remove duplicate spaces (Can't remove all spaces because spaces may occur in book names like Song of Songs
 		return preg_replace("/\s\s+/", ' ', $string);
+	}
+
+	/**
+	 * The words and symbols (the language's conjunctions, and the various dashes) that stand for separators, as regular
+	 * expressions, and the kinds of space.  Words must stand alone, so "and" within "Sandy" is not a conjunction, and neither is "y" within the
+	 * Spanish "Reyes", or next to a digit.  Anything that isn't a letter or digit is a break.  Case doesn't matter.
+	 *
+	 * @since 2.3.0
+	 *
+	 * @return string[][]  Each is [the regular expression, what it is replaced with by normalize(), what it is
+	 *                     replaced with (before being padded to its original length) by maskPunctuation()].
+	 */
+	protected static function punctuationPatterns(): array
+	{
+		$cj = static::getConjunctions();
+		$words = [
+			[$cj['and'],     ',', ','],
+			[$cj['through'], '-', '-'],
+			[$cj['chapter'], '',  ' '],
+			['&endash;',     '-', '-'],
+			['&ndash;',      '-', '-'],
+			["\u{2013}",     '-', '-'], // en dash
+		];
+
+		$patterns = [];
+		foreach ($words as $w) {
+			if ((string)$w[0] === '') {
+				continue; // The language has no word for this.
+			}
+			$quoted = preg_quote($w[0], '/');
+			$pattern = '/' . $quoted . '/iu';
+			if (preg_match('/^[\p{L}\p{N}]/u', $w[0])) { // words (as opposed to symbols) need to stand alone
+				$pattern = '/(?<![\p{L}\p{N}])' . $quoted . '(?![\p{L}\p{N}])/iu';
+			}
+			$patterns[] = [$pattern, $w[1], $w[2]];
+		}
+
+		// Spaces that aren't the ordinary space (such as a non-breaking space) are spaces.
+		$patterns[] = ['/(?! )\p{Zs}/u', ' ', ' '];
+
+		return $patterns;
 	}
 
 	/**
@@ -1170,7 +1213,7 @@ class ScripturNum
 	 *
 	 * A list of references: every reference that can be read is returned, and every item that can't is reported with
 	 * its text, so that a person can be told what wasn't understood.  Book names are always allowed on their own, since
-	 * there's no prose to protect.
+	 * there's no prose to protect.  Each item that can't be read is reported separately.
 	 *
 	 *     $exceptions = [];
 	 *     $passages = ScripturNum::parseString('Romans 8; Hezekiah 1; Acts 2:38',
@@ -1208,7 +1251,9 @@ class ScripturNum
 	 * @param string     $unreadableText What to do with text that isn't a reference.  One of:
 	 *                                   - UNREADABLE_IGNORE: skip it.  This is the default.
 	 *                                   - UNREADABLE_REPORT: report it as an exception, with the text available from
-	 *                                     the exception's getInput().  Separators and conjunctions don't count as text.
+	 *                                     the exception's getInput().  Each item (text between semicolons, commas,
+	 *                                     ampersands, line breaks and conjunctions) is reported separately.  Separators
+	 *                                     and conjunctions don't count as text.
 	 * @param bool|array $exceptions     To have exceptions collected rather than thrown, pass an array.  Otherwise, the
 	 *                                   first exception is thrown.
 	 *
@@ -1240,9 +1285,8 @@ class ScripturNum
 			$end = $start + strlen($m[0]);
 
 			if ($reportGaps) {
-				$gap = static::unreadableText($string, $masked, $pos, $start);
-				if ($gap !== null) {
-					static::report(new ScripturNumException("Text is not a scripture reference.", 0, null, $gap), $exceptions);
+				foreach (static::unreadableItems($string, $masked, $pos, $start) as $item) {
+					static::report(new ScripturNumException("Text is not a scripture reference.", 0, null, $item), $exceptions);
 				}
 			}
 
@@ -1253,9 +1297,8 @@ class ScripturNum
 		}
 
 		if ($reportGaps) {
-			$gap = static::unreadableText($string, $masked, $pos, strlen($string));
-			if ($gap !== null) {
-				static::report(new ScripturNumException("Text is not a scripture reference.", 0, null, $gap), $exceptions);
+			foreach (static::unreadableItems($string, $masked, $pos, strlen($string)) as $item) {
+				static::report(new ScripturNumException("Text is not a scripture reference.", 0, null, $item), $exceptions);
 			}
 		}
 
@@ -1274,27 +1317,9 @@ class ScripturNum
 	 */
 	protected static function maskPunctuation(string $string): string
 	{
-		$cj = static::getConjunctions();
-		$replacements = [
-			$cj['and']     => ',',
-			$cj['through'] => '-',
-			$cj['chapter'] => ' ',
-			'&endash;'     => '-',
-			'&ndash;'      => '-',
-			"\u{2013}"     => '-', // en dash
-		];
-
-		foreach ($replacements as $word => $sep) {
-			$word = (string)$word;
-			if ($word === '') {
-				continue;
-			}
-			$quoted = preg_quote($word, '/');
-			$pattern = '/' . $quoted . '/iu';
-			if (preg_match('/^[\p{L}\p{N}]/u', $word)) { // words (as opposed to punctuation) need to stand alone
-				$pattern = '/(?<![\p{L}\p{N}])' . $quoted . '(?![\p{L}\p{N}])/iu';
-			}
-			$masked = preg_replace_callback($pattern, function ($m) use ($sep) {
+		foreach (static::punctuationPatterns() as $p) {
+			$sep = $p[2];
+			$masked = preg_replace_callback($p[0], function ($m) use ($sep) {
 				return str_pad($sep, strlen($m[0]), ' ');
 			}, $string);
 			if ($masked !== null) { // null if the string isn't valid UTF-8.
@@ -1369,7 +1394,8 @@ class ScripturNum
 	}
 
 	/**
-	 * Gets the part of the original string that is neither a reference nor a mere separator, if there is any.
+	 * Gets the items in part of the original string that are neither references nor mere separators.  Items are
+	 * separated by semicolons, commas, ampersands, line breaks, and conjunctions.
 	 *
 	 * @since 2.3.0
 	 *
@@ -1378,19 +1404,25 @@ class ScripturNum
 	 * @param int    $from     Offset of the start of the part to check.
 	 * @param int    $to       Offset of the end of the part to check.
 	 *
-	 * @return string|null  The original text, without surrounding separators, or null if there is nothing there.
+	 * @return string[]  The original text of each item, without surrounding separators.  Empty if there is nothing
+	 *                   but separators.
 	 */
-	protected static function unreadableText(string $original, string $masked, int $from, int $to)
+	protected static function unreadableItems(string $original, string $masked, int $from, int $to): array
 	{
 		if ($to <= $from) {
-			return null;
+			return [];
 		}
-		$gap = substr($masked, $from, $to - $from);
-		if (!preg_match('/[^\s,;&.:-]/', $gap, $first, PREG_OFFSET_CAPTURE)) {
-			return null;
+
+		$items = [];
+		$pieces = preg_split('/[;,&\r\n]+/', substr($masked, $from, $to - $from), -1, PREG_SPLIT_OFFSET_CAPTURE);
+		foreach ($pieces as $piece) {
+			if (!preg_match('/[^\s.:-]/', $piece[0], $first, PREG_OFFSET_CAPTURE)) {
+				continue; // Nothing but separators.
+			}
+			$last = strlen(preg_replace('/[\s.:-]+\z/', '', $piece[0])); // The same characters as were looked for above.
+			$items[] = substr($original, $from + $piece[1] + $first[0][1], $last - $first[0][1]);
 		}
-		$last = strlen(rtrim($gap, " \t\r\n,;&.:-"));
-		return substr($original, $from + $first[0][1], $last - $first[0][1]);
+		return $items;
 	}
 
 	/**
