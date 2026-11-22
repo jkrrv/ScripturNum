@@ -998,6 +998,16 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals(ScripturNumException::class, get_class($ex[0]));
 	}
 
+    public function test_parseString_commonAbbreviationsAreNotBookNames() {
+        $this->assertCount(0, ScripturNum::parseString("We meet at 5 pm."));
+        $this->assertCount(0, ScripturNum::parseString("Am I late?"));
+    }
+
+    public function test_parseString_commonAbbreviationsWithNumbersAreBookNames() {
+        $this->assertEquals('Amos 3', (string)ScripturNum::parseString("Read Am 3 today."));
+        $this->assertEquals('Philemon 4', (string)ScripturNum::parseString("Read Pm 4 today."));
+    }
+
 	public function test_getter() {
 		$s = new ScripturNum(135252); // Genesis 2:3-4:5
 		$this->assertEquals(135252,$s->getInt());
