@@ -140,8 +140,9 @@ class ScripturNumNumberedBookTests extends TestCase
 
 	public function test_issue23_chaptersBeforeANumberedBook_theNumberIsTheBooks()
 	{
-		// Without the comma, the 2 begins the name of "2 John", so it isn't a chapter of Mark.
-		$this->assertReadsAs(['Mark 1', '2 John'], 'Mark 1, 2 John 1');
+		// Without the comma, the 2 begins the name of "2 John", so it isn't a chapter of Mark.  (And, as 2 John has only one
+		// chapter, the 1 after it is a verse.  See issue #24.)
+		$this->assertReadsAs(['Mark 1', '2 John 1'], 'Mark 1, 2 John 1');
 	}
 
 	public function test_issue23_unchanged_aNumberThatBeginsAnotherWord()

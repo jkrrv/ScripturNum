@@ -8,6 +8,29 @@ For what each method does, see the [documentation](https://github.com/jkrrv/Scri
 
 ---
 
+## [2.3.1] (2026-11-22)
+
+### Fixed
+
+- **`parseString()` reads the short form that `getAbbrev()` writes.**  A `.` can stand where a `:` does, between a
+  chapter and a verse, so `Jn3.16`, `Jn3.16-21`, `Ge1.1-2.3` and `John 3.16` are now read as John 3:16, John 3:16-21,
+  Genesis 1:1-2:3 and John 3:16.  Before, only the chapter was read, and the rest was reported as unreadable.  Anything
+  that `getAbbrev()` writes can be read back by `parseString()`, which `stringToInts()` (deprecated) could already do.
+  The deprecated `extractFromString()` reads it too.  A period that ends a sentence is not a separator: a `.` counts
+  only if a digit follows it right away.  (#24)
+
+### Changed: how references are read
+
+- **In a book of only one chapter** (Obadiah, Philemon, 2 John, 3 John and Jude), **a number that is alone is a
+  verse.**  `Ob1` is Obadiah 1:1, and `Jude 1` is verse 1 of Jude, as `Jude 5` is verse 5.  Before, `Jude 1` was read
+  as chapter 1, which is the whole book, so that the first verse could not be written and read back.  This applies
+  wherever a string is read: the constructor, `stringToInts()`, and `parseString()`.  A book is still written, and
+  read, as the whole book when it is only its name (`Jude`).  `Jude 1-5` and `Jude 1:1` are unchanged.  (One effect:
+  `Mark 1, 2 John 1` is Mark 1 and 2 John 1; in 2.3.0 it was Mark 1 and all of 2 John.)  Integers that have already
+  been stored are not affected.  (#24)
+
+---
+
 ## [2.3.0] (2026-11-22)
 
 This release replaces the two quite different string-reading methods, `stringToInts()` and `extractFromString()`,
@@ -268,6 +291,7 @@ from a human-readable string, or from numbers for the book, chapters and verses.
 
 ---
 
+[2.3.1]: https://github.com/jkrrv/ScripturNum/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/jkrrv/ScripturNum/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/jkrrv/ScripturNum/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/jkrrv/ScripturNum/compare/v2.0.5...v2.1.0

@@ -707,6 +707,7 @@ class ScripturNum
 		$book = self::bookNameToBookNum($book);
 
 		// Assemble and return the int
+		self::singleChapterBookNumbersAreVerses($book, $startCh, $startV, $endCh, $endV);
 		self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
 		return self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 	}
@@ -866,6 +867,7 @@ class ScripturNum
 					self::refNumStringToRefNums($s, $startCh, $startV, $endCh, $endV, true);
 
 					// Assemble and return the int
+					self::singleChapterBookNumbersAreVerses($book, $startCh, $startV, $endCh, $endV);
 					self::validateRefNums($book, $startCh, $startV, $endCh, $endV);
 					$ints[] = self::refNumsToInt($book, $startCh, $startV, $endCh, $endV);
 
@@ -877,6 +879,36 @@ class ScripturNum
 		}
 
 		return $ints;
+	}
+
+	/**
+	 * In a book of only one chapter (Obadiah, Philemon, 2 John, 3 John, and Jude), a number that is written alone is a
+	 * verse, and not the chapter.  So "Jude 1" is verse 1, as "Jude 5" is verse 5, and as "Jude 1:1" is.  This makes
+	 * what getAbbrev() writes for the first verse (such as "Ob1") readable.  A book's whole is written as its name.
+	 *
+	 * This is for numbers that were read from a string.  (Numbers larger than 1 are made into verses by
+	 * validateRefNums(), which is also used for numbers that weren't.)
+	 *
+	 * @since 2.3.1
+	 *
+	 * @param int  $book    The book number, starting from 1.
+	 * @param ?int $startCh
+	 * @param ?int $startV
+	 * @param ?int $endCh
+	 * @param ?int $endV
+	 *
+	 * @return void
+	 */
+	protected static function singleChapterBookNumbersAreVerses(int $book, &$startCh, &$startV, &$endCh, &$endV)
+	{
+		if ($startCh === null || $startV !== null || $endV !== null || !Bible::bookHasSingleChapter($book - 1)) {
+			return;
+		}
+
+		$startV  = $startCh;
+		$endV    = $endCh ?? $startCh;
+		$startCh = 1;
+		$endCh   = 1;
 	}
 
 	/**
@@ -1227,6 +1259,10 @@ class ScripturNum
 	 * followed by chapters or verses continues the same book ("John 3:16; 4:2" is John 3:16 and John 4:2), and one
 	 * followed by a book name starts a new passage.  Empty items are ignored.
 	 *
+	 * A chapter and a verse can be separated by either ":" or "." ("John 3:16" and "John 3.16" are the same), so that
+	 * the short form that getAbbrev() writes ("Jn3.16") can be read.  In a book of one chapter, a number that is alone is
+	 * a verse ("Jude 5", and "Ob1" for Obadiah 1:1).
+	 *
 	 * Book names, common terms and conjunctions are those of the class that this is called on, so a class with another
 	 * language's Bible reads that language.
 	 *
@@ -1331,7 +1367,9 @@ class ScripturNum
 	}
 
 	/**
-	 * Finds the spans of a string that look like references.
+	 * Finds the spans of a string that look like references.  Either a ":" or a "." can be between a chapter and a
+	 * verse, so that what getAbbrev() writes ("Jn3.16") is found.  (A "." counts only if a digit follows it right away,
+	 * so that the period that ends a sentence about "Psalm 23." is not a separator.)
 	 *
 	 * @since 2.3.0
 	 *
@@ -1382,7 +1420,7 @@ class ScripturNum
 			$b = implode("|", array_map(function ($n) {
 				return preg_quote($n, '/');
 			}, $set[0]));
-			$pattern = "/\\b(?:$b)\\.?(?:[-\\s,;&]*{$ordinalBooks}1?\\d{1,2}:?(?:1?\\d{1,2})?){$set[1]}\\b/i";
+			$pattern = "/\\b(?:$b)\\.?(?:[-\\s,;&]*{$ordinalBooks}1?\\d{1,2}(?:\\.(?=\\d)|:)?(?:1?\\d{1,2})?){$set[1]}\\b/i";
 			preg_match_all($pattern, $masked, $found, PREG_OFFSET_CAPTURE);
 			$matches = array_merge($matches, $found[0]);
 		}

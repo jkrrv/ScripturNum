@@ -454,4 +454,58 @@ class ScripturNumProtectedTests extends TestCase {
 		$this->assertCount(1, $ex);
 		$this->assertSame('Hezekiah and 1', $ex[0]->getInput());
 	}
+
+	// ---- Issue #24: in a book of one chapter, a number that is alone is a verse ----
+
+	/**
+	 * Runs the numbers through singleChapterBookNumbersAreVerses(), and returns them as [startCh, startV, endCh, endV].
+	 */
+	protected function singleChapterNumbers(string $bookName, $startCh, $startV, $endCh, $endV): array {
+		$book = (new ScripturNum($bookName))->book;
+		$this->invokeProtected('singleChapterBookNumbersAreVerses', [$book, &$startCh, &$startV, &$endCh, &$endV]);
+		return [$startCh, $startV, $endCh, $endV];
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_aLoneNumber() {
+		$this->assertSame([1, 1, 1, 1], $this->singleChapterNumbers('Jude', 1, null, 1, null));
+		$this->assertSame([1, 5, 1, 5], $this->singleChapterNumbers('Jude', 5, null, 5, null));
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_noEndChapter() {
+		$this->assertSame([1, 3, 1, 3], $this->singleChapterNumbers('Jude', 3, null, null, null));
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_aRange() {
+		$this->assertSame([1, 1, 1, 5], $this->singleChapterNumbers('Jude', 1, null, 5, null));
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_everyBookOfOneChapter() {
+		foreach (['Obadiah', 'Philemon', '2 John', '3 John', 'Jude'] as $name) {
+			$this->assertSame([1, 1, 1, 1], $this->singleChapterNumbers($name, 1, null, 1, null), $name);
+		}
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_wholeBookIsUnchanged() {
+		$this->assertSame([null, null, null, null], $this->singleChapterNumbers('Jude', null, null, null, null));
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_aStartVerseIsUnchanged() {
+		// Not something a string can give (a start verse comes with an end verse), but the numbers are checked separately.
+		$this->assertSame([1, 3, 1, null], $this->singleChapterNumbers('Jude', 1, 3, 1, null));
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_anEndVerseIsUnchanged() {
+		// "Jude 1-1:5", from a chapter to part of a chapter.
+		$this->assertSame([1, null, 1, 5], $this->singleChapterNumbers('Jude', 1, null, 1, 5));
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_versesAreUnchanged() {
+		$this->assertSame([1, 3, 1, 5], $this->singleChapterNumbers('Jude', 1, 3, 1, 5));
+	}
+
+	public function test_issue24_singleChapterBookNumbersAreVerses_otherBooksAreUnchanged() {
+		$this->assertSame([1, null, 1, null], $this->singleChapterNumbers('John', 1, null, 1, null));
+		$this->assertSame([3, null, 4, null], $this->singleChapterNumbers('John', 3, null, 4, null));
+		$this->assertSame([1, null, 1, null], $this->singleChapterNumbers('Psalm', 1, null, 1, null));
+	}
 }
