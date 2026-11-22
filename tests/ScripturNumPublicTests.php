@@ -887,13 +887,13 @@ class ScripturNumPublicTests extends TestCase
 		$a->getPrevChapter();
 	}
 
-    public function test_wholeBookSingle() {
+    public function test_issue18_wholeBookSingle() {
         $a = new ScripturNum("Exodus 20:10-12");
         $b = $a->getWholeBook();
         $this->assertEquals("Exodus", $b->getLongString());
     }
 
-    public function test_wholeBookAlready() {
+    public function test_issue18_wholeBookAlready() {
         $a = new ScripturNum("Romans");
         $b = $a->getWholeBook();
         $this->assertEquals($a, $b);
@@ -1163,101 +1163,101 @@ class ScripturNumPublicTests extends TestCase
 
 	// Issue #17: "Songs of Solomon" is not a name of the book.
 
-	public function test_wholeSongOfSolomonIsSingular() {
+	public function test_issue17_wholeSongOfSolomonIsSingular() {
 		$n = new ScripturNum('Song of Solomon');
 		$this->assertEquals('Song of Solomon', $n->getLongString());
 	}
 
-	public function test_wholeSongOfSolomonIsSingular_fromAlias() {
+	public function test_issue17_wholeSongOfSolomonIsSingular_fromAlias() {
 		$n = new ScripturNum('Songs of Solomon');
 		$this->assertEquals('Song of Solomon', (string)$n);
 	}
 
-	public function test_partOfSongOfSolomonIsSingular() {
+	public function test_issue17_partOfSongOfSolomonIsSingular() {
 		$n = new ScripturNum('Song of Solomon 2:1-3:5');
 		$this->assertEquals('Song of Solomon 2:1-3:5', (string)$n);
 	}
 
-	public function test_wholePsalmsIsPlural() {
+	public function test_issue17_wholePsalmsIsPlural() {
 		$n = new ScripturNum('Psalms');
 		$this->assertEquals('Psalms', $n->getLongString());
 	}
 
-	public function test_pluralizeBookName_doesNotPluralizeSongOfSolomon() {
+	public function test_issue17_pluralizeBookName_doesNotPluralizeSongOfSolomon() {
 		$this->assertEquals('Song of Solomon', Bible::pluralizeBookName('Song of Solomon'));
 		$this->assertEquals('Psalms', Bible::pluralizeBookName('Psalm'));
 	}
 
 	// Issue #16: a trailing (or doubled) separator must not add a whole book.
 
-	public function test_stringToInts_trailingSemicolon() {
+	public function test_issue16_stringToInts_trailingSemicolon() {
 		$this->assertEquals(
 			[(new ScripturNum('John 3:16'))->getInt()],
 			ScripturNum::stringToInts('John 3:16;'));
 	}
 
-	public function test_stringToInts_trailingSemicolon_wholeChapter() {
+	public function test_issue16_stringToInts_trailingSemicolon_wholeChapter() {
 		$this->assertEquals(
 			[(new ScripturNum('Exodus 2'))->getInt()],
 			ScripturNum::stringToInts('Exodus 2;'));
 	}
 
-	public function test_stringToInts_doubledTrailingSemicolon() {
+	public function test_issue16_stringToInts_doubledTrailingSemicolon() {
 		$this->assertEquals(
 			[(new ScripturNum('John 3:16'))->getInt()],
 			ScripturNum::stringToInts('John 3:16;;'));
 	}
 
-	public function test_stringToInts_trailingSemicolonWithSpace() {
+	public function test_issue16_stringToInts_trailingSemicolonWithSpace() {
 		$this->assertEquals(
 			[(new ScripturNum('John 3:16'))->getInt()],
 			ScripturNum::stringToInts('John 3:16; '));
 	}
 
-	public function test_stringToInts_trailingComma() {
+	public function test_issue16_stringToInts_trailingComma() {
 		$this->assertEquals(
 			[(new ScripturNum('John 3:16'))->getInt()],
 			ScripturNum::stringToInts('John 3:16, '));
 	}
 
-	public function test_stringToInts_doubledSemicolonBetweenRefs() {
+	public function test_issue16_stringToInts_doubledSemicolonBetweenRefs() {
 		$this->assertEquals(
 			[(new ScripturNum('John 3:16'))->getInt(), (new ScripturNum('John 4:2'))->getInt()],
 			ScripturNum::stringToInts('John 3:16;;4:2'));
 	}
 
-	public function test_stringToInts_trailingSemicolon_noExceptions() {
+	public function test_issue16_stringToInts_trailingSemicolon_noExceptions() {
 		$ex = [];
 		ScripturNum::stringToInts('John 3:16;', $ex);
 		$this->assertCount(0, $ex);
 	}
 
-	public function test_stringToInts_bareBookStillWholeBook() {
+	public function test_issue16_stringToInts_bareBookStillWholeBook() {
 		$this->assertEquals(
 			[(new ScripturNum('John'))->getInt()],
 			ScripturNum::stringToInts('John'));
 	}
 
-	public function test_stringToInts_bareBookWithStraySeparator() {
+	public function test_issue16_stringToInts_bareBookWithStraySeparator() {
 		$this->assertEquals(
 			[(new ScripturNum('John'))->getInt()],
 			ScripturNum::stringToInts('John;'));
 	}
 
-	public function test_constructFromStringWithTrailingSemicolon() {
+	public function test_issue16_constructFromStringWithTrailingSemicolon() {
 		$this->assertEquals('John 3:16', (string)new ScripturNum('John 3:16;'));
 	}
 
 	// Exceptions carry the text that couldn't be read (see ScripturNumException::getInput()).
 
-	public function test_stringToInts_invalidBook_exceptionHasInput() {
+	public function test_issue16_stringToInts_invalidBook_exceptionHasInput() {
 		$ex = [];
 		ScripturNum::stringToInts('Hezekiah 1', $ex);
 		$this->assertCount(1, $ex);
 		$this->assertEquals('Hezekiah 1', $ex[0]->getInput());
 	}
 
-	public function test_stringToInts_invalidBook_thrownExceptionHasInput() {
+	public function test_issue16_stringToInts_invalidBook_thrownExceptionHasInput() {
 		try {
 			ScripturNum::stringToInts(' Hezekiah 1 ');
 			$this->fail('Expected an exception.');
@@ -1266,14 +1266,14 @@ class ScripturNumPublicTests extends TestCase
 		}
 	}
 
-	public function test_stringToInts_outOfBounds_exceptionHasInput() {
+	public function test_issue16_stringToInts_outOfBounds_exceptionHasInput() {
 		$ex = [];
 		ScripturNum::stringToInts('John 3:99', $ex);
 		$this->assertCount(1, $ex);
 		$this->assertEquals('John 3:99', $ex[0]->getInput());
 	}
 
-	public function test_stringToInts_outOfBounds_inputIsWholeSpan() {
+	public function test_issue16_stringToInts_outOfBounds_inputIsWholeSpan() {
 		$ex = [];
 		$ints = ScripturNum::stringToInts('John 3:16; 3:99', $ex);
 		$this->assertCount(1, $ints);
@@ -1281,9 +1281,49 @@ class ScripturNumPublicTests extends TestCase
 		$this->assertEquals('John 3:16; 3:99', $ex[0]->getInput());
 	}
 
-	public function test_stringToInts_noExceptionsWhenValid() {
+	public function test_issue16_stringToInts_noExceptionsWhenValid() {
 		$ex = [];
 		ScripturNum::stringToInts('John 3:16', $ex);
 		$this->assertCount(0, $ex);
+	}
+
+	// Issue #20: the passages that a ScripturNum makes are of its own class.
+
+	public function test_issue20_combineWith_isOfTheSameClass()
+	{
+		$a = new TestScripturNum('Ioannes 3:1-5');
+		$b = new TestScripturNum('Ioannes 3:6-10');
+		$c = $a->combineWith($b);
+		$this->assertInstanceOf(TestScripturNum::class, $c);
+		$this->assertEquals('Ioannes 3:1-10', (string)$c);
+	}
+
+	public function test_issue20_combineWith_plainStaysPlain()
+	{
+		$c = (new ScripturNum('John 3:1-5'))->combineWith(new ScripturNum('John 3:6-10'));
+		$this->assertEquals(ScripturNum::class, get_class($c));
+	}
+
+	public function test_issue20_remove_isOfTheSameClass()
+	{
+		$r = (new TestScripturNum('Ioannes 3'))->remove(new TestScripturNum('Ioannes 3:16'));
+		$this->assertCount(2, $r);
+		foreach ($r as $s) {
+			$this->assertInstanceOf(TestScripturNum::class, $s);
+		}
+	}
+
+	public function test_issue20_getWholeBible_isOfTheClassItWasCalledOn()
+	{
+		$plain = ScripturNum::getWholeBible();
+		$this->assertCount(66, $plain);
+		$this->assertEquals(ScripturNum::class, get_class($plain[0]));
+
+		$other = TestScripturNum::getWholeBible();
+		$this->assertCount(66, $other);
+		foreach ($other as $s) {
+			$this->assertInstanceOf(TestScripturNum::class, $s);
+		}
+		$this->assertEquals('Ioannes', (string)$other[42]);
 	}
 }
