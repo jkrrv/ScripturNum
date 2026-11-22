@@ -896,8 +896,90 @@ class ScripturNumPublicTests extends TestCase
     public function test_issue18_wholeBookAlready() {
         $a = new ScripturNum("Romans");
         $b = $a->getWholeBook();
-        $this->assertEquals($a, $b);
-        $this->assertEquals($a->getLongString(), $a->getLongString());
+        $this->assertSame($a, $b);
+        $this->assertEquals($a->getLongString(), $b->getLongString());
+    }
+
+    public function test_issue18_wholeBook_fromAVerse() {
+        $b = (new ScripturNum("John 3:16"))->getWholeBook();
+        $this->assertEquals("John", $b->getLongString());
+        $this->assertTrue($b->isWholeBook());
+    }
+
+    public function test_issue18_wholeBook_fromAChapter() {
+        $b = (new ScripturNum("John 3"))->getWholeBook();
+        $this->assertEquals("John", $b->getLongString());
+        $this->assertTrue($b->isWholeBook());
+    }
+
+    public function test_issue18_wholeBook_fromPsalms() {
+        // Psalm 23 is "Psalm" when it stands alone, and the whole book is "Psalms".
+        $a = new ScripturNum("Psalm 23");
+        $this->assertEquals("Psalm 23", $a->getLongString());
+
+        $b = $a->getWholeBook();
+        $this->assertEquals("Psalms", $b->getLongString());
+        $this->assertTrue($b->isWholeBook());
+        $this->assertEquals(150, $b->endCh);
+        $this->assertEquals(6, $b->endV);
+    }
+
+    public function test_issue18_wholeBook_fromABookOfOneChapter() {
+        $b = (new ScripturNum("Jude 5"))->getWholeBook();
+        $this->assertEquals("Jude", $b->getLongString());
+        $this->assertTrue($b->isWholeBook());
+        $this->assertEquals(1, $b->startCh);
+        $this->assertEquals(1, $b->startV);
+        $this->assertEquals(1, $b->endCh);
+        $this->assertEquals(25, $b->endV);
+    }
+
+    public function test_issue18_wholeBook_fromEveryBookOfOneChapter() {
+        foreach (["Obadiah 3", "Philemon 4", "2 John 5", "3 John 4", "Jude 5"] as $text) {
+            $a = new ScripturNum($text);
+            $b = $a->getWholeBook();
+            $this->assertTrue($b->isWholeBook(), $text);
+            $this->assertEquals($a->book, $b->book, $text);
+            $this->assertEquals(1, $b->endCh, $text);
+        }
+    }
+
+    public function test_issue18_wholeBook_isTheSamePassageAsWritingTheBookName() {
+        $cases = [
+            "John 3:16"        => "John",
+            "John 3"           => "John",
+            "Genesis 1:1"      => "Genesis",
+            "Psalm 119:176"    => "Psalms",
+            "Revelation 22:21" => "Revelation",
+            "John 1:1-21:25"   => "John",
+            "1 Kings 1:1"      => "1 Kings",
+        ];
+        foreach ($cases as $text => $book) {
+            $this->assertSame((new ScripturNum($book))->getInt(), (new ScripturNum($text))->getWholeBook()->getInt(), $text);
+        }
+    }
+
+    public function test_issue18_wholeBook_fromAnyPassageInTheBook() {
+        // The same book, wherever in it the passage is.
+        $whole = (new ScripturNum("Romans"))->getInt();
+        foreach (["Romans 1:1", "Romans 8", "Romans 8:28-9:5", "Romans 16:27", "Romans 1-16"] as $text) {
+            $this->assertSame($whole, (new ScripturNum($text))->getWholeBook()->getInt(), $text);
+        }
+    }
+
+    public function test_issue18_wholeBook_isOfTheSameClass() {
+        $b = (new TestScripturNum("Ioannes 3:16"))->getWholeBook();
+        $this->assertInstanceOf(TestScripturNum::class, $b);
+        $this->assertEquals("Ioannes", $b->getLongString());
+
+        $b = (new TestScripturNum("Ioannes"))->getWholeBook();
+        $this->assertInstanceOf(TestScripturNum::class, $b);
+    }
+
+    public function test_issue18_wholeBook_doesNotChangeThePassageItIsCalledOn() {
+        $a = new ScripturNum("John 3:16");
+        $a->getWholeBook();
+        $this->assertEquals("John 3:16", $a->getLongString());
     }
 
 	public function test_extractFromString_chapter() {
