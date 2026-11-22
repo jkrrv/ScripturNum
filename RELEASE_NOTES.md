@@ -8,7 +8,7 @@ For what each method does, see the [documentation](https://github.com/jkrrv/Scri
 
 ---
 
-## [2.3.0]
+## [2.3.0] (2026-11-22)
 
 This release replaces the two quite different string-reading methods, `stringToInts()` and `extractFromString()`,
 with one method, `parseString()`, and fixes a number of problems in how references were read.  The old methods still
