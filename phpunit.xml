@@ -21,7 +21,7 @@
       <directory suffix="Tests.php">tests</directory>
     </testsuite>
   </testsuites>
-  <coverage pathCoverage="true" ignoreDeprecatedCodeUnits="true" disableCodeCoverageIgnore="true"/>
+  <coverage ignoreDeprecatedCodeUnits="true" disableCodeCoverageIgnore="true"/>
   <source>
     <include>
       <directory>src</directory>

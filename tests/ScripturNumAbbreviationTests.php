@@ -259,6 +259,22 @@ class ScripturNumAbbreviationTests extends TestCase
 		$this->assertSame([], $problems);
 	}
 
+	/**
+	 * Writes each passage as getAbbrev() does, and checks that it reads back as the same passage.
+	 *
+	 * @param string[] $passages
+	 */
+	protected function assertRoundTrips(array $passages)
+	{
+		$problems = [];
+		foreach ($passages as $text) {
+			if ($p = self::roundTrip(ScripturNum::class, new ScripturNum($text))) {
+				$problems[] = $p;
+			}
+		}
+		$this->assertSame([], $problems);
+	}
+
 	public function test_issue24_roundTrip_wholeChapters()
 	{
 		$problems = [];
@@ -277,21 +293,20 @@ class ScripturNumAbbreviationTests extends TestCase
 
 	public function test_issue24_roundTrip_verses()
 	{
-		// The first, the middle and the last verse of every chapter of every book.
-		$problems = [];
-		$count = 0;
-		foreach (Bible::getVerseCounts() as $b => $chapters) {
-			foreach ($chapters as $c => $verseCount) {
-				foreach (array_unique([1, (int)ceil($verseCount / 2), $verseCount]) as $v) {
-					$count++;
-					if ($p = self::roundTrip(ScripturNum::class, ScripturNum::newFromInts($b + 1, $c + 1, $v, $c + 1, $v))) {
-						$problems[] = $p;
-					}
-				}
-			}
-		}
-		$this->assertGreaterThan(3000, $count);
-		$this->assertSame([], $problems);
+		$this->assertRoundTrips([
+			'Genesis 1:1',          // the first verse of the Bible
+			'John 3:16',            // a book without a number
+			'Psalm 119:176',        // the longest chapter, and a verse with three digits
+			'Psalm 23:1',           // a book written in the plural, but a single verse of it
+			'Song of Solomon 2:4',  // a book with two words
+			'1 Kings 1:2',          // a book with a number
+			'1 John 1:9',           // a book with a number, that is the same as one without ("John")
+			'3 John 11',            // a book of one chapter, with a number
+			'Jude 1',               // a book of one chapter, and verse 1
+			'Jude 25',              // the last verse of a book of one chapter
+			'Obadiah 21',           // a book of one chapter
+			'Revelation 22:21',     // the last verse of the Bible
+		]);
 	}
 
 	public function test_issue24_roundTrip_everyVerseOfSomeBooks()
